@@ -34,8 +34,15 @@ namespace Azure.AI.MetricsAdvisor.Models
         /// <exception cref="ArgumentNullException"> <paramref name="dataFeedName"/> or <paramref name="metrics"/> is null. </exception>
         public DataFeedDetail(string dataFeedName, DataFeedGranularityType granularityName, IEnumerable<DataFeedMetric> metrics, DateTimeOffset dataStartFrom)
         {
-            Argument.AssertNotNullOrEmpty(dataFeedName, nameof(dataFeedName));
-            Argument.AssertNotNullOrEmpty(metrics, nameof(metrics));
+            try
+            {
+                Argument.AssertNotNullOrEmpty(dataFeedName, nameof(dataFeedName));
+                Argument.AssertNotNullOrEmpty(metrics, nameof(metrics));
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Data feed name: {dataFeedName}", e);
+            }
 
             DataFeedName = dataFeedName;
             GranularityName = granularityName;
