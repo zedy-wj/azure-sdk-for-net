@@ -86,8 +86,15 @@ namespace Azure.AI.MetricsAdvisor.Models
         /// <exception cref="ArgumentNullException"> <paramref name="dataFeedName"/> or <paramref name="metrics"/> is null. </exception>
         internal DataFeedDetail(DataFeedSourceType dataSourceType, string dataFeedId, string dataFeedName, string dataFeedDescription, DataFeedGranularityType granularityName, int? granularityAmount, IList<DataFeedMetric> metrics, IList<DataFeedDimension> dimension, string timestampColumn, DateTimeOffset dataStartFrom, long? startOffsetInSeconds, int? maxConcurrency, long? minRetryIntervalInSeconds, long? stopRetryAfterInSeconds, DataFeedRollupType? needRollup, DataFeedAutoRollupMethod? rollUpMethod, IList<string> rollUpColumns, string allUpIdentification, DataFeedMissingDataPointFillType? fillMissingPointType, double? fillMissingPointValue, DataFeedAccessMode? viewMode, IList<string> admins, IList<string> viewers, bool? isAdmin, string creator, DataFeedStatus? status, DateTimeOffset? createdTime, string actionLinkTemplate)
         {
-            Argument.AssertNotNullOrEmpty(dataFeedName, nameof(dataFeedName));
-            Argument.AssertNotNullOrEmpty(metrics, nameof(metrics));
+            try
+            {
+                Argument.AssertNotNullOrEmpty(dataFeedName, nameof(dataFeedName));
+                Argument.AssertNotNullOrEmpty(metrics, nameof(metrics));
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Data feed name: {dataFeedName}", e);
+            }
 
             DataSourceType = dataSourceType;
             DataFeedId = dataFeedId;
