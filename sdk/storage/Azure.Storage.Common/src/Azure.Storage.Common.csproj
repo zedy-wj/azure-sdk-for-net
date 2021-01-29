@@ -19,7 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- TODO (kasobol-msft) undo before merge when core ships. -->
-    <ProjectReference Include="..\..\..\core\Azure.Core\src\Azure.Core.csproj" />
+    <PackageReference Include="Azure.Core" VersionOverride="1.9.0-alpha.20210128.6" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(AzureCoreSharedSources)NoBodyResponseOfT.cs" Link="Shared\Core\%(RecursiveDir)\%(Filename)%(Extension)" />
