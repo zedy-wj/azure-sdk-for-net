@@ -1,5 +1,12 @@
 namespace Azure.Storage.Queues
 {
+    public partial class InvalidMessageEventArgs : Azure.SyncAsyncEventArgs
+    {
+        public InvalidMessageEventArgs(Azure.Storage.Queues.QueueClient queueClient, Azure.Storage.Queues.Models.PeekedMessage message, bool runSynchronously, System.Threading.CancellationToken cancellationToken) : base (default(bool), default(System.Threading.CancellationToken)) { }
+        public InvalidMessageEventArgs(Azure.Storage.Queues.QueueClient queueClient, Azure.Storage.Queues.Models.QueueMessage message, bool runSynchronously, System.Threading.CancellationToken cancellationToken) : base (default(bool), default(System.Threading.CancellationToken)) { }
+        public object Message { get { throw null; } }
+        public Azure.Storage.Queues.QueueClient QueueClient { get { throw null; } }
+    }
     public partial class QueueClient
     {
         protected QueueClient() { }
@@ -34,6 +41,7 @@ namespace Azure.Storage.Queues
         public virtual System.Uri GenerateSasUri(Azure.Storage.Sas.QueueSasPermissions permissions, System.DateTimeOffset expiresOn) { throw null; }
         public virtual Azure.Response<System.Collections.Generic.IEnumerable<Azure.Storage.Queues.Models.QueueSignedIdentifier>> GetAccessPolicy(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response<System.Collections.Generic.IEnumerable<Azure.Storage.Queues.Models.QueueSignedIdentifier>>> GetAccessPolicyAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
+        protected internal virtual Azure.Storage.Queues.QueueServiceClient GetParentQueueServiceClientCore() { throw null; }
         public virtual Azure.Response<Azure.Storage.Queues.Models.QueueProperties> GetProperties(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response<Azure.Storage.Queues.Models.QueueProperties>> GetPropertiesAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual Azure.Response<Azure.Storage.Queues.Models.PeekedMessage> PeekMessage(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
@@ -72,6 +80,7 @@ namespace Azure.Storage.Queues
         public System.Uri GeoRedundantSecondaryUri { get { throw null; } set { } }
         public Azure.Storage.Queues.QueueMessageEncoding MessageEncoding { get { throw null; } set { } }
         public Azure.Storage.Queues.QueueClientOptions.ServiceVersion Version { get { throw null; } }
+        public event Azure.Core.SyncAsyncEventHandler<Azure.Storage.Queues.InvalidMessageEventArgs> OnInvalidMessage { add { } remove { } }
         public enum ServiceVersion
         {
             V2019_02_02 = 1,
@@ -368,6 +377,7 @@ namespace Azure.Storage.Queues.Specialized
     }
     public static partial class SpecializedQueueExtensions
     {
+        public static Azure.Storage.Queues.QueueServiceClient GetParentQueueServiceClient(this Azure.Storage.Queues.QueueClient client) { throw null; }
         public static Azure.Storage.Queues.QueueClient WithClientSideEncryptionOptions(this Azure.Storage.Queues.QueueClient client, Azure.Storage.ClientSideEncryptionOptions clientSideEncryptionOptions) { throw null; }
     }
 }
