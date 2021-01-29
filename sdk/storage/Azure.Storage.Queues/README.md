@@ -147,7 +147,7 @@ We provide ability to define handler for situations where queue might contain me
 The handler gives access to message and its raw body. We don't delete message from queue, therefore handler logic should do that if desired.
 
 The handler is potentially invoked by both synchronous and asynchronous receive and peek APIs. Therefore implementation of the handler should align with `QueueClient` APIs that are being used.
-See [more](https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/core/Azure.Core/samples/Events.md) about how to implement handler correctly.
+See about how to implement handler correctly.
 
 The example below shows a handler with all possible cases explored.
 
