@@ -32,16 +32,6 @@ namespace Azure.Core
     /// of your handler returns a <see cref="Task"/>, you should write regular
     /// sync code that blocks and return <see cref="Task.CompletedTask"/> when
     /// finished.
-    /// <code snippet="Snippet:Azure_Core_Samples_EventSamples_SyncHandler">
-    /// var client = new AlarmClient();
-    /// client.Ring += (SyncAsyncEventArgs e) =&gt;
-    /// {
-    ///     Console.WriteLine(&quot;Wake up!&quot;);
-    ///     return Task.CompletedTask;
-    /// };
-    ///
-    /// client.Snooze();
-    /// </code>
     /// If you need to call an async method from a synchronous event handler,
     /// you have two options.  You can use <see cref="Task.Run(Action)"/> to
     /// queue a task for execution on the ThreadPool without waiting on it to
@@ -59,15 +49,6 @@ namespace Azure.Core
     /// If you're using the asynchronous, non-blocking methods of a client
     /// (i.e., methods with an Async suffix), they will raise events that
     /// expect handlers to execute asynchronously.
-    /// <code snippet="Snippet:Azure_Core_Samples_EventSamples_AsyncHandler">
-    /// var client = new AlarmClient();
-    /// client.Ring += async (SyncAsyncEventArgs e) =&gt;
-    /// {
-    ///     await Console.Out.WriteLineAsync(&quot;Wake up!&quot;);
-    /// };
-    ///
-    /// await client.SnoozeAsync();
-    /// </code>
     /// </para>
     /// <para>
     /// The same event can be raised from both synchronous and asynchronous
@@ -79,23 +60,6 @@ namespace Azure.Core
     /// property to check how the event is being raised and implement your
     /// handler accordingly.  Here's an example handler that's safe to invoke
     /// from both sync and async code paths.
-    /// <code snippet="Snippet:Azure_Core_Samples_EventSamples_CombinedHandler">
-    /// var client = new AlarmClient();
-    /// client.Ring += async (SyncAsyncEventArgs e) =&gt;
-    /// {
-    ///     if (e.RunSynchronously)
-    ///     {
-    ///         Console.WriteLine(&quot;Wake up!&quot;);
-    ///     }
-    ///     else
-    ///     {
-    ///         await Console.Out.WriteLineAsync(&quot;Wake up!&quot;);
-    ///     }
-    /// };
-    ///
-    /// client.Snooze(); // sync call that blocks
-    /// await client.SnoozeAsync(); // async call that doesn&apos;t block
-    /// </code>
     /// </para>
     /// </example>
     /// <example>
@@ -111,21 +75,6 @@ namespace Azure.Core
     /// <see cref="AggregateException.Flatten"/> and
     /// <see cref="AggregateException.Handle(Func{Exception, bool})"/> to make
     /// complex failures easier to work with.
-    /// <code snippet="Snippet:Azure_Core_Samples_EventSamples_Exceptions">
-    /// var client = new AlarmClient();
-    /// client.Ring += (SyncAsyncEventArgs e) =&gt;
-    ///     throw new InvalidOperationException(&quot;Alarm unplugged.&quot;);
-    ///
-    /// try
-    /// {
-    ///     client.Snooze();
-    /// }
-    /// catch (AggregateException ex)
-    /// {
-    ///     ex.Handle(e =&gt; e is InvalidOperationException);
-    ///     Console.WriteLine(&quot;Please switch to your backup alarm.&quot;);
-    /// }
-    /// </code>
     /// </exception>
     /// <remarks>
     /// <para>

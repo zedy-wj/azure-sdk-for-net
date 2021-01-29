@@ -36,23 +36,6 @@ namespace Azure
         /// how the event is being raised and implement your handler
         /// accordingly.  Here's an example handler that's safe to invoke from
         /// both sync and async code paths.
-        /// <code snippet="Snippet:Azure_Core_Samples_EventSamples_CombinedHandler">
-        /// var client = new AlarmClient();
-        /// client.Ring += async (SyncAsyncEventArgs e) =&gt;
-        /// {
-        ///     if (e.RunSynchronously)
-        ///     {
-        ///         Console.WriteLine(&quot;Wake up!&quot;);
-        ///     }
-        ///     else
-        ///     {
-        ///         await Console.Out.WriteLineAsync(&quot;Wake up!&quot;);
-        ///     }
-        /// };
-        ///
-        /// client.Snooze(); // sync call that blocks
-        /// await client.SnoozeAsync(); // async call that doesn&apos;t block
-        /// </code>
         /// </para>
         /// </remarks>
         public bool RunSynchronously { get; }
