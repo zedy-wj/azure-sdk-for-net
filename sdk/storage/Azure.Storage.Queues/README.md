@@ -169,11 +169,11 @@ queueClientOptions.OnInvalidMessage += async (InvalidMessageEventArgs args) =>
 
         if (args.RunSynchronously)
         {
-            args.Queue.DeleteMessage(queueMessage.MessageId, queueMessage.PopReceipt);
+            args.QueueClient.DeleteMessage(queueMessage.MessageId, queueMessage.PopReceipt);
         }
         else
         {
-            await args.Queue.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt);
+            await args.QueueClient.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt);
         }
     }
 };
