@@ -1,5 +1,11 @@
 # Release History
 
+## 5.0.0-beta.4 (Unreleased)
+
+### Major changes and features
+- New dependency on `Microsoft.Azure.WebJobs.StorageProvider.Queues`
+- Supports new configuration formats described in `Microsoft.Azure.WebJobs.Extensions.Storage` ChangeLog
+
 ## 5.0.0-beta.3 (Unreleased)
 
 ### Breaking Changes

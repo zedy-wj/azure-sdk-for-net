@@ -5,7 +5,6 @@ using System;
 using Azure.Core;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
-using Microsoft.Azure.WebJobs.Extensions.Storage.Common;
 using Microsoft.Azure.WebJobs.Extensions.Storage.Common.Listeners;
 using Microsoft.Azure.WebJobs.Extensions.Storage.Queues.Listeners;
 using Microsoft.Azure.WebJobs.Host;
@@ -17,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.WebJobs.Extensions.Storage.Queues
 {
-    internal class QueueServiceClientProvider : StorageClientProvider<QueueServiceClient, QueueClientOptions>
+    internal class QueueServiceClientProvider : StorageProvider.Queues.QueueServiceClientProvider
     {
         private readonly QueuesOptions _queuesOptions;
         private readonly ILoggerFactory _loggerFactory;

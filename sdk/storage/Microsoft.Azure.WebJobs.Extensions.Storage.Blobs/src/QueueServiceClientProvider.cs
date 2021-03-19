@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
-using Microsoft.Azure.WebJobs.Extensions.Storage.Common;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.WebJobs.Extensions.Storage.Blobs
 {
-    internal class QueueServiceClientProvider : StorageClientProvider<QueueServiceClient, QueueClientOptions>
+    internal class QueueServiceClientProvider : StorageProvider.Queues.QueueServiceClientProvider
     {
         private readonly QueuesOptions _queuesOptions;
         private readonly ILogger<QueueServiceClientProvider> _logger;
