@@ -3,8 +3,35 @@
 ## 5.0.0-beta.4 (Unreleased)
 
 ### Major changes and features
-- New dependency on `Microsoft.Azure.WebJobs.StorageProvider.Blobs` and `Microsoft.Azure.WebJobs.StorageProvider.Queues`
-- Supports new configuration formats described in `Microsoft.Azure.WebJobs.Extensions.Storage` ChangeLog
+
+The `Microsoft.Azure.WebJobs.Extension.Storage.Blobs` relies on storage providers in the WebJobs SDK to create BlobServiceClients and QueueServiceClients.
+- Support for running Functions with Managed Identity and secretless configurations
+- The new dependency adds a new configuration format to create Storage clients:
+
+To use ManagedIdentity:
+```json
+{
+    "MyConnection": {
+        "accountName": "<my_account>",
+        "credential": "managedidentity",
+        "clientid": "<client_id>"
+    }
+}
+```
+Or alternatively: 
+```json
+{
+    "MyConnection": {
+        "blobEndpoint": "https://<my_account>.blob.core.windows.net",
+        "queueEndpoint": "https://<my_account>.queue.core.windows.net",
+        "fileEndpoint": "https://<my_account>.file.core.windows.net",
+        "tableEndpoint": "https://<my_account>.table.core.windows.net",
+        "credential": "managedidentity",
+        "clientid": "<client_id>"
+    }
+}
+```
+Note: Azure File and Table storage do not currently support Managed Identity
 
 ## 5.0.0-beta.3 (2021-03-09)
 
