@@ -34,6 +34,7 @@ namespace Azure.AI.TextAnalytics
         internal AnalyzeBatchActionsResult() { }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.ExtractKeyPhrasesActionResult> ExtractKeyPhrasesActionsResults { get { throw null; } }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.RecognizeEntitiesActionResult> RecognizeEntitiesActionsResults { get { throw null; } }
+        public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.RecognizeLinkedEntitiesActionResult> RecognizeLinkedEntitiesActionsResults { get { throw null; } }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.RecognizePiiEntitiesActionResult> RecognizePiiEntitiesActionsResults { get { throw null; } }
         public Azure.AI.TextAnalytics.TextDocumentBatchStatistics Statistics { get { throw null; } }
     }
@@ -103,11 +104,6 @@ namespace Azure.AI.TextAnalytics
         public Azure.AI.TextAnalytics.TextSentiment Sentiment { get { throw null; } }
         public string Text { get { throw null; } }
     }
-    public enum Association
-    {
-        Subject = 0,
-        Other = 1,
-    }
     [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public readonly partial struct CategorizedEntity
     {
@@ -124,19 +120,6 @@ namespace Azure.AI.TextAnalytics
     {
         internal CategorizedEntityCollection() : base (default(System.Collections.Generic.IList<Azure.AI.TextAnalytics.CategorizedEntity>)) { }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.TextAnalyticsWarning> Warnings { get { throw null; } }
-    }
-    public enum Certainty
-    {
-        Positive = 0,
-        PositivePossible = 1,
-        NeutralPossible = 2,
-        NegativePossible = 3,
-        Negative = 4,
-    }
-    public enum Conditionality
-    {
-        Hypothetical = 0,
-        Conditional = 1,
     }
     [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public readonly partial struct DetectedLanguage
@@ -173,6 +156,11 @@ namespace Azure.AI.TextAnalytics
         public Azure.AI.TextAnalytics.TextSentiment Sentiment { get { throw null; } }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.TextAnalyticsWarning> Warnings { get { throw null; } }
     }
+    public enum EntityAssociation
+    {
+        Subject = 0,
+        Other = 1,
+    }
     [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public readonly partial struct EntityCategory : System.IEquatable<Azure.AI.TextAnalytics.EntityCategory>
     {
@@ -202,6 +190,19 @@ namespace Azure.AI.TextAnalytics
         public static implicit operator Azure.AI.TextAnalytics.EntityCategory (string category) { throw null; }
         public static bool operator !=(Azure.AI.TextAnalytics.EntityCategory left, Azure.AI.TextAnalytics.EntityCategory right) { throw null; }
         public override string ToString() { throw null; }
+    }
+    public enum EntityCertainty
+    {
+        Positive = 0,
+        PositivePossible = 1,
+        NeutralPossible = 2,
+        NegativePossible = 3,
+        Negative = 4,
+    }
+    public enum EntityConditionality
+    {
+        Hypothetical = 0,
+        Conditional = 1,
     }
     public partial class EntityDataSource
     {
@@ -245,9 +246,9 @@ namespace Azure.AI.TextAnalytics
     public partial class HealthcareEntityAssertion
     {
         internal HealthcareEntityAssertion() { }
-        public Azure.AI.TextAnalytics.Association? Association { get { throw null; } }
-        public Azure.AI.TextAnalytics.Certainty? Certainty { get { throw null; } }
-        public Azure.AI.TextAnalytics.Conditionality? Conditionality { get { throw null; } }
+        public Azure.AI.TextAnalytics.EntityAssociation? Association { get { throw null; } }
+        public Azure.AI.TextAnalytics.EntityCertainty? Certainty { get { throw null; } }
+        public Azure.AI.TextAnalytics.EntityConditionality? Conditionality { get { throw null; } }
     }
     public partial class HealthcareEntityRelation
     {
@@ -569,6 +570,15 @@ namespace Azure.AI.TextAnalytics
         public string ModelVersion { get { throw null; } }
         public Azure.AI.TextAnalytics.TextDocumentBatchStatistics Statistics { get { throw null; } }
     }
+    public partial class RecognizeLinkedEntitiesActionResult : Azure.AI.TextAnalytics.TextAnalyticsActionDetails
+    {
+        internal RecognizeLinkedEntitiesActionResult() { }
+        public Azure.AI.TextAnalytics.RecognizeLinkedEntitiesResultCollection Result { get { throw null; } }
+    }
+    public partial class RecognizeLinkedEntitiesOptions : Azure.AI.TextAnalytics.TextAnalyticsRequestOptions
+    {
+        public RecognizeLinkedEntitiesOptions() { }
+    }
     public partial class RecognizeLinkedEntitiesResult : Azure.AI.TextAnalytics.TextAnalyticsResult
     {
         internal RecognizeLinkedEntitiesResult() { }
@@ -672,6 +682,7 @@ namespace Azure.AI.TextAnalytics
         public string DisplayName { get { throw null; } set { } }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.ExtractKeyPhrasesOptions> ExtractKeyPhrasesOptions { get { throw null; } set { } }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.RecognizeEntitiesOptions> RecognizeEntitiesOptions { get { throw null; } set { } }
+        public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.RecognizeLinkedEntitiesOptions> RecognizeLinkedEntitiesOptions { get { throw null; } set { } }
         public System.Collections.Generic.IReadOnlyCollection<Azure.AI.TextAnalytics.RecognizePiiEntitiesOptions> RecognizePiiEntitiesOptions { get { throw null; } set { } }
     }
     public partial class TextAnalyticsClient
@@ -746,13 +757,13 @@ namespace Azure.AI.TextAnalytics
     }
     public partial class TextAnalyticsClientOptions : Azure.Core.ClientOptions
     {
-        public TextAnalyticsClientOptions(Azure.AI.TextAnalytics.TextAnalyticsClientOptions.ServiceVersion version = Azure.AI.TextAnalytics.TextAnalyticsClientOptions.ServiceVersion.V3_1_Preview_3) { }
+        public TextAnalyticsClientOptions(Azure.AI.TextAnalytics.TextAnalyticsClientOptions.ServiceVersion version = Azure.AI.TextAnalytics.TextAnalyticsClientOptions.ServiceVersion.V3_1_Preview_4) { }
         public string DefaultCountryHint { get { throw null; } set { } }
         public string DefaultLanguage { get { throw null; } set { } }
         public enum ServiceVersion
         {
             V3_0 = 1,
-            V3_1_Preview_3 = 2,
+            V3_1_Preview_4 = 2,
         }
     }
     [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]

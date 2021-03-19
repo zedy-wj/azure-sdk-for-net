@@ -6,7 +6,7 @@
 - New dependency on `Microsoft.Azure.WebJobs.StorageProvider.Blobs` and `Microsoft.Azure.WebJobs.StorageProvider.Queues`
 - Supports new configuration formats described in `Microsoft.Azure.WebJobs.Extensions.Storage` ChangeLog
 
-## 5.0.0-beta.3 (Unreleased)
+## 5.0.0-beta.3 (2021-03-09)
 
 ### Breaking Changes
 

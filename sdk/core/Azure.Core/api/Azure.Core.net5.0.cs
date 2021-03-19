@@ -27,6 +27,14 @@ namespace Azure
         public string Key { get { throw null; } }
         public void Update(string key) { }
     }
+    public partial class AzureNamedKeyCredential
+    {
+        public AzureNamedKeyCredential(string name, string key) { }
+        public string Name { get { throw null; } }
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        public void Deconstruct(out string name, out string key) { throw null; }
+        public void Update(string name, string key) { }
+    }
     public partial class AzureSasCredential
     {
         public AzureSasCredential(string signature) { }
@@ -91,13 +99,11 @@ namespace Azure
         public Azure.ETag? IfMatch { get { throw null; } set { } }
         public Azure.ETag? IfNoneMatch { get { throw null; } set { } }
     }
-    public abstract partial class Operation<T> where T : notnull
+    public abstract partial class Operation
     {
         protected Operation() { }
         public abstract bool HasCompleted { get; }
-        public abstract bool HasValue { get; }
         public abstract string Id { get; }
-        public abstract T Value { get; }
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object? obj) { throw null; }
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
@@ -107,8 +113,20 @@ namespace Azure
         public override string? ToString() { throw null; }
         public abstract Azure.Response UpdateStatus(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
         public abstract System.Threading.Tasks.ValueTask<Azure.Response> UpdateStatusAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        public abstract System.Threading.Tasks.ValueTask<Azure.Response> WaitForCompletionResponseAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        public abstract System.Threading.Tasks.ValueTask<Azure.Response> WaitForCompletionResponseAsync(System.TimeSpan pollingInterval, System.Threading.CancellationToken cancellationToken);
+    }
+    public abstract partial class Operation<T> : Azure.Operation where T : notnull
+    {
+        protected Operation() { }
+        public abstract bool HasValue { get; }
+        public abstract T Value { get; }
         public abstract System.Threading.Tasks.ValueTask<Azure.Response<T>> WaitForCompletionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
         public abstract System.Threading.Tasks.ValueTask<Azure.Response<T>> WaitForCompletionAsync(System.TimeSpan pollingInterval, System.Threading.CancellationToken cancellationToken);
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        public override System.Threading.Tasks.ValueTask<Azure.Response> WaitForCompletionResponseAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Never)]
+        public override System.Threading.Tasks.ValueTask<Azure.Response> WaitForCompletionResponseAsync(System.TimeSpan pollingInterval, System.Threading.CancellationToken cancellationToken) { throw null; }
     }
     public abstract partial class Pageable<T> : System.Collections.Generic.IEnumerable<T>, System.Collections.IEnumerable where T : notnull
     {
@@ -269,7 +287,7 @@ namespace Azure.Core
             public static string Range { get { throw null; } }
             public static string Referer { get { throw null; } }
             public static string UserAgent { get { throw null; } }
-            public static string WWWAuthenticate { get { throw null; } }
+            public static string WwwAuthenticate { get { throw null; } }
             public static string XMsDate { get { throw null; } }
             public static string XMsRange { get { throw null; } }
             public static string XMsRequestId { get { throw null; } }
@@ -576,19 +594,19 @@ namespace Azure.Messaging
 {
     public partial class CloudEvent
     {
-        public CloudEvent(string source, string type, System.BinaryData data, string dataContentType, Azure.Messaging.CloudEventDataFormat dataFormat = Azure.Messaging.CloudEventDataFormat.Binary) { }
-        public CloudEvent(string source, string type, object jsonSerializableData, System.Type? dataSerializationType = null) { }
+        public CloudEvent(string source, string type, System.BinaryData? data, string? dataContentType, Azure.Messaging.CloudEventDataFormat dataFormat = Azure.Messaging.CloudEventDataFormat.Binary) { }
+        public CloudEvent(string source, string type, object? jsonSerializableData, System.Type? dataSerializationType = null) { }
         public System.BinaryData? Data { get { throw null; } set { } }
         public string? DataContentType { get { throw null; } set { } }
         public string? DataSchema { get { throw null; } set { } }
-        public System.Collections.Generic.IDictionary<string, object?> ExtensionAttributes { get { throw null; } }
+        public System.Collections.Generic.IDictionary<string, object> ExtensionAttributes { get { throw null; } }
         public string Id { get { throw null; } set { } }
         public string Source { get { throw null; } set { } }
         public string? Subject { get { throw null; } set { } }
         public System.DateTimeOffset? Time { get { throw null; } set { } }
         public string Type { get { throw null; } set { } }
-        public static Azure.Messaging.CloudEvent? Parse(System.BinaryData jsonEvent, bool skipValidation = false) { throw null; }
-        public static Azure.Messaging.CloudEvent[] ParseEvents(string jsonContent, bool skipValidation = false) { throw null; }
+        public static Azure.Messaging.CloudEvent? Parse(System.BinaryData json, bool skipValidation = false) { throw null; }
+        public static Azure.Messaging.CloudEvent[] ParseMany(System.BinaryData json, bool skipValidation = false) { throw null; }
     }
     public enum CloudEventDataFormat
     {

@@ -1,6 +1,9 @@
 # Release History
 
-## 1.0.0-beta.4 (Unreleased)
+## 1.0.0-beta.5 (Unreleased)
+
+
+## 1.0.0-beta.4 (2021-03-09)
 
 ### Added
 - Added support to create SmsClient with AzureKeyCredential.
@@ -11,7 +14,7 @@
 
 ### Breaking
 - Updated `Task<Response<SendSmsResponse>> SendAsync(PhoneNumberIdentifier from, PhoneNumberIdentifier to, string message, SendSmsOptions sendSmsOptions = null, CancellationToken cancellationToken = default)`
-to `Task<Response<SmsSendResult>> SendAsync(string from, string to, string message, Models.SmsSendOptions options = default)`
+to `Task<Response<SmsSendResult>> SendAsync(string from, string to, string message, SmsSendOptions options = default)`
 - Replaced `SendSmsResponse` with `SmsSendResult`
 
 ## 1.0.0-beta.3 (2020-11-16)
