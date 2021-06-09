@@ -17,6 +17,7 @@ namespace Azure.AI.TextAnalytics
         /// The latest service version supported by this client library.
         /// </summary>
         internal const ServiceVersion LatestVersion = ServiceVersion.V3_1_Preview_5;
+        internal const ServiceScopeCloud AuthenticationScope = ServiceScopeCloud.AzurePublicCloud;
 
         /// <summary>
         /// The versions of the Text Analytics service supported by this client library.
@@ -37,10 +38,32 @@ namespace Azure.AI.TextAnalytics
         }
 
         /// <summary>
+        /// The scope in different clouds of the Text Analytics service.
+        /// </summary>
+        public enum ServiceScopeCloud
+        {
+            /// <summary>
+            /// AzurePublicCloud
+            /// </summary>
+            AzurePublicCloud = 1,
+
+            /// <summary>
+            /// AzureChinaCloud
+            /// </summary>
+            AzureChinaCloud = 2,
+
+            /// <summary>
+            /// AzureGovernmentCloud
+            /// </summary>
+            AzureGovernmentCloud = 3,
+        }
+
+        /// <summary>
         /// Gets the <see cref="ServiceVersion"/> of the service API used when
         /// making requests.
         /// </summary>
         internal ServiceVersion Version { get; }
+        internal ServiceScopeCloud CognitiveScope { get; }
 
         /// <summary>
         /// Default country hint value to use in all client calls.
@@ -63,9 +86,11 @@ namespace Azure.AI.TextAnalytics
         /// The <see cref="ServiceVersion"/> of the service API used when
         /// making requests.
         /// </param>
-        public TextAnalyticsClientOptions(ServiceVersion version = LatestVersion)
+        /// <param name="scope"></param>
+        public TextAnalyticsClientOptions(ServiceVersion version = LatestVersion, ServiceScopeCloud scope = AuthenticationScope)
         {
             Version = version;
+            CognitiveScope = scope;
             this.ConfigureLogging();
         }
 
@@ -77,6 +102,18 @@ namespace Azure.AI.TextAnalytics
                 ServiceVersion.V3_1_Preview_5 => "v3.1-preview.5",
 
                 _ => throw new ArgumentException($"Version {version} not supported."),
+            };
+        }
+
+        internal static string GetScopeValue(ServiceScopeCloud scope)
+        {
+            return scope switch
+            {
+                ServiceScopeCloud.AzurePublicCloud => "https://cognitiveservices.azure.com/.default",
+                ServiceScopeCloud.AzureChinaCloud => "https://cognitiveservices.azure.cn/.default",
+                ServiceScopeCloud.AzureGovernmentCloud => "https://cognitiveservices.azure.us/.default",
+
+                _ => throw new ArgumentException($"Scope {scope} not supported."),
             };
         }
     }
