@@ -286,8 +286,12 @@ namespace Azure.Storage.Test.Shared
             PublicAccessType? publicAccessType = default,
             bool premium = default)
         {
+            BlobClientOptions options = default;
             containerName ??= GetNewContainerName();
-            service ??= GetServiceClient_SharedKey();
+            service ??= new BlobServiceClient(
+                    new Uri("BlobServiceEndPoint"),
+                    new StorageSharedKeyCredential("AccountName", "AccountKey"),
+                    options ?? GetOptions());
 
             if (publicAccessType == default)
             {
