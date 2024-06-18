@@ -6,18 +6,51 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace Azure.ResourceManager.Logic.Models
 {
     /// <summary> The workflow run trigger. </summary>
     public partial class LogicWorkflowRunTrigger
     {
-        /// <summary> Initializes a new instance of LogicWorkflowRunTrigger. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="LogicWorkflowRunTrigger"/>. </summary>
         internal LogicWorkflowRunTrigger()
         {
         }
 
-        /// <summary> Initializes a new instance of LogicWorkflowRunTrigger. </summary>
+        /// <summary> Initializes a new instance of <see cref="LogicWorkflowRunTrigger"/>. </summary>
         /// <param name="name"> Gets the name. </param>
         /// <param name="inputs"> Gets the inputs. </param>
         /// <param name="inputsLink"> Gets the link to inputs. </param>
@@ -32,7 +65,8 @@ namespace Azure.ResourceManager.Logic.Models
         /// <param name="status"> Gets the status. </param>
         /// <param name="error"> Gets the error. </param>
         /// <param name="trackedProperties"> Gets the tracked properties. </param>
-        internal LogicWorkflowRunTrigger(string name, BinaryData inputs, LogicContentLink inputsLink, BinaryData outputs, LogicContentLink outputsLink, DateTimeOffset? scheduledOn, DateTimeOffset? startOn, DateTimeOffset? endOn, Guid? trackingId, Correlation correlation, string code, LogicWorkflowStatus? status, BinaryData error, BinaryData trackedProperties)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal LogicWorkflowRunTrigger(string name, BinaryData inputs, LogicContentLink inputsLink, BinaryData outputs, LogicContentLink outputsLink, DateTimeOffset? scheduledOn, DateTimeOffset? startOn, DateTimeOffset? endOn, Guid? trackingId, Correlation correlation, string code, LogicWorkflowStatus? status, BinaryData error, BinaryData trackedProperties, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             Inputs = inputs;
@@ -48,15 +82,74 @@ namespace Azure.ResourceManager.Logic.Models
             Status = status;
             Error = error;
             TrackedProperties = trackedProperties;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> Gets the name. </summary>
         public string Name { get; }
-        /// <summary> Gets the inputs. </summary>
+        /// <summary>
+        /// Gets the inputs.
+        /// <para>
+        /// To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
         public BinaryData Inputs { get; }
         /// <summary> Gets the link to inputs. </summary>
         public LogicContentLink InputsLink { get; }
-        /// <summary> Gets the outputs. </summary>
+        /// <summary>
+        /// Gets the outputs.
+        /// <para>
+        /// To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
         public BinaryData Outputs { get; }
         /// <summary> Gets the link to outputs. </summary>
         public LogicContentLink OutputsLink { get; }
@@ -80,9 +173,67 @@ namespace Azure.ResourceManager.Logic.Models
         public string Code { get; }
         /// <summary> Gets the status. </summary>
         public LogicWorkflowStatus? Status { get; }
-        /// <summary> Gets the error. </summary>
+        /// <summary>
+        /// Gets the error.
+        /// <para>
+        /// To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
         public BinaryData Error { get; }
-        /// <summary> Gets the tracked properties. </summary>
+        /// <summary>
+        /// Gets the tracked properties.
+        /// <para>
+        /// To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
         public BinaryData TrackedProperties { get; }
     }
 }

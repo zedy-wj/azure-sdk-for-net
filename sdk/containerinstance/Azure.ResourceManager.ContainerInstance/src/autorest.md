@@ -6,12 +6,17 @@ Run `dotnet build /t:GenerateCode` to generate code.
 azure-arm: true
 library-name: ContainerInstance
 namespace: Azure.ResourceManager.ContainerInstance
-require: https://github.com/Azure/azure-rest-api-specs/blob/4716fb039c67e1bee1d5448af9ce57e4942832fe/specification/containerinstance/resource-manager/readme.md
+require: https://github.com/Azure/azure-rest-api-specs/blob/7990bc19fe4941681605891960006538d3528f78/specification/containerinstance/resource-manager/readme.md
+tag: package-2023-05
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
+sample-gen:
+  output-folder: $(this-folder)/../samples/Generated
+  clear-output-folder: true
 skip-csproj: true
 modelerfour:
   flatten-payloads: false
+use-model-reader-writer: true
 
 format-by-name-rules:
   'tenantId': 'uuid'
@@ -20,7 +25,7 @@ format-by-name-rules:
   '*Uri': 'Uri'
   '*Uris': 'Uri'
 
-rename-rules:
+acronym-mapping:
   CPU: Cpu
   CPUs: Cpus
   Os: OS
@@ -52,20 +57,22 @@ override-operation-name:
   Containers_ExecuteCommand: ExecuteContainerCommand
   Containers_ListLogs: GetContainerLogs
 
+# If the model is generally used across the RP or we need to avoid duplication, prepend the RP name.
+# If the model is used by a single container instance, simply use Container prefix in the rename-mapping section as it's simpler and consistent with the original pattern in swagger.
 prepend-rp-prefix:
-  - Volume
-  - VolumeMount
-  - Capabilities
-  - CapabilitiesListResult
-  - Scheme
+  - UsageListResult
+  - UsageName
+  - OperatingSystemTypes
+  - AzureFileVolume
+  - GitRepoVolume
+  - Container
 
 rename-mapping:
-  Container: ContainerInstance
-  Logs: ContainerInstanceLogs
+  Logs: ContainerLogs
   Event: ContainerEvent
   AzureFileVolume.readOnly: IsReadOnly
   VolumeMount.readOnly: IsReadOnly
-  CapabilitiesCapabilities: ContainerInstanceSupportedCapabilities
+  CapabilitiesCapabilities: ContainerSupportedCapabilities
   ContainerProbe.timeoutSeconds: TimeoutInSeconds
   ContainerProbe.initialDelaySeconds: InitialDelayInSeconds
   ContainerProbe.periodSeconds: PeriodInSeconds
@@ -73,7 +80,7 @@ rename-mapping:
   Port: ContainerGroupPort
   IpAddress.ip: -|ip-address
   IpAddress: ContainerGroupIPAddress
-  GpuResource: GpuResourceInfo
+  GpuResource: ContainerGpuResourceInfo
   ContainerGroupPropertiesInstanceView: ContainerGroupInstanceView
   ContainerPropertiesInstanceView: ContainerInstanceView
   ContainerAttachResponse: ContainerAttachResult
@@ -81,4 +88,22 @@ rename-mapping:
   ContainerGroupSubnetId.id: -|arm-id
   InitContainerDefinition: InitContainerDefinitionContent
   LogAnalytics.workspaceResourceId: -|arm-id
+  ResourceRequests: ContainerResourceRequestsContent
+  DnsConfiguration: ContainerGroupDnsConfiguration
+  EncryptionProperties: ContainerGroupEncryptionProperties
+  HttpHeader: ContainerHttpHeader
+  ImageRegistryCredential: ContainerGroupImageRegistryCredential
+  Volume: ContainerVolume
+  VolumeMount: ContainerVolumeMount
+  Capabilities: ContainerCapabilities
+  CapabilitiesListResult: ContainerCapabilitiesListResult
+  ResourceLimits: ContainerResourceLimits
+  ResourceRequirements: ContainerResourceRequirements
+  EnvironmentVariable: ContainerEnvironmentVariable
+  GpuSku: ContainerGpuSku
+  LogAnalytics: ContainerGroupLogAnalytics
+  LogAnalyticsLogType: ContainerGroupLogAnalyticsLogType
+  SecurityContextDefinition: ContainerSecurityContextDefinition
+  SecurityContextCapabilitiesDefinition: ContainerSecurityContextCapabilitiesDefinition
+  SecurityContextDefinition.privileged: IsPrivileged
 ```

@@ -2,7 +2,7 @@
 
 This sample demonstrates how to analyze text, field values, selection marks, and table data from custom documents. Custom models are trained with your own data, so they're tailored to your documents. For more information on how to do the training, see [build a model][build_a_model].
 
-To get started you'll need a Cognitive Services resource or a Form Recognizer resource.  See [README][README] for prerequisites and instructions.
+To get started you'll need a Cognitive Services resource or a Form Recognizer resource. See [README][README] for prerequisites and instructions.
 
 ## Creating a `DocumentAnalysisClient`
 
@@ -32,7 +32,7 @@ Console.WriteLine($"Document was analyzed with model with ID: {result.ModelId}")
 
 foreach (AnalyzedDocument document in result.Documents)
 {
-    Console.WriteLine($"Document of type: {document.DocType}");
+    Console.WriteLine($"Document of type: {document.DocumentType}");
 
     foreach (KeyValuePair<string, DocumentField> fieldKvp in document.Fields)
     {
@@ -64,7 +64,7 @@ Console.WriteLine($"Document was analyzed with model with ID: {result.ModelId}")
 
 foreach (AnalyzedDocument document in result.Documents)
 {
-    Console.WriteLine($"Document of type: {document.DocType}");
+    Console.WriteLine($"Document of type: {document.DocumentType}");
 
     foreach (KeyValuePair<string, DocumentField> fieldKvp in document.Fields)
     {
@@ -78,11 +78,6 @@ foreach (AnalyzedDocument document in result.Documents)
     }
 }
 ```
-
-To see the full example source files, see:
-
-* [Analyze with custom model from URI](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/formrecognizer/Azure.AI.FormRecognizer/tests/samples/Sample_AnalyzeWithCustomModelFromUriAsync.cs)
-* [Analyze with custom model from file](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/formrecognizer/Azure.AI.FormRecognizer/tests/samples/Sample_AnalyzeWithCustomModelFromFileAsync.cs)
 
 [README]: https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/formrecognizer/Azure.AI.FormRecognizer#getting-started
 [build_a_model]: https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/formrecognizer/Azure.AI.FormRecognizer/samples/Sample_BuildCustomModel.md

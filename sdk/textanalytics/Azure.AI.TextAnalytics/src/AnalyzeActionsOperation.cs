@@ -62,7 +62,7 @@ namespace Azure.AI.TextAnalytics
         public virtual DateTimeOffset CreatedOn => _createdOn;
 
         /// <summary>
-        /// Display Name of the operation
+        /// Display Name of the operation.
         /// </summary>
         public virtual string DisplayName => _displayName;
 
@@ -111,6 +111,8 @@ namespace Azure.AI.TextAnalytics
         /// </summary>
         /// <param name="operationId">The ID of this operation.</param>
         /// <param name="client">The client used to check for completion.</param>
+        /// <exception cref="ArgumentException"><paramref name="operationId"/> is an empty string or does not represent a valid continuation token from the <see cref="Id"/> property returned on the original operation.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="operationId"/> or <paramref name="client"/> is null.</exception>
         public AnalyzeActionsOperation(string operationId, TextAnalyticsClient client)
         {
             Argument.AssertNotNullOrEmpty(operationId, nameof(operationId));
@@ -132,7 +134,7 @@ namespace Azure.AI.TextAnalytics
             Id = operationId;
             _serviceClient = client.ServiceClient;
             _diagnostics = _serviceClient.Diagnostics;
-            _operationInternal = new OperationInternal<AsyncPageable<AnalyzeActionsResult>>(_diagnostics, this, rawResponse: null);
+            _operationInternal = new OperationInternal<AsyncPageable<AnalyzeActionsResult>>(this, _diagnostics, rawResponse: null);
         }
 
         /// <summary>
@@ -149,7 +151,7 @@ namespace Azure.AI.TextAnalytics
             _diagnostics = diagnostics;
             _idToIndexMap = idToIndexMap;
             _showStats = showStats;
-            _operationInternal = new OperationInternal<AsyncPageable<AnalyzeActionsResult>>(_diagnostics, this, rawResponse: null);
+            _operationInternal = new OperationInternal<AsyncPageable<AnalyzeActionsResult>>(this, _diagnostics, rawResponse: null);
 
             _jobId = operationLocation.Split('/').Last().Split('?')[0];
 
@@ -305,21 +307,18 @@ namespace Azure.AI.TextAnalytics
 
                 return OperationState<AsyncPageable<AnalyzeActionsResult>>.Success(rawResponse, CreateOperationValueAsync(CancellationToken.None));
             }
-            else if (response.Value.Status == TextAnalyticsOperationStatus.Failed)
-            {
-                RequestFailedException requestFailedException = await ClientCommon
-                    .CreateExceptionForFailedOperationAsync(async, _diagnostics, rawResponse, response.Value.Errors)
-                    .ConfigureAwait(false);
 
-                return OperationState<AsyncPageable<AnalyzeActionsResult>>.Failure(rawResponse, requestFailedException);
-            }
-            else if (response.Value.Status == TextAnalyticsOperationStatus.Cancelled)
+            if (response.Value.Status == TextAnalyticsOperationStatus.Running || response.Value.Status == TextAnalyticsOperationStatus.NotStarted || response.Value.Status == TextAnalyticsOperationStatus.Cancelling)
             {
-                return OperationState<AsyncPageable<AnalyzeActionsResult>>.Failure(rawResponse,
-                    new RequestFailedException("The operation was canceled so no value is available."));
+                return OperationState<AsyncPageable<AnalyzeActionsResult>>.Pending(rawResponse);
             }
 
-            return OperationState<AsyncPageable<AnalyzeActionsResult>>.Pending(rawResponse);
+            if (response.Value.Status == TextAnalyticsOperationStatus.Cancelled)
+            {
+                return OperationState<AsyncPageable<AnalyzeActionsResult>>.Failure(rawResponse, new RequestFailedException("The operation was canceled so no value is available."));
+            }
+
+            return OperationState<AsyncPageable<AnalyzeActionsResult>>.Failure(rawResponse, new RequestFailedException(rawResponse));
         }
 
         private AsyncPageable<AnalyzeActionsResult> CreateOperationValueAsync(CancellationToken cancellationToken = default)

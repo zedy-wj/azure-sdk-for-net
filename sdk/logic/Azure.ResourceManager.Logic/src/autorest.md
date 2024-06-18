@@ -9,12 +9,15 @@ csharp: true
 library-name: Logic
 namespace: Azure.ResourceManager.Logic
 require: https://github.com/Azure/azure-rest-api-specs/blob/353d84dac009c19ae776c25eb361f07e85f26c8d/specification/logic/resource-manager/readme.md
-tag: package-2019-05
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
+sample-gen:
+  output-folder: $(this-folder)/../samples/Generated
+  clear-output-folder: true
 skip-csproj: true
 modelerfour:
   flatten-payloads: false
+use-model-reader-writer: true
 
 list-exception:
 - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/runs/{runName}/operations/{operationId}
@@ -84,10 +87,10 @@ rename-mapping:
   KeyVaultReference: IntegrationAccountKeyVaultNameReference
   KeyVaultKeyCollection: IntegrationAccountKeyVaultKeyList
   KeyVaultKey: IntegrationAccountKeyVaultKey
-  KeyVaultKey.kid: KeyId
+  KeyVaultKey.kid: KeyId|uri
   KeyVaultKey.attributes.enabled: IsEnabled
-  KeyVaultKey.attributes.created: CreatedOnInTicks
-  KeyVaultKey.attributes.updated: UpdatedOnInTicks
+  KeyVaultKey.attributes.created: CreatedOn
+  KeyVaultKey.attributes.updated: UpdatedOn
   KeyVaultKeyReference: IntegrationAccountKeyVaultKeyReference
   KeyVaultKeyReference.keyVault.id: ResourceId
   KeyVaultKeyReference.keyVault.name: ResourceName
@@ -151,6 +154,7 @@ rename-mapping:
   WorkflowTriggerHistory: LogicWorkflowTriggerHistory
   WorkflowTriggerHistory.properties.fired: IsFired
   WorkflowTriggerHistoryListResult: LogicWorkflowTriggerHistoryListResult
+  WorkflowTriggerCallbackUrl.method: -|request-method
   WorkflowTriggerCallbackUrl: LogicWorkflowTriggerCallbackUri
   WorkflowReference: LogicWorkflowReference
   WorkflowRunActionListResult: LogicWorkflowRunActionListResult
@@ -159,7 +163,7 @@ rename-mapping:
   X12AcknowledgementSettings.batchTechnicalAcknowledgements: BatchTechnicalAcknowledgement
   X12AcknowledgementSettings.batchFunctionalAcknowledgements: BatchFunctionalAcknowledgement
   X12AcknowledgementSettings.batchImplementationAcknowledgements: BatchImplementationAcknowledgement
-  
+
 format-by-name-rules:
   'tenantId': 'uuid'
   'ETag': 'etag'
@@ -173,7 +177,7 @@ format-by-name-rules:
   '*Uri': 'Uri'
   '*Uris': 'Uri'
 
-rename-rules:
+acronym-mapping:
   CPU: Cpu
   CPUs: Cpus
   Os: OS
@@ -213,6 +217,7 @@ rename-rules:
   B2B: B2B|b2b
 
 directive:
+  - remove-operation: Workflows_Update
   - from: logic.json
     where: $.definitions
     transform: >
@@ -220,9 +225,8 @@ directive:
       $.OpenAuthenticationAccessPolicies.properties.policies['x-ms-client-name'] = 'AccessPolicies';
       $.ResourceReference.properties.id['x-ms-format'] = 'arm-id';
       $.ResourceReference.properties.type['x-ms-format'] = 'resource-type';
-      $.IpAddress.properties.address['x-ms-format'] = 'ip-address';
+      $.IpAddress.properties.address['x-ms-client-name'] = 'CidrAddress';
       $.IntegrationServiceEnvironmentSkuDefinition.properties.resourceType['x-ms-format'] = 'resource-type';
-      $.KeyVaultKey.properties.attributes['x-ms-client-flatten'] = true;
       $.KeyVaultKeyReference.properties.keyVault['x-ms-client-flatten'] = true;
       $.KeyVaultKeyReference.properties.keyVault.properties.id['x-ms-format'] = 'arm-id';
       $.KeyVaultKeyReference.properties.keyVault.properties.type['x-ms-format'] = 'resource-type';
@@ -230,13 +234,8 @@ directive:
       $.WorkflowTriggerRecurrence.properties.endTime['format'] = 'date-time';
       $.RecurrenceSchedule.properties.weekDays.items['x-ms-enum']['name'] = 'DayOfWeek';
       $.CallbackUrl.properties.value['x-ms-client-name'] = 'url';
+      $.KeyVaultKey.properties.attributes.properties.created['format'] = 'unixtime';
+      $.KeyVaultKey.properties.attributes.properties.updated['format'] = 'unixtime';
+      $.KeyVaultKey.properties.attributes['x-ms-client-flatten'] = true;
 
-  # TODO: change ManagedServiceIdentity to common identity type(ManagedServiceIdentity)
-  - from: logic.json
-    where: $.definitions
-    transform: >
-      $.ManagedServiceIdentity.properties.type.enum.push('SystemAssigned, UserAssigned');
-      $.Workflow.properties.identity['description'] = 'Managed service identity properties. Current supported identity types: SystemAssigned, UserAssigned, None.';
-      $.IntegrationServiceEnvironment.properties.identity['description'] = 'Managed service identity properties. Current supported identity types: SystemAssigned, UserAssigned, None.';
-    reason: Temporary workaround to match with common type.
 ```

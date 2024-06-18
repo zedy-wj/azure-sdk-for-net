@@ -5,123 +5,137 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.Text.Json;
-using Azure;
 using Azure.Core;
 
 namespace Azure.ResourceManager.StreamAnalytics.Models
 {
-    public partial class StreamingJobInputProperties : IUtf8JsonSerializable
+    [PersistableModelProxy(typeof(UnknownInputProperties))]
+    public partial class StreamingJobInputProperties : IUtf8JsonSerializable, IJsonModel<StreamingJobInputProperties>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<StreamingJobInputProperties>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<StreamingJobInputProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<StreamingJobInputProperties>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(StreamingJobInputProperties)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
-            writer.WritePropertyName("type");
+            writer.WritePropertyName("type"u8);
             writer.WriteStringValue(InputPropertiesType);
             if (Optional.IsDefined(Serialization))
             {
-                writer.WritePropertyName("serialization");
-                writer.WriteObjectValue(Serialization);
+                writer.WritePropertyName("serialization"u8);
+                writer.WriteObjectValue(Serialization, options);
+            }
+            if (options.Format != "W" && Optional.IsDefined(Diagnostics))
+            {
+                writer.WritePropertyName("diagnostics"u8);
+                writer.WriteObjectValue(Diagnostics, options);
+            }
+            if (options.Format != "W" && Optional.IsDefined(ETag))
+            {
+                writer.WritePropertyName("etag"u8);
+                writer.WriteStringValue(ETag.Value.ToString());
             }
             if (Optional.IsDefined(Compression))
             {
-                writer.WritePropertyName("compression");
-                writer.WriteObjectValue(Compression);
+                writer.WritePropertyName("compression"u8);
+                writer.WriteObjectValue(Compression, options);
             }
             if (Optional.IsDefined(PartitionKey))
             {
-                writer.WritePropertyName("partitionKey");
+                writer.WritePropertyName("partitionKey"u8);
                 writer.WriteStringValue(PartitionKey);
             }
             if (Optional.IsDefined(WatermarkSettings))
             {
-                writer.WritePropertyName("watermarkSettings");
-                writer.WriteObjectValue(WatermarkSettings);
+                writer.WritePropertyName("watermarkSettings"u8);
+                writer.WriteObjectValue(WatermarkSettings, options);
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
             writer.WriteEndObject();
         }
 
-        internal static StreamingJobInputProperties DeserializeStreamingJobInputProperties(JsonElement element)
+        StreamingJobInputProperties IJsonModel<StreamingJobInputProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<StreamingJobInputProperties>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(StreamingJobInputProperties)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeStreamingJobInputProperties(document.RootElement, options);
+        }
+
+        internal static StreamingJobInputProperties DeserializeStreamingJobInputProperties(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             if (element.TryGetProperty("type", out JsonElement discriminator))
             {
                 switch (discriminator.GetString())
                 {
-                    case "Reference": return ReferenceInputProperties.DeserializeReferenceInputProperties(element);
-                    case "Stream": return StreamInputProperties.DeserializeStreamInputProperties(element);
+                    case "Reference": return ReferenceInputProperties.DeserializeReferenceInputProperties(element, options);
+                    case "Stream": return StreamInputProperties.DeserializeStreamInputProperties(element, options);
                 }
             }
-            string type = default;
-            Optional<DataSerialization> serialization = default;
-            Optional<StreamingJobDiagnostics> diagnostics = default;
-            Optional<ETag> etag = default;
-            Optional<StreamingCompression> compression = default;
-            Optional<string> partitionKey = default;
-            Optional<StreamingJobInputWatermarkProperties> watermarkSettings = default;
-            foreach (var property in element.EnumerateObject())
-            {
-                if (property.NameEquals("type"))
-                {
-                    type = property.Value.GetString();
-                    continue;
-                }
-                if (property.NameEquals("serialization"))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    serialization = DataSerialization.DeserializeDataSerialization(property.Value);
-                    continue;
-                }
-                if (property.NameEquals("diagnostics"))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    diagnostics = StreamingJobDiagnostics.DeserializeStreamingJobDiagnostics(property.Value);
-                    continue;
-                }
-                if (property.NameEquals("etag"))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    etag = new ETag(property.Value.GetString());
-                    continue;
-                }
-                if (property.NameEquals("compression"))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    compression = StreamingCompression.DeserializeStreamingCompression(property.Value);
-                    continue;
-                }
-                if (property.NameEquals("partitionKey"))
-                {
-                    partitionKey = property.Value.GetString();
-                    continue;
-                }
-                if (property.NameEquals("watermarkSettings"))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    watermarkSettings = StreamingJobInputWatermarkProperties.DeserializeStreamingJobInputWatermarkProperties(property.Value);
-                    continue;
-                }
-            }
-            return new StreamingJobInputProperties(type, serialization.Value, diagnostics.Value, Optional.ToNullable(etag), compression.Value, partitionKey.Value, watermarkSettings.Value);
+            return UnknownInputProperties.DeserializeUnknownInputProperties(element, options);
         }
+
+        BinaryData IPersistableModel<StreamingJobInputProperties>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<StreamingJobInputProperties>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(StreamingJobInputProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        StreamingJobInputProperties IPersistableModel<StreamingJobInputProperties>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<StreamingJobInputProperties>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeStreamingJobInputProperties(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(StreamingJobInputProperties)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<StreamingJobInputProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

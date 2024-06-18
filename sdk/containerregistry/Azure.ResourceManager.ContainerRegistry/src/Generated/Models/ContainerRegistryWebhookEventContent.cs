@@ -6,18 +6,51 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace Azure.ResourceManager.ContainerRegistry.Models
 {
     /// <summary> The content of the event request message. </summary>
     public partial class ContainerRegistryWebhookEventContent
     {
-        /// <summary> Initializes a new instance of ContainerRegistryWebhookEventContent. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="ContainerRegistryWebhookEventContent"/>. </summary>
         internal ContainerRegistryWebhookEventContent()
         {
         }
 
-        /// <summary> Initializes a new instance of ContainerRegistryWebhookEventContent. </summary>
+        /// <summary> Initializes a new instance of <see cref="ContainerRegistryWebhookEventContent"/>. </summary>
         /// <param name="id"> The event ID. </param>
         /// <param name="timestamp"> The time at which the event occurred. </param>
         /// <param name="action"> The action that encompasses the provided event. </param>
@@ -25,7 +58,8 @@ namespace Azure.ResourceManager.ContainerRegistry.Models
         /// <param name="request"> The request that generated the event. </param>
         /// <param name="actor"> The agent that initiated the event. For most situations, this could be from the authorization context of the request. </param>
         /// <param name="source"> The registry node that generated the event. Put differently, while the actor initiates the event, the source generates it. </param>
-        internal ContainerRegistryWebhookEventContent(string id, DateTimeOffset? timestamp, string action, ContainerRegistryWebhookEventTarget target, ContainerRegistryWebhookEventRequest request, ContainerRegistryWebhookEventActor actor, ContainerRegistryWebhookEventSource source)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal ContainerRegistryWebhookEventContent(Guid? id, DateTimeOffset? timestamp, string action, ContainerRegistryWebhookEventTarget target, ContainerRegistryWebhookEventRequestContent request, ContainerRegistryWebhookEventActor actor, ContainerRegistryWebhookEventSource source, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Id = id;
             Timestamp = timestamp;
@@ -34,10 +68,11 @@ namespace Azure.ResourceManager.ContainerRegistry.Models
             Request = request;
             Actor = actor;
             Source = source;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> The event ID. </summary>
-        public string Id { get; }
+        public Guid? Id { get; }
         /// <summary> The time at which the event occurred. </summary>
         public DateTimeOffset? Timestamp { get; }
         /// <summary> The action that encompasses the provided event. </summary>
@@ -45,7 +80,7 @@ namespace Azure.ResourceManager.ContainerRegistry.Models
         /// <summary> The target of the event. </summary>
         public ContainerRegistryWebhookEventTarget Target { get; }
         /// <summary> The request that generated the event. </summary>
-        public ContainerRegistryWebhookEventRequest Request { get; }
+        public ContainerRegistryWebhookEventRequestContent Request { get; }
         /// <summary> The agent that initiated the event. For most situations, this could be from the authorization context of the request. </summary>
         internal ContainerRegistryWebhookEventActor Actor { get; }
         /// <summary> The subject or username associated with the request context that generated the event. </summary>

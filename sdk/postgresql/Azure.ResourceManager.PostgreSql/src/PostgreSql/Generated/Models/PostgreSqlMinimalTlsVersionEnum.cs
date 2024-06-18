@@ -22,17 +22,10 @@ namespace Azure.ResourceManager.PostgreSql.Models
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private const string TLS10Value = "TLS1_0";
-        private const string TLS11Value = "TLS1_1";
-        private const string TLS12Value = "TLS1_2";
+        private const string Tls1_0Value = "TLS1_0";
+        private const string Tls1_1Value = "TLS1_1";
+        private const string Tls1_2Value = "TLS1_2";
         private const string TLSEnforcementDisabledValue = "TLSEnforcementDisabled";
-
-        /// <summary> TLS1_0. </summary>
-        public static PostgreSqlMinimalTlsVersionEnum TLS10 { get; } = new PostgreSqlMinimalTlsVersionEnum(TLS10Value);
-        /// <summary> TLS1_1. </summary>
-        public static PostgreSqlMinimalTlsVersionEnum TLS11 { get; } = new PostgreSqlMinimalTlsVersionEnum(TLS11Value);
-        /// <summary> TLS1_2. </summary>
-        public static PostgreSqlMinimalTlsVersionEnum TLS12 { get; } = new PostgreSqlMinimalTlsVersionEnum(TLS12Value);
         /// <summary> TLSEnforcementDisabled. </summary>
         public static PostgreSqlMinimalTlsVersionEnum TLSEnforcementDisabled { get; } = new PostgreSqlMinimalTlsVersionEnum(TLSEnforcementDisabledValue);
         /// <summary> Determines if two <see cref="PostgreSqlMinimalTlsVersionEnum"/> values are the same. </summary>

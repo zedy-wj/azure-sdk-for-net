@@ -16,8 +16,10 @@ namespace Azure.AI.Language.QuestionAnswering
     public class QuestionAnsweringClient
     {
         internal const string AuthorizationHeader = "Ocp-Apim-Subscription-Key";
+        private const string OTelProjectNameKey = "az.cognitivelanguage.project.name";
+        private const string OTelDeploymentNameKey = "az.cognitivelanguage.deployment.name";
 
-        private readonly QuestionAnsweringRuntimeRestClient _restClient;
+        private readonly QuestionAnsweringRestClient _restClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuestionAnsweringClient"/> class.
@@ -136,8 +138,8 @@ namespace Azure.AI.Language.QuestionAnswering
             Argument.AssertNotNull(options, nameof(options));
 
             using DiagnosticScope scope = Diagnostics.CreateScope($"{nameof(QuestionAnsweringClient)}.{nameof(GetAnswers)}");
-            scope.AddAttribute("projectName", project.ProjectName);
-            scope.AddAttribute("deploymentName", project.DeploymentName);
+            scope.AddAttribute(OTelProjectNameKey, project.ProjectName);
+            scope.AddAttribute(OTelDeploymentNameKey, project.DeploymentName);
             scope.Start();
 
             try
@@ -180,8 +182,8 @@ namespace Azure.AI.Language.QuestionAnswering
             Argument.AssertNotNull(options, nameof(options));
 
             using DiagnosticScope scope = Diagnostics.CreateScope($"{nameof(QuestionAnsweringClient)}.{nameof(GetAnswers)}");
-            scope.AddAttribute("projectName", project.ProjectName);
-            scope.AddAttribute("deploymentName", project.DeploymentName);
+            scope.AddAttribute(OTelProjectNameKey, project.ProjectName);
+            scope.AddAttribute(OTelDeploymentNameKey, project.DeploymentName);
             scope.Start();
 
             try

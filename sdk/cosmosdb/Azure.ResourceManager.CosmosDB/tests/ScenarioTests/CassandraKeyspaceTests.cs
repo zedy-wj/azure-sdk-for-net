@@ -28,16 +28,20 @@ namespace Azure.ResourceManager.CosmosDB.Tests
         {
             _resourceGroup = await GlobalClient.GetResourceGroupResource(_resourceGroupIdentifier).GetAsync();
 
-            _keyspaceAccountIdentifier = (await CreateDatabaseAccount(SessionRecording.GenerateAssetName("dbaccount-"), CosmosDBAccountKind.GlobalDocumentDB, new CosmosDBAccountCapability("EnableCassandra"))).Id;
+            List<CosmosDBAccountCapability> capabilities = new List<CosmosDBAccountCapability>
+            {
+                new CosmosDBAccountCapability("EnableCassandra", null)
+            };
+            _keyspaceAccountIdentifier = (await CreateDatabaseAccount(SessionRecording.GenerateAssetName("dbaccount-"), CosmosDBAccountKind.GlobalDocumentDB, capabilities)).Id;
             await StopSessionRecordingAsync();
         }
 
         [OneTimeTearDown]
-        public virtual void GlobalTeardown()
+        public async Task GlobalTeardown()
         {
             if (_keyspaceAccountIdentifier != null)
             {
-                ArmClient.GetCosmosDBAccountResource(_keyspaceAccountIdentifier).Delete(WaitUntil.Completed);
+                await ArmClient.GetCosmosDBAccountResource(_keyspaceAccountIdentifier).DeleteAsync(WaitUntil.Completed);
             }
         }
 
@@ -114,7 +118,7 @@ namespace Azure.ResourceManager.CosmosDB.Tests
             Assert.AreEqual(TestThroughput1, throughput.Data.Resource.Throughput);
 
             CassandraKeyspaceThroughputSettingResource throughput2 = (await throughput.CreateOrUpdateAsync(WaitUntil.Completed, new ThroughputSettingsUpdateData(AzureLocation.WestUS,
-                new ThroughputSettingsResourceInfo(TestThroughput2, null, null, null)))).Value;
+                new ThroughputSettingsResourceInfo(TestThroughput2, null, null, null, null, null, null)))).Value;
 
             Assert.AreEqual(TestThroughput2, throughput2.Data.Resource.Throughput);
         }

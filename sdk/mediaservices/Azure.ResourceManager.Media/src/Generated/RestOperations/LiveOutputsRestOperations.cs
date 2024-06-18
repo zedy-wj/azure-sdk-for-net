@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.Media.Models;
@@ -33,8 +32,25 @@ namespace Azure.ResourceManager.Media
         {
             _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
-            _apiVersion = apiVersion ?? "2021-11-01";
+            _apiVersion = apiVersion ?? "2022-08-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListRequestUri(string subscriptionId, string resourceGroupName, string accountName, string liveEventName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaservices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/liveEvents/", false);
+            uri.AppendPath(liveEventName, true);
+            uri.AppendPath("/liveOutputs", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListRequest(string subscriptionId, string resourceGroupName, string accountName, string liveEventName)
@@ -122,6 +138,24 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateGetRequestUri(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaservices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/liveEvents/", false);
+            uri.AppendPath(liveEventName, true);
+            uri.AppendPath("/liveOutputs/", false);
+            uri.AppendPath(liveOutputName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateGetRequest(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName)
         {
             var message = _pipeline.CreateMessage();
@@ -155,7 +189,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/> or <paramref name="liveOutputName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/> or <paramref name="liveOutputName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<LiveOutputData>> GetAsync(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, CancellationToken cancellationToken = default)
+        public async Task<Response<MediaLiveOutputData>> GetAsync(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -169,13 +203,13 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        LiveOutputData value = default;
+                        MediaLiveOutputData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = LiveOutputData.DeserializeLiveOutputData(document.RootElement);
+                        value = MediaLiveOutputData.DeserializeMediaLiveOutputData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((LiveOutputData)null, message.Response);
+                    return Response.FromValue((MediaLiveOutputData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
@@ -190,7 +224,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/> or <paramref name="liveOutputName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/> or <paramref name="liveOutputName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<LiveOutputData> Get(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, CancellationToken cancellationToken = default)
+        public Response<MediaLiveOutputData> Get(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -204,19 +238,37 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        LiveOutputData value = default;
+                        MediaLiveOutputData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = LiveOutputData.DeserializeLiveOutputData(document.RootElement);
+                        value = MediaLiveOutputData.DeserializeMediaLiveOutputData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((LiveOutputData)null, message.Response);
+                    return Response.FromValue((MediaLiveOutputData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
         }
 
-        internal HttpMessage CreateCreateRequest(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, LiveOutputData data)
+        internal RequestUriBuilder CreateCreateRequestUri(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, MediaLiveOutputData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaservices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/liveEvents/", false);
+            uri.AppendPath(liveEventName, true);
+            uri.AppendPath("/liveOutputs/", false);
+            uri.AppendPath(liveOutputName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateCreateRequest(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, MediaLiveOutputData data)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -238,7 +290,7 @@ namespace Azure.ResourceManager.Media
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(data);
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
@@ -254,7 +306,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/>, <paramref name="liveOutputName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/> or <paramref name="liveOutputName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response> CreateAsync(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, LiveOutputData data, CancellationToken cancellationToken = default)
+        public async Task<Response> CreateAsync(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, MediaLiveOutputData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -285,7 +337,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/>, <paramref name="liveOutputName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="liveEventName"/> or <paramref name="liveOutputName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response Create(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, LiveOutputData data, CancellationToken cancellationToken = default)
+        public Response Create(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName, MediaLiveOutputData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -304,6 +356,24 @@ namespace Azure.ResourceManager.Media
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateDeleteRequestUri(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaservices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/liveEvents/", false);
+            uri.AppendPath(liveEventName, true);
+            uri.AppendPath("/liveOutputs/", false);
+            uri.AppendPath(liveOutputName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string accountName, string liveEventName, string liveOutputName)
@@ -388,6 +458,14 @@ namespace Azure.ResourceManager.Media
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateListNextPageRequestUri(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string liveEventName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendRawNextLink(nextLink, false);
+            return uri;
         }
 
         internal HttpMessage CreateListNextPageRequest(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string liveEventName)

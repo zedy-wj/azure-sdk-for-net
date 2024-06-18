@@ -1,6 +1,69 @@
 # Release History
 
-## 12.11.0-beta.1 (Unreleased)
+## 12.18.0-beta.2 (Unreleased)
+
+### Features Added
+
+### Breaking Changes
+
+### Bugs Fixed
+
+### Other Changes
+
+## 12.18.0-beta.1 (2024-06-11)
+- Added support for service version 2024-08-04.
+
+## 12.17.0 (2024-05-15)
+- Includes all features from 12.17.0-beta.1 and 12.17.0-beta.2.
+
+## 12.17.0-beta.2 (2024-04-15)
+- Added support for service version 2023-05-04.
+- Added support for deleting individual blob versions.
+
+## 12.17.0-beta.1 (2023-12-05)
+- Added support for service version 2024-02-04.
+
+## 12.16.1 (2023-11-13)
+- Distributed tracing with `ActivitySource` is stable and no longer requires the [Experimental feature-flag](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/Diagnostics.md).
+
+## 12.16.0 (2023-11-06)
+- Includes all features from 12.16.0-beta.1.
+
+## 12.16.0-beta.1 (2023-10-16)
+- Added support for service version 2023-11-03.
+
+## 12.15.0 (2023-09-12)
+- Includes all features from 12.15.0-beta.1.
+
+## 12.15.0-beta.1 (2023-08-08)
+- Added support for service version 2023-05-03 and 2023-08-03.
+
+## 12.14.0 (2023-07-11)
+- Includes all features from 12.14.0-beta.1.
+
+## 12.14.0-beta.1 (2023-05-30)
+- Added support for service version 2023-01-03.
+
+## 12.13.0 (2023-04-11)
+- Includes all features from 12.13.0-beta.1.
+
+## 12.13.0-beta.1 (2023-03-28)
+- Added support for service version 2022-11-02.
+- `BlobBatch` is made explicitly resilient to multiple dispose
+
+## 12.12.1 (2023-03-24)
+- Bumped Azure.Core dependency from 1.28 and 1.30, fixing issue with headers being non-resilient to double dispose of the request.
+
+## 12.12.0 (2023-02-21)
+- Includes all features from 12.12.0-beta.1.
+
+## 12.12.0-beta.1 (2023-02-07)
+- Added support for service version 2021-12-02.
+
+## 12.11.0 (2022-10-12)
+- Includes all features from 12.11.0-beta.1.
+
+## 12.11.0-beta.1 (2022-08-23)
 - Added support for service version 2021-10-04.
 
 ## 12.10.0 (2022-07-07)

@@ -13,126 +13,116 @@ using Azure.ResourceManager.NotificationHubs.Models;
 
 namespace Azure.ResourceManager.NotificationHubs
 {
-    /// <summary> A class representing the NotificationHubAuthorizationRule data model. </summary>
+    /// <summary>
+    /// A class representing the NotificationHubAuthorizationRule data model.
+    /// Response for POST requests that return single SharedAccessAuthorizationRule.
+    /// </summary>
     public partial class NotificationHubAuthorizationRuleData : TrackedResourceData
     {
-        /// <summary> Initializes a new instance of NotificationHubAuthorizationRuleData. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="NotificationHubAuthorizationRuleData"/>. </summary>
         /// <param name="location"> The location. </param>
         public NotificationHubAuthorizationRuleData(AzureLocation location) : base(location)
         {
-            Rights = new ChangeTrackingList<AuthorizationRuleAccessRight>();
+            AccessRights = new ChangeTrackingList<AuthorizationRuleAccessRightExt>();
         }
 
-        /// <summary> Initializes a new instance of NotificationHubAuthorizationRuleData. </summary>
+        /// <summary> Initializes a new instance of <see cref="NotificationHubAuthorizationRuleData"/>. </summary>
         /// <param name="id"> The id. </param>
         /// <param name="name"> The name. </param>
         /// <param name="resourceType"> The resourceType. </param>
         /// <param name="systemData"> The systemData. </param>
         /// <param name="tags"> The tags. </param>
         /// <param name="location"> The location. </param>
-        /// <param name="rights">
-        /// The rights associated with the rule.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.rights
-        /// </param>
+        /// <param name="accessRights"> Gets or sets the rights associated with the rule. </param>
         /// <param name="primaryKey">
-        /// A base64-encoded 256-bit primary key for signing and validating the SAS token.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.primaryKey
+        /// Gets a base64-encoded 256-bit primary key for signing and
+        /// validating the SAS token.
         /// </param>
         /// <param name="secondaryKey">
-        /// A base64-encoded 256-bit primary key for signing and validating the SAS token.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.secondaryKey
+        /// Gets a base64-encoded 256-bit primary key for signing and
+        /// validating the SAS token.
         /// </param>
-        /// <param name="keyName">
-        /// A string that describes the authorization rule.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.keyName
-        /// </param>
-        /// <param name="claimType">
-        /// A string that describes the claim type
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.claimType
-        /// </param>
-        /// <param name="claimValue">
-        /// A string that describes the claim value
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.claimValue
-        /// </param>
-        /// <param name="modifiedOn">
-        /// The last modified time for this rule
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.modifiedTime
-        /// </param>
-        /// <param name="createdOn">
-        /// The created time for this rule
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.createdTime
-        /// </param>
-        /// <param name="revision">
-        /// The revision number for the rule
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.revision
-        /// </param>
-        /// <param name="sku">
-        /// The sku of the created namespace
-        /// Serialized Name: Resource.sku
-        /// </param>
-        internal NotificationHubAuthorizationRuleData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, IList<AuthorizationRuleAccessRight> rights, string primaryKey, string secondaryKey, string keyName, string claimType, string claimValue, DateTimeOffset? modifiedOn, DateTimeOffset? createdOn, int? revision, NotificationHubSku sku) : base(id, name, resourceType, systemData, tags, location)
+        /// <param name="keyName"> Gets a string that describes the authorization rule. </param>
+        /// <param name="modifiedOn"> Gets the last modified time for this rule. </param>
+        /// <param name="createdOn"> Gets the created time for this rule. </param>
+        /// <param name="claimType"> Gets a string that describes the claim type. </param>
+        /// <param name="claimValue"> Gets a string that describes the claim value. </param>
+        /// <param name="revision"> Gets the revision number for the rule. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal NotificationHubAuthorizationRuleData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, IList<AuthorizationRuleAccessRightExt> accessRights, string primaryKey, string secondaryKey, string keyName, DateTimeOffset? modifiedOn, DateTimeOffset? createdOn, string claimType, string claimValue, int? revision, IDictionary<string, BinaryData> serializedAdditionalRawData) : base(id, name, resourceType, systemData, tags, location)
         {
-            Rights = rights;
+            AccessRights = accessRights;
             PrimaryKey = primaryKey;
             SecondaryKey = secondaryKey;
             KeyName = keyName;
-            ClaimType = claimType;
-            ClaimValue = claimValue;
             ModifiedOn = modifiedOn;
             CreatedOn = createdOn;
+            ClaimType = claimType;
+            ClaimValue = claimValue;
             Revision = revision;
-            Sku = sku;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
+        /// <summary> Initializes a new instance of <see cref="NotificationHubAuthorizationRuleData"/> for deserialization. </summary>
+        internal NotificationHubAuthorizationRuleData()
+        {
+        }
+
+        /// <summary> Gets or sets the rights associated with the rule. </summary>
+        public IList<AuthorizationRuleAccessRightExt> AccessRights { get; }
         /// <summary>
-        /// The rights associated with the rule.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.rights
+        /// Gets a base64-encoded 256-bit primary key for signing and
+        /// validating the SAS token.
         /// </summary>
-        public IList<AuthorizationRuleAccessRight> Rights { get; }
+        public string PrimaryKey { get; set; }
         /// <summary>
-        /// A base64-encoded 256-bit primary key for signing and validating the SAS token.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.primaryKey
+        /// Gets a base64-encoded 256-bit primary key for signing and
+        /// validating the SAS token.
         /// </summary>
-        public string PrimaryKey { get; }
-        /// <summary>
-        /// A base64-encoded 256-bit primary key for signing and validating the SAS token.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.secondaryKey
-        /// </summary>
-        public string SecondaryKey { get; }
-        /// <summary>
-        /// A string that describes the authorization rule.
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.keyName
-        /// </summary>
+        public string SecondaryKey { get; set; }
+        /// <summary> Gets a string that describes the authorization rule. </summary>
         public string KeyName { get; }
-        /// <summary>
-        /// A string that describes the claim type
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.claimType
-        /// </summary>
-        public string ClaimType { get; }
-        /// <summary>
-        /// A string that describes the claim value
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.claimValue
-        /// </summary>
-        public string ClaimValue { get; }
-        /// <summary>
-        /// The last modified time for this rule
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.modifiedTime
-        /// </summary>
+        /// <summary> Gets the last modified time for this rule. </summary>
         public DateTimeOffset? ModifiedOn { get; }
-        /// <summary>
-        /// The created time for this rule
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.createdTime
-        /// </summary>
+        /// <summary> Gets the created time for this rule. </summary>
         public DateTimeOffset? CreatedOn { get; }
-        /// <summary>
-        /// The revision number for the rule
-        /// Serialized Name: SharedAccessAuthorizationRuleResource.properties.revision
-        /// </summary>
+        /// <summary> Gets a string that describes the claim type. </summary>
+        public string ClaimType { get; }
+        /// <summary> Gets a string that describes the claim value. </summary>
+        public string ClaimValue { get; }
+        /// <summary> Gets the revision number for the rule. </summary>
         public int? Revision { get; }
-        /// <summary>
-        /// The sku of the created namespace
-        /// Serialized Name: Resource.sku
-        /// </summary>
-        public NotificationHubSku Sku { get; set; }
     }
 }

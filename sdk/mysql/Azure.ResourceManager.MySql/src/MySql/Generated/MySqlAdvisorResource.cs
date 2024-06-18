@@ -9,22 +9,24 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 
 namespace Azure.ResourceManager.MySql
 {
     /// <summary>
     /// A Class representing a MySqlAdvisor along with the instance operations that can be performed on it.
-    /// If you have a <see cref="ResourceIdentifier" /> you can construct a <see cref="MySqlAdvisorResource" />
-    /// from an instance of <see cref="ArmClient" /> using the GetMySqlAdvisorResource method.
-    /// Otherwise you can get one from its parent resource <see cref="MySqlServerResource" /> using the GetMySqlAdvisor method.
+    /// If you have a <see cref="ResourceIdentifier"/> you can construct a <see cref="MySqlAdvisorResource"/>
+    /// from an instance of <see cref="ArmClient"/> using the GetMySqlAdvisorResource method.
+    /// Otherwise you can get one from its parent resource <see cref="MySqlServerResource"/> using the GetMySqlAdvisor method.
     /// </summary>
     public partial class MySqlAdvisorResource : ArmResource
     {
         /// <summary> Generate the resource identifier of a <see cref="MySqlAdvisorResource"/> instance. </summary>
+        /// <param name="subscriptionId"> The subscriptionId. </param>
+        /// <param name="resourceGroupName"> The resourceGroupName. </param>
+        /// <param name="serverName"> The serverName. </param>
+        /// <param name="advisorName"> The advisorName. </param>
         public static ResourceIdentifier CreateResourceIdentifier(string subscriptionId, string resourceGroupName, string serverName, string advisorName)
         {
             var resourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}";
@@ -37,12 +39,15 @@ namespace Azure.ResourceManager.MySql
         private readonly MySQLManagementRestOperations _defaultRestClient;
         private readonly MySqlAdvisorData _data;
 
+        /// <summary> Gets the resource type for the operations. </summary>
+        public static readonly ResourceType ResourceType = "Microsoft.DBforMySQL/servers/advisors";
+
         /// <summary> Initializes a new instance of the <see cref="MySqlAdvisorResource"/> class for mocking. </summary>
         protected MySqlAdvisorResource()
         {
         }
 
-        /// <summary> Initializes a new instance of the <see cref = "MySqlAdvisorResource"/> class. </summary>
+        /// <summary> Initializes a new instance of the <see cref="MySqlAdvisorResource"/> class. </summary>
         /// <param name="client"> The client parameters to use in these operations. </param>
         /// <param name="data"> The resource that is the target of operations. </param>
         internal MySqlAdvisorResource(ArmClient client, MySqlAdvisorData data) : this(client, data.Id)
@@ -65,9 +70,6 @@ namespace Azure.ResourceManager.MySql
 			ValidateResourceId(Id);
 #endif
         }
-
-        /// <summary> Gets the resource type for the operations. </summary>
-        public static readonly ResourceType ResourceType = "Microsoft.DBforMySQL/servers/advisors";
 
         /// <summary> Gets whether or not the current instance has data. </summary>
         public virtual bool HasData { get; }
@@ -94,18 +96,34 @@ namespace Azure.ResourceManager.MySql
         /// <returns> An object representing collection of MySqlRecommendationActionResources and their operations over a MySqlRecommendationActionResource. </returns>
         public virtual MySqlRecommendationActionCollection GetMySqlRecommendationActions()
         {
-            return GetCachedClient(Client => new MySqlRecommendationActionCollection(Client, Id));
+            return GetCachedClient(client => new MySqlRecommendationActionCollection(client, Id));
         }
 
         /// <summary>
         /// Retrieve recommended actions from the advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/recommendedActions/{recommendedActionName}
-        /// Operation Id: RecommendedActions_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/recommendedActions/{recommendedActionName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>RecommendedActions_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlRecommendationActionResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="recommendedActionName"> The recommended action name. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentException"> <paramref name="recommendedActionName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="recommendedActionName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="recommendedActionName"/> is an empty string, and was expected to be non-empty. </exception>
         [ForwardsClientCalls]
         public virtual async Task<Response<MySqlRecommendationActionResource>> GetMySqlRecommendationActionAsync(string recommendedActionName, CancellationToken cancellationToken = default)
         {
@@ -114,13 +132,29 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Retrieve recommended actions from the advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/recommendedActions/{recommendedActionName}
-        /// Operation Id: RecommendedActions_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/recommendedActions/{recommendedActionName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>RecommendedActions_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlRecommendationActionResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="recommendedActionName"> The recommended action name. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentException"> <paramref name="recommendedActionName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="recommendedActionName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="recommendedActionName"/> is an empty string, and was expected to be non-empty. </exception>
         [ForwardsClientCalls]
         public virtual Response<MySqlRecommendationActionResource> GetMySqlRecommendationAction(string recommendedActionName, CancellationToken cancellationToken = default)
         {
@@ -129,8 +163,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Get a recommendation action advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}
-        /// Operation Id: Advisors_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual async Task<Response<MySqlAdvisorResource>> GetAsync(CancellationToken cancellationToken = default)
@@ -153,8 +203,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Get a recommendation action advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}
-        /// Operation Id: Advisors_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual Response<MySqlAdvisorResource> Get(CancellationToken cancellationToken = default)
@@ -177,8 +243,20 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Create recommendation action session for the advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/createRecommendedActionSession
-        /// Operation Id: CreateRecommendedActionSession
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/createRecommendedActionSession</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>CreateRecommendedActionSession</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="databaseName"> The name of the database. </param>
@@ -207,8 +285,20 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Create recommendation action session for the advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/createRecommendedActionSession
-        /// Operation Id: CreateRecommendedActionSession
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}/createRecommendedActionSession</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>CreateRecommendedActionSession</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="databaseName"> The name of the database. </param>

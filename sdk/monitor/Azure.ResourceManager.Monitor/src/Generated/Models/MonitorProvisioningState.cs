@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace Azure.ResourceManager.Monitor.Models
 {
-    /// <summary> Provisioning state of the scheduled query rule. </summary>
+    /// <summary> The provisioning state of the Azure Monitor workspace. Set to Succeeded if everything is healthy. </summary>
     public readonly partial struct MonitorProvisioningState : IEquatable<MonitorProvisioningState>
     {
         private readonly string _value;
@@ -22,19 +22,22 @@ namespace Azure.ResourceManager.Monitor.Models
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        private const string CreatingValue = "Creating";
         private const string SucceededValue = "Succeeded";
-        private const string DeployingValue = "Deploying";
-        private const string CanceledValue = "Canceled";
+        private const string DeletingValue = "Deleting";
         private const string FailedValue = "Failed";
+        private const string CanceledValue = "Canceled";
 
+        /// <summary> Creating. </summary>
+        public static MonitorProvisioningState Creating { get; } = new MonitorProvisioningState(CreatingValue);
         /// <summary> Succeeded. </summary>
         public static MonitorProvisioningState Succeeded { get; } = new MonitorProvisioningState(SucceededValue);
-        /// <summary> Deploying. </summary>
-        public static MonitorProvisioningState Deploying { get; } = new MonitorProvisioningState(DeployingValue);
-        /// <summary> Canceled. </summary>
-        public static MonitorProvisioningState Canceled { get; } = new MonitorProvisioningState(CanceledValue);
+        /// <summary> Deleting. </summary>
+        public static MonitorProvisioningState Deleting { get; } = new MonitorProvisioningState(DeletingValue);
         /// <summary> Failed. </summary>
         public static MonitorProvisioningState Failed { get; } = new MonitorProvisioningState(FailedValue);
+        /// <summary> Canceled. </summary>
+        public static MonitorProvisioningState Canceled { get; } = new MonitorProvisioningState(CanceledValue);
         /// <summary> Determines if two <see cref="MonitorProvisioningState"/> values are the same. </summary>
         public static bool operator ==(MonitorProvisioningState left, MonitorProvisioningState right) => left.Equals(right);
         /// <summary> Determines if two <see cref="MonitorProvisioningState"/> values are not the same. </summary>

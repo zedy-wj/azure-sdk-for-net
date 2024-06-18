@@ -22,25 +22,12 @@ namespace Azure.ResourceManager.PostgreSql.Models
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private const string Nine5Value = "9.5";
-        private const string Nine6Value = "9.6";
-        private const string TenValue = "10";
-        private const string Ten0Value = "10.0";
-        private const string Ten2Value = "10.2";
-        private const string ElevenValue = "11";
-
-        /// <summary> 9.5. </summary>
-        public static PostgreSqlServerVersion Nine5 { get; } = new PostgreSqlServerVersion(Nine5Value);
-        /// <summary> 9.6. </summary>
-        public static PostgreSqlServerVersion Nine6 { get; } = new PostgreSqlServerVersion(Nine6Value);
-        /// <summary> 10. </summary>
-        public static PostgreSqlServerVersion Ten { get; } = new PostgreSqlServerVersion(TenValue);
-        /// <summary> 10.0. </summary>
-        public static PostgreSqlServerVersion Ten0 { get; } = new PostgreSqlServerVersion(Ten0Value);
-        /// <summary> 10.2. </summary>
-        public static PostgreSqlServerVersion Ten2 { get; } = new PostgreSqlServerVersion(Ten2Value);
-        /// <summary> 11. </summary>
-        public static PostgreSqlServerVersion Eleven { get; } = new PostgreSqlServerVersion(ElevenValue);
+        private const string Ver9_5Value = "9.5";
+        private const string Ver9_6Value = "9.6";
+        private const string Ver10Value = "10";
+        private const string Ver10_0Value = "10.0";
+        private const string Ver10_2Value = "10.2";
+        private const string Ver11Value = "11";
         /// <summary> Determines if two <see cref="PostgreSqlServerVersion"/> values are the same. </summary>
         public static bool operator ==(PostgreSqlServerVersion left, PostgreSqlServerVersion right) => left.Equals(right);
         /// <summary> Determines if two <see cref="PostgreSqlServerVersion"/> values are not the same. </summary>

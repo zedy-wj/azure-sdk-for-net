@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.CosmosDB.Models;
@@ -33,8 +32,23 @@ namespace Azure.ResourceManager.CosmosDB
         {
             _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
-            _apiVersion = apiVersion ?? "2021-10-15";
+            _apiVersion = apiVersion ?? "2024-02-15-preview";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListTablesRequestUri(string subscriptionId, string resourceGroupName, string accountName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListTablesRequest(string subscriptionId, string resourceGroupName, string accountName)
@@ -114,6 +128,22 @@ namespace Azure.ResourceManager.CosmosDB
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateGetTableRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateGetTableRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName)
@@ -204,6 +234,22 @@ namespace Azure.ResourceManager.CosmosDB
             }
         }
 
+        internal RequestUriBuilder CreateCreateUpdateTableRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName, CosmosDBTableCreateOrUpdateContent content)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateCreateUpdateTableRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName, CosmosDBTableCreateOrUpdateContent content)
         {
             var message = _pipeline.CreateMessage();
@@ -224,7 +270,7 @@ namespace Azure.ResourceManager.CosmosDB
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content0 = new Utf8JsonRequestContent();
-            content0.JsonWriter.WriteObjectValue(content);
+            content0.JsonWriter.WriteObjectValue(content, ModelSerializationExtensions.WireOptions);
             request.Content = content0;
             _userAgent.Apply(message);
             return message;
@@ -286,6 +332,22 @@ namespace Azure.ResourceManager.CosmosDB
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateDeleteTableRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateDeleteTableRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName)
@@ -361,6 +423,23 @@ namespace Azure.ResourceManager.CosmosDB
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateGetTableThroughputRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendPath("/throughputSettings/default", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateGetTableThroughputRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName)
@@ -452,6 +531,23 @@ namespace Azure.ResourceManager.CosmosDB
             }
         }
 
+        internal RequestUriBuilder CreateUpdateTableThroughputRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName, ThroughputSettingsUpdateData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendPath("/throughputSettings/default", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateUpdateTableThroughputRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName, ThroughputSettingsUpdateData data)
         {
             var message = _pipeline.CreateMessage();
@@ -472,9 +568,9 @@ namespace Azure.ResourceManager.CosmosDB
             request.Uri = uri;
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
-            var content0 = new Utf8JsonRequestContent();
-            content0.JsonWriter.WriteObjectValue(data);
-            request.Content = content0;
+            var content = new Utf8JsonRequestContent();
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
+            request.Content = content;
             _userAgent.Apply(message);
             return message;
         }
@@ -535,6 +631,23 @@ namespace Azure.ResourceManager.CosmosDB
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateMigrateTableToAutoscaleRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendPath("/throughputSettings/default/migrateToAutoscale", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateMigrateTableToAutoscaleRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName)
@@ -614,6 +727,23 @@ namespace Azure.ResourceManager.CosmosDB
             }
         }
 
+        internal RequestUriBuilder CreateMigrateTableToManualThroughputRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendPath("/throughputSettings/default/migrateToManualThroughput", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateMigrateTableToManualThroughputRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName)
         {
             var message = _pipeline.CreateMessage();
@@ -680,6 +810,108 @@ namespace Azure.ResourceManager.CosmosDB
             Argument.AssertNotNullOrEmpty(tableName, nameof(tableName));
 
             using var message = CreateMigrateTableToManualThroughputRequest(subscriptionId, resourceGroupName, accountName, tableName);
+            _pipeline.Send(message, cancellationToken);
+            switch (message.Response.Status)
+            {
+                case 200:
+                case 202:
+                    return message.Response;
+                default:
+                    throw new RequestFailedException(message.Response);
+            }
+        }
+
+        internal RequestUriBuilder CreateRetrieveContinuousBackupInformationRequestUri(string subscriptionId, string resourceGroupName, string accountName, string tableName, ContinuousBackupRestoreLocation location)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendPath("/retrieveContinuousBackupInformation", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateRetrieveContinuousBackupInformationRequest(string subscriptionId, string resourceGroupName, string accountName, string tableName, ContinuousBackupRestoreLocation location)
+        {
+            var message = _pipeline.CreateMessage();
+            var request = message.Request;
+            request.Method = RequestMethod.Post;
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.DocumentDB/databaseAccounts/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/tables/", false);
+            uri.AppendPath(tableName, true);
+            uri.AppendPath("/retrieveContinuousBackupInformation", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            request.Uri = uri;
+            request.Headers.Add("Accept", "application/json");
+            request.Headers.Add("Content-Type", "application/json");
+            var content = new Utf8JsonRequestContent();
+            content.JsonWriter.WriteObjectValue(location, ModelSerializationExtensions.WireOptions);
+            request.Content = content;
+            _userAgent.Apply(message);
+            return message;
+        }
+
+        /// <summary> Retrieves continuous backup information for a table. </summary>
+        /// <param name="subscriptionId"> The ID of the target subscription. </param>
+        /// <param name="resourceGroupName"> The name of the resource group. The name is case insensitive. </param>
+        /// <param name="accountName"> Cosmos DB database account name. </param>
+        /// <param name="tableName"> Cosmos DB table name. </param>
+        /// <param name="location"> The name of the continuous backup restore location. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="tableName"/> or <paramref name="location"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="tableName"/> is an empty string, and was expected to be non-empty. </exception>
+        public async Task<Response> RetrieveContinuousBackupInformationAsync(string subscriptionId, string resourceGroupName, string accountName, string tableName, ContinuousBackupRestoreLocation location, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+            Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
+            Argument.AssertNotNullOrEmpty(accountName, nameof(accountName));
+            Argument.AssertNotNullOrEmpty(tableName, nameof(tableName));
+            Argument.AssertNotNull(location, nameof(location));
+
+            using var message = CreateRetrieveContinuousBackupInformationRequest(subscriptionId, resourceGroupName, accountName, tableName, location);
+            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            switch (message.Response.Status)
+            {
+                case 200:
+                case 202:
+                    return message.Response;
+                default:
+                    throw new RequestFailedException(message.Response);
+            }
+        }
+
+        /// <summary> Retrieves continuous backup information for a table. </summary>
+        /// <param name="subscriptionId"> The ID of the target subscription. </param>
+        /// <param name="resourceGroupName"> The name of the resource group. The name is case insensitive. </param>
+        /// <param name="accountName"> Cosmos DB database account name. </param>
+        /// <param name="tableName"> Cosmos DB table name. </param>
+        /// <param name="location"> The name of the continuous backup restore location. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="tableName"/> or <paramref name="location"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="tableName"/> is an empty string, and was expected to be non-empty. </exception>
+        public Response RetrieveContinuousBackupInformation(string subscriptionId, string resourceGroupName, string accountName, string tableName, ContinuousBackupRestoreLocation location, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+            Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
+            Argument.AssertNotNullOrEmpty(accountName, nameof(accountName));
+            Argument.AssertNotNullOrEmpty(tableName, nameof(tableName));
+            Argument.AssertNotNull(location, nameof(location));
+
+            using var message = CreateRetrieveContinuousBackupInformationRequest(subscriptionId, resourceGroupName, accountName, tableName, location);
             _pipeline.Send(message, cancellationToken);
             switch (message.Response.Status)
             {

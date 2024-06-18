@@ -27,7 +27,9 @@ namespace Azure.ResourceManager.CosmosDB.Tests
         {
             _resourceGroup = await GlobalClient.GetResourceGroupResource(_resourceGroupIdentifier).GetAsync();
 
-            _databaseAccount = await CreateDatabaseAccount(SessionRecording.GenerateAssetName("dbaccount-"), CosmosDBAccountKind.GlobalDocumentDB, new CosmosDBAccountCapability("EnableCassandra"));
+            List<CosmosDBAccountCapability> capabilities = new List<CosmosDBAccountCapability>();
+            capabilities.Add(new CosmosDBAccountCapability("EnableCassandra", null));
+            _databaseAccount = await CreateDatabaseAccount(SessionRecording.GenerateAssetName("dbaccount-"), CosmosDBAccountKind.GlobalDocumentDB, capabilities);
 
             _cassandraKeyspaceId = (await CassandraKeyspaceTests.CreateCassandraKeyspace(SessionRecording.GenerateAssetName("cassandra-keyspace-"), null, _databaseAccount.GetCassandraKeyspaces())).Id;
 
@@ -35,10 +37,10 @@ namespace Azure.ResourceManager.CosmosDB.Tests
         }
 
         [OneTimeTearDown]
-        public void GlobalTeardown()
+        public async Task GlobalTeardown()
         {
-            _cassandraKeyspace.Delete(WaitUntil.Completed);
-            _databaseAccount.Delete(WaitUntil.Completed);
+            await _cassandraKeyspace.DeleteAsync(WaitUntil.Completed);
+            await _databaseAccount.DeleteAsync(WaitUntil.Completed);
         }
 
         [SetUp]
@@ -117,7 +119,7 @@ namespace Azure.ResourceManager.CosmosDB.Tests
             Assert.AreEqual(TestThroughput1, throughput.Data.Resource.Throughput);
 
             CassandraTableThroughputSettingResource throughput2 = (await throughput.CreateOrUpdateAsync(WaitUntil.Completed, new ThroughputSettingsUpdateData(AzureLocation.WestUS,
-                new ThroughputSettingsResourceInfo(TestThroughput2, null, null, null)))).Value;
+                new ThroughputSettingsResourceInfo(TestThroughput2, null, null, null, null, null, null)))).Value;
 
             Assert.AreEqual(TestThroughput2, throughput2.Data.Resource.Throughput);
         }
@@ -184,7 +186,7 @@ namespace Azure.ResourceManager.CosmosDB.Tests
                     Columns = { new CassandraColumn { Name = "columnA", CassandraColumnType = "int" }, new CassandraColumn { Name = "columnB", CassandraColumnType = "ascii" } },
                     PartitionKeys = { new CassandraPartitionKey { Name = "columnA" } },
                     ClusterKeys = { new CassandraClusterKey { Name = "columnB", OrderBy = "Asc" } },
-                }, default))
+                }, default, null))
             {
                 Options = BuildDatabaseCreateUpdateOptions(TestThroughput1, autoscale),
             };

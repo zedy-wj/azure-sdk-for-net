@@ -326,6 +326,15 @@ namespace Azure.Storage.Blobs.Specialized
             _blockBlobRestClient = BuildBlockBlobRestClient(blobUri);
         }
 
+        internal BlockBlobClient(
+            Uri blobUri,
+            BlobClientConfiguration clientConfiguration,
+            ClientSideEncryptionOptions clientSideEncryption)
+            : base(blobUri, clientConfiguration, clientSideEncryption)
+        {
+            _blockBlobRestClient = BuildBlockBlobRestClient(blobUri);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockBlobClient"/>
         /// class.
@@ -351,13 +360,14 @@ namespace Azure.Storage.Blobs.Specialized
             return new BlockBlobClient(
                 blobUri,
                 new BlobClientConfiguration(
-                    pipeline,
-                    null,
-                    new StorageClientDiagnostics(options),
-                    options.Version,
-                    options.CustomerProvidedKey,
-                    options.TransferValidation,
-                    null));
+                    pipeline: pipeline,
+                    sharedKeyCredential: null,
+                    clientDiagnostics: new ClientDiagnostics(options),
+                    version: options.Version,
+                    customerProvidedKey: options.CustomerProvidedKey,
+                    transferValidation: options.TransferValidation,
+                    encryptionScope: null,
+                    trimBlobNameSlashes: options.TrimBlobNameSlashes));
         }
 
         private static void AssertNoClientSideEncryption(BlobClientOptions options)
@@ -529,14 +539,14 @@ namespace Azure.Storage.Blobs.Specialized
         {
             var uploader = GetPartitionedUploader(
                 transferOptions: options?.TransferOptions ?? default,
-                options?.TransferValidationOptions,
+                options?.TransferValidation ?? ClientConfiguration.TransferValidation.Upload,
                 operationName: $"{nameof(BlockBlobClient)}.{nameof(Upload)}");
 
             return uploader.UploadInternal(
                 content,
                 expectedContentLength: default,
                 options,
-                options.ProgressHandler,
+                options?.ProgressHandler,
                 async: false,
                 cancellationToken).EnsureCompleted();
         }
@@ -586,14 +596,14 @@ namespace Azure.Storage.Blobs.Specialized
         {
             var uploader = GetPartitionedUploader(
                 transferOptions: options?.TransferOptions ?? default,
-                options?.TransferValidationOptions,
+                options?.TransferValidation ?? ClientConfiguration.TransferValidation.Upload,
                 operationName: $"{nameof(BlockBlobClient)}.{nameof(Upload)}");
 
             return await uploader.UploadInternal(
                 content,
                 expectedContentLength: default,
                 options,
-                options.ProgressHandler,
+                options?.ProgressHandler,
                 async: true,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -794,7 +804,7 @@ namespace Azure.Storage.Blobs.Specialized
         /// Optional <see cref="IProgress{Long}"/> to provide
         /// progress updates about data transfers.
         /// </param>
-        /// <param name="validationOptionsOverride">
+        /// <param name="transferValidationOverride">
         /// Options for sending a checksum to validate request contents.
         /// </param>
         /// <param name="immutabilityPolicy">
@@ -835,12 +845,12 @@ namespace Azure.Storage.Blobs.Specialized
             BlobImmutabilityPolicy immutabilityPolicy,
             bool? legalHold,
             IProgress<long> progressHandler,
-            UploadTransferValidationOptions validationOptionsOverride,
+            UploadTransferValidationOptions transferValidationOverride,
             string operationName,
             bool async,
             CancellationToken cancellationToken)
         {
-            UploadTransferValidationOptions validationOptions = validationOptionsOverride ?? ClientConfiguration.TransferValidation.Upload;
+            UploadTransferValidationOptions validationOptions = transferValidationOverride ?? ClientConfiguration.TransferValidation.Upload;
 
             content = content?.WithNoDispose().WithProgress(progressHandler);
             operationName ??= $"{nameof(BlockBlobClient)}.{nameof(Upload)}";
@@ -866,11 +876,21 @@ namespace Azure.Storage.Blobs.Specialized
                     Errors.VerifyStreamPosition(content, nameof(content));
 
                     // compute hash BEFORE attaching progress handler
-                    ContentHasher.GetHashResult hashResult = ContentHasher.GetHashOrDefault(content, validationOptions);
+                    ContentHasher.GetHashResult hashResult = await ContentHasher.GetHashOrDefaultInternal(
+                        content,
+                        validationOptions,
+                        async,
+                        cancellationToken).ConfigureAwait(false);
 
                     content = content?.WithNoDispose().WithProgress(progressHandler);
 
                     ResponseWithHeaders<BlockBlobUploadHeaders> response;
+
+                    using DisposableBucket disposableBucket = new();
+                    if (ClientSideEncryption != default)
+                    {
+                        disposableBucket.Add(Shared.StorageExtensions.CreateClientSideEncryptionScope(ClientSideEncryption.EncryptionVersion));
+                    }
 
                     if (async)
                     {
@@ -1144,7 +1164,7 @@ namespace Azure.Storage.Blobs.Specialized
             StageBlockInternal(
                 base64BlockId,
                 content,
-                options?.TransferValidationOptions,
+                options?.TransferValidation,
                 options?.Conditions,
                 options?.ProgressHandler,
                 false, // async
@@ -1195,7 +1215,7 @@ namespace Azure.Storage.Blobs.Specialized
             await StageBlockInternal(
                 base64BlockId,
                 content,
-                options?.TransferValidationOptions,
+                options?.TransferValidation,
                 options?.Conditions,
                 options?.ProgressHandler,
                 true, // async
@@ -1229,7 +1249,7 @@ namespace Azure.Storage.Blobs.Specialized
         /// <param name="progressHandler">
         /// Progress handler for stage block progress.
         /// </param>
-        /// <param name="validationOptionsOverride">
+        /// <param name="transferValidationOverride">
         /// Override for client configured transfer validation options.
         /// </param>
         /// <param name="async">
@@ -1250,13 +1270,13 @@ namespace Azure.Storage.Blobs.Specialized
         internal virtual async Task<Response<BlockInfo>> StageBlockInternal(
             string base64BlockId,
             Stream content,
-            UploadTransferValidationOptions validationOptionsOverride,
+            UploadTransferValidationOptions transferValidationOverride,
             BlobRequestConditions conditions,
             IProgress<long> progressHandler,
             bool async,
             CancellationToken cancellationToken)
         {
-            UploadTransferValidationOptions validationOptions = validationOptionsOverride ?? ClientConfiguration.TransferValidation.Upload;
+            UploadTransferValidationOptions validationOptions = transferValidationOverride ?? ClientConfiguration.TransferValidation.Upload;
 
             using (ClientConfiguration.Pipeline.BeginLoggingScope(nameof(BlockBlobClient)))
             {
@@ -1286,7 +1306,11 @@ namespace Azure.Storage.Blobs.Specialized
                     Errors.VerifyStreamPosition(content, nameof(content));
 
                     // compute hash BEFORE attaching progress handler
-                    ContentHasher.GetHashResult hashResult = ContentHasher.GetHashOrDefault(content, validationOptions);
+                    ContentHasher.GetHashResult hashResult = await ContentHasher.GetHashOrDefaultInternal(
+                        content,
+                        validationOptions,
+                        async,
+                        cancellationToken).ConfigureAwait(false);
 
                     content = content.WithNoDispose().WithProgress(progressHandler);
 
@@ -2159,6 +2183,12 @@ namespace Azure.Storage.Blobs.Specialized
 
                     ResponseWithHeaders<BlockBlobCommitBlockListHeaders> response;
 
+                    using DisposableBucket disposableBucket = new();
+                    if (ClientSideEncryption != default)
+                    {
+                        disposableBucket.Add(Shared.StorageExtensions.CreateClientSideEncryptionScope(ClientSideEncryption.EncryptionVersion));
+                    }
+
                     if (async)
                     {
                         response = await BlockBlobRestClient.CommitBlockListAsync(
@@ -2761,7 +2791,7 @@ namespace Azure.Storage.Blobs.Specialized
                     immutabilityPolicy: default,
                     legalHold: default,
                     progressHandler: default,
-                    validationOptionsOverride: default,
+                    transferValidationOverride: default,
                     operationName: default,
                     async: async,
                     cancellationToken: cancellationToken)
@@ -2782,7 +2812,7 @@ namespace Azure.Storage.Blobs.Specialized
                     blobHttpHeaders: options?.HttpHeaders,
                     metadata: options?.Metadata,
                     tags: options?.Tags,
-                    options?.TransferValidationOptions
+                    options?.TransferValidation ?? ClientConfiguration.TransferValidation.Upload
                     );
             }
             catch (Exception ex)
@@ -3047,8 +3077,7 @@ namespace Azure.Storage.Blobs.Specialized
                             blobContentLanguage: options?.HttpHeaders?.ContentLanguage,
                             blobContentMD5: options?.HttpHeaders?.ContentHash,
                             blobCacheControl: options?.HttpHeaders?.CacheControl,
-                            // TODO service bug.  https://github.com/Azure/azure-sdk-for-net/issues/15969
-                            // metadata: options?.Metadata,
+                            metadata: options?.Metadata,
                             leaseId: options?.DestinationConditions?.LeaseId,
                             blobContentDisposition: options?.HttpHeaders?.ContentDisposition,
                             encryptionKey: ClientConfiguration.CustomerProvidedKey?.EncryptionKey,
@@ -3084,8 +3113,7 @@ namespace Azure.Storage.Blobs.Specialized
                             blobContentLanguage: options?.HttpHeaders?.ContentLanguage,
                             blobContentMD5: options?.HttpHeaders?.ContentHash,
                             blobCacheControl: options?.HttpHeaders?.CacheControl,
-                            // TODO service bug.  https://github.com/Azure/azure-sdk-for-net/issues/15969
-                            // metadata: options?.Metadata,
+                            metadata: options?.Metadata,
                             leaseId: options?.DestinationConditions?.LeaseId,
                             blobContentDisposition: options?.HttpHeaders?.ContentDisposition,
                             encryptionKey: ClientConfiguration.CustomerProvidedKey?.EncryptionKey,
@@ -3147,7 +3175,7 @@ namespace Azure.Storage.Blobs.Specialized
         {
             return new PartitionedUploader<BlobUploadOptions, BlobContentInfo>.Behaviors
             {
-                SingleUpload = async (stream, args, progressHandler, validationOptions, operationName, async, cancellationToken)
+                SingleUploadStreaming = async (stream, args, progressHandler, validationOptions, operationName, async, cancellationToken)
                     => await client.UploadInternal(
                         stream,
                         args?.HttpHeaders,
@@ -3162,7 +3190,22 @@ namespace Azure.Storage.Blobs.Specialized
                         operationName,
                         async,
                         cancellationToken).ConfigureAwait(false),
-                UploadPartition = async (stream, offset, args, progressHandler, validationOptions, async, cancellationToken)
+                SingleUploadBinaryData = async (content, args, progressHandler, validationOptions, operationName, async, cancellationToken)
+                    => await client.UploadInternal(
+                        content.ToStream(),
+                        args?.HttpHeaders,
+                        args?.Metadata,
+                        args?.Tags,
+                        args?.Conditions,
+                        args?.AccessTier,
+                        args?.ImmutabilityPolicy,
+                        args?.LegalHold,
+                        progressHandler,
+                        validationOptions,
+                        operationName,
+                        async,
+                        cancellationToken).ConfigureAwait(false),
+                UploadPartitionStreaming = async (stream, offset, args, progressHandler, validationOptions, async, cancellationToken)
                     =>
                 {
                     // Stage Block only accepts LeaseId.
@@ -3177,6 +3220,27 @@ namespace Azure.Storage.Blobs.Specialized
                     await client.StageBlockInternal(
                             Shared.StorageExtensions.GenerateBlockId(offset),
                             stream,
+                            validationOptions,
+                            conditions,
+                            progressHandler,
+                            async,
+                            cancellationToken).ConfigureAwait(false);
+                },
+                UploadPartitionBinaryData = async (content, offset, args, progressHandler, validationOptions, async, cancellationToken)
+                    =>
+                {
+                    // Stage Block only accepts LeaseId.
+                    BlobRequestConditions conditions = null;
+                    if (args?.Conditions != null)
+                    {
+                        conditions = new BlobRequestConditions
+                        {
+                            LeaseId = args.Conditions.LeaseId
+                        };
+                    }
+                    await client.StageBlockInternal(
+                            Shared.StorageExtensions.GenerateBlockId(offset),
+                            content.ToStream(),
                             validationOptions,
                             conditions,
                             progressHandler,

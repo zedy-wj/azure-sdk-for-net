@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure.AI.FormRecognizer.DocumentAnalysis.Tests;
 using Azure.Core.TestFramework;
 
 namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 {
-    public partial class DocumentAnalysisSamples : SamplesBase<DocumentAnalysisTestEnvironment>
+    public partial class DocumentAnalysisSamples
     {
         [RecordedTest]
         public async Task ComposeModelAsync()
@@ -21,9 +20,9 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
             var client = new DocumentModelAdministrationClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
 
             #region Snippet:FormRecognizerSampleBuildVariousModels
-            // For this sample, you can use the training forms found in the `trainingFiles` folder.
-            // Upload the forms to your storage container and then generate a container SAS URL.
-            // For instructions on setting up forms for training in an Azure Storage Blob Container, see
+            // For this sample, you can use the training documents found in the `trainingFiles` folder.
+            // Upload the documents to your storage container and then generate a container SAS URL.
+            // For instructions on setting up documents for training in an Azure Storage Blob Container, see
             // https://aka.ms/azsdk/formrecognizer/buildtrainingset
 
 #if SNIPPET
@@ -31,9 +30,9 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 #else
             Uri officeSuppliesUri = new Uri(trainingFileUrl);
 #endif
-            var officeSupplieOptions = new BuildModelOptions() { Description = "Purchase order - Office supplies" };
+            var officeSupplieOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Office supplies" };
 
-            BuildModelOperation suppliesOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: officeSupplieOptions);
+            BuildDocumentModelOperation suppliesOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: officeSupplieOptions);
             DocumentModelDetails officeSuppliesModel = suppliesOperation.Value;
 
 #if SNIPPET
@@ -41,9 +40,9 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 #else
             Uri officeEquipmentUri = new Uri(trainingFileUrl);
 #endif
-            var equipmentOptions = new BuildModelOptions() { Description = "Purchase order - Office Equipment" };
+            var equipmentOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Office Equipment" };
 
-            BuildModelOperation equipmentOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
+            BuildDocumentModelOperation equipmentOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
             DocumentModelDetails officeEquipmentModel = equipmentOperation.Value;
 
 #if SNIPPET
@@ -51,9 +50,9 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 #else
             Uri furnitureUri = new Uri(trainingFileUrl);
 #endif
-            var furnitureOptions = new BuildModelOptions() { Description = "Purchase order - Furniture" };
+            var furnitureOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Furniture" };
 
-            BuildModelOperation furnitureOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
+            BuildDocumentModelOperation furnitureOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
             DocumentModelDetails furnitureModel = furnitureOperation.Value;
 
 #if SNIPPET
@@ -61,9 +60,9 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 #else
             Uri cleaningSuppliesUri = new Uri(trainingFileUrl);
 #endif
-            var cleaningOptions = new BuildModelOptions() { Description = "Purchase order - Cleaning Supplies" };
+            var cleaningOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Cleaning Supplies" };
 
-            BuildModelOperation cleaningOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
+            BuildDocumentModelOperation cleaningOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
             DocumentModelDetails cleaningSuppliesModel = cleaningOperation.Value;
 
             #endregion
@@ -78,7 +77,7 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
                 cleaningSuppliesModel.ModelId
             };
 
-            BuildModelOperation operation = await client.ComposeModelAsync(WaitUntil.Completed, modelIds, description: "Composed Purchase order");
+            ComposeDocumentModelOperation operation = await client.ComposeDocumentModelAsync(WaitUntil.Completed, modelIds, description: "Composed Purchase order");
             DocumentModelDetails purchaseOrderModel = operation.Value;
 
             Console.WriteLine($"  Model Id: {purchaseOrderModel.ModelId}");
@@ -89,11 +88,11 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
             #endregion
 
             // Delete the models on completion to clean environment.
-            await client.DeleteModelAsync(officeSuppliesModel.ModelId).ConfigureAwait(false);
-            await client.DeleteModelAsync(officeEquipmentModel.ModelId).ConfigureAwait(false);
-            await client.DeleteModelAsync(furnitureModel.ModelId).ConfigureAwait(false);
-            await client.DeleteModelAsync(cleaningSuppliesModel.ModelId).ConfigureAwait(false);
-            await client.DeleteModelAsync(purchaseOrderModel.ModelId).ConfigureAwait(false);
+            await client.DeleteDocumentModelAsync(officeSuppliesModel.ModelId).ConfigureAwait(false);
+            await client.DeleteDocumentModelAsync(officeEquipmentModel.ModelId).ConfigureAwait(false);
+            await client.DeleteDocumentModelAsync(furnitureModel.ModelId).ConfigureAwait(false);
+            await client.DeleteDocumentModelAsync(cleaningSuppliesModel.ModelId).ConfigureAwait(false);
+            await client.DeleteDocumentModelAsync(purchaseOrderModel.ModelId).ConfigureAwait(false);
         }
     }
 }

@@ -5,30 +5,50 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
 
 namespace Azure.ResourceManager.AppContainers.Models
 {
-    public partial class ContainerAppContainer : IUtf8JsonSerializable
+    public partial class ContainerAppContainer : IUtf8JsonSerializable, IJsonModel<ContainerAppContainer>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<ContainerAppContainer>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<ContainerAppContainer>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerAppContainer>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ContainerAppContainer)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
+            if (Optional.IsCollectionDefined(Probes))
+            {
+                writer.WritePropertyName("probes"u8);
+                writer.WriteStartArray();
+                foreach (var item in Probes)
+                {
+                    writer.WriteObjectValue(item, options);
+                }
+                writer.WriteEndArray();
+            }
             if (Optional.IsDefined(Image))
             {
-                writer.WritePropertyName("image");
+                writer.WritePropertyName("image"u8);
                 writer.WriteStringValue(Image);
             }
             if (Optional.IsDefined(Name))
             {
-                writer.WritePropertyName("name");
+                writer.WritePropertyName("name"u8);
                 writer.WriteStringValue(Name);
             }
             if (Optional.IsCollectionDefined(Command))
             {
-                writer.WritePropertyName("command");
+                writer.WritePropertyName("command"u8);
                 writer.WriteStartArray();
                 foreach (var item in Command)
                 {
@@ -38,7 +58,7 @@ namespace Azure.ResourceManager.AppContainers.Models
             }
             if (Optional.IsCollectionDefined(Args))
             {
-                writer.WritePropertyName("args");
+                writer.WritePropertyName("args"u8);
                 writer.WriteStartArray();
                 foreach (var item in Args)
                 {
@@ -48,69 +68,107 @@ namespace Azure.ResourceManager.AppContainers.Models
             }
             if (Optional.IsCollectionDefined(Env))
             {
-                writer.WritePropertyName("env");
+                writer.WritePropertyName("env"u8);
                 writer.WriteStartArray();
                 foreach (var item in Env)
                 {
-                    writer.WriteObjectValue(item);
+                    writer.WriteObjectValue(item, options);
                 }
                 writer.WriteEndArray();
             }
             if (Optional.IsDefined(Resources))
             {
-                writer.WritePropertyName("resources");
-                writer.WriteObjectValue(Resources);
-            }
-            if (Optional.IsCollectionDefined(Probes))
-            {
-                writer.WritePropertyName("probes");
-                writer.WriteStartArray();
-                foreach (var item in Probes)
-                {
-                    writer.WriteObjectValue(item);
-                }
-                writer.WriteEndArray();
+                writer.WritePropertyName("resources"u8);
+                writer.WriteObjectValue(Resources, options);
             }
             if (Optional.IsCollectionDefined(VolumeMounts))
             {
-                writer.WritePropertyName("volumeMounts");
+                writer.WritePropertyName("volumeMounts"u8);
                 writer.WriteStartArray();
                 foreach (var item in VolumeMounts)
                 {
-                    writer.WriteObjectValue(item);
+                    writer.WriteObjectValue(item, options);
                 }
                 writer.WriteEndArray();
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
             writer.WriteEndObject();
         }
 
-        internal static ContainerAppContainer DeserializeContainerAppContainer(JsonElement element)
+        ContainerAppContainer IJsonModel<ContainerAppContainer>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            Optional<string> image = default;
-            Optional<string> name = default;
-            Optional<IList<string>> command = default;
-            Optional<IList<string>> args = default;
-            Optional<IList<EnvironmentVar>> env = default;
-            Optional<ContainerResources> resources = default;
-            Optional<IList<ContainerAppProbe>> probes = default;
-            Optional<IList<ContainerAppVolumeMount>> volumeMounts = default;
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerAppContainer>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ContainerAppContainer)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeContainerAppContainer(document.RootElement, options);
+        }
+
+        internal static ContainerAppContainer DeserializeContainerAppContainer(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            IList<ContainerAppProbe> probes = default;
+            string image = default;
+            string name = default;
+            IList<string> command = default;
+            IList<string> args = default;
+            IList<ContainerAppEnvironmentVariable> env = default;
+            AppContainerResources resources = default;
+            IList<ContainerAppVolumeMount> volumeMounts = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("image"))
+                if (property.NameEquals("probes"u8))
+                {
+                    if (property.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    List<ContainerAppProbe> array = new List<ContainerAppProbe>();
+                    foreach (var item in property.Value.EnumerateArray())
+                    {
+                        array.Add(ContainerAppProbe.DeserializeContainerAppProbe(item, options));
+                    }
+                    probes = array;
+                    continue;
+                }
+                if (property.NameEquals("image"u8))
                 {
                     image = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("name"))
+                if (property.NameEquals("name"u8))
                 {
                     name = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("command"))
+                if (property.NameEquals("command"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     List<string> array = new List<string>();
@@ -121,11 +179,10 @@ namespace Azure.ResourceManager.AppContainers.Models
                     command = array;
                     continue;
                 }
-                if (property.NameEquals("args"))
+                if (property.NameEquals("args"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     List<string> array = new List<string>();
@@ -136,63 +193,90 @@ namespace Azure.ResourceManager.AppContainers.Models
                     args = array;
                     continue;
                 }
-                if (property.NameEquals("env"))
+                if (property.NameEquals("env"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    List<EnvironmentVar> array = new List<EnvironmentVar>();
+                    List<ContainerAppEnvironmentVariable> array = new List<ContainerAppEnvironmentVariable>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(EnvironmentVar.DeserializeEnvironmentVar(item));
+                        array.Add(ContainerAppEnvironmentVariable.DeserializeContainerAppEnvironmentVariable(item, options));
                     }
                     env = array;
                     continue;
                 }
-                if (property.NameEquals("resources"))
+                if (property.NameEquals("resources"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    resources = ContainerResources.DeserializeContainerResources(property.Value);
+                    resources = AppContainerResources.DeserializeAppContainerResources(property.Value, options);
                     continue;
                 }
-                if (property.NameEquals("probes"))
+                if (property.NameEquals("volumeMounts"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    List<ContainerAppProbe> array = new List<ContainerAppProbe>();
-                    foreach (var item in property.Value.EnumerateArray())
-                    {
-                        array.Add(ContainerAppProbe.DeserializeContainerAppProbe(item));
-                    }
-                    probes = array;
-                    continue;
-                }
-                if (property.NameEquals("volumeMounts"))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     List<ContainerAppVolumeMount> array = new List<ContainerAppVolumeMount>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(ContainerAppVolumeMount.DeserializeContainerAppVolumeMount(item));
+                        array.Add(ContainerAppVolumeMount.DeserializeContainerAppVolumeMount(item, options));
                     }
                     volumeMounts = array;
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new ContainerAppContainer(image.Value, name.Value, Optional.ToList(command), Optional.ToList(args), Optional.ToList(env), resources.Value, Optional.ToList(probes), Optional.ToList(volumeMounts));
+            serializedAdditionalRawData = rawDataDictionary;
+            return new ContainerAppContainer(
+                image,
+                name,
+                command ?? new ChangeTrackingList<string>(),
+                args ?? new ChangeTrackingList<string>(),
+                env ?? new ChangeTrackingList<ContainerAppEnvironmentVariable>(),
+                resources,
+                volumeMounts ?? new ChangeTrackingList<ContainerAppVolumeMount>(),
+                serializedAdditionalRawData,
+                probes ?? new ChangeTrackingList<ContainerAppProbe>());
         }
+
+        BinaryData IPersistableModel<ContainerAppContainer>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerAppContainer>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ContainerAppContainer)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        ContainerAppContainer IPersistableModel<ContainerAppContainer>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerAppContainer>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeContainerAppContainer(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ContainerAppContainer)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<ContainerAppContainer>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

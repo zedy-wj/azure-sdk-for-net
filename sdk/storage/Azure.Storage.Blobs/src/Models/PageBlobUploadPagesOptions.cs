@@ -12,7 +12,7 @@ namespace Azure.Storage.Blobs.Models
     {
         /// <summary>
         /// Optional <see cref="PageBlobRequestConditions"/> to add
-        /// conditions on the upload of this Append Blob.
+        /// conditions on the upload of this Page Blob.
         /// </summary>
         public PageBlobRequestConditions Conditions { get; set; }
 
@@ -23,9 +23,8 @@ namespace Azure.Storage.Blobs.Models
         public IProgress<long> ProgressHandler { get; set; }
 
         /// <summary>
-        /// Optional <see cref="UploadTransferValidationOptions"/> for using transactional
-        /// hashing on uploads.
+        /// Optional override settings for this client's <see cref="BlobClientOptions.TransferValidation"/> settings.
         /// </summary>
-        public UploadTransferValidationOptions TransferValidationOptions { get; set; }
+        public UploadTransferValidationOptions TransferValidation { get; set; }
     }
 }

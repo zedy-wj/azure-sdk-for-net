@@ -14,32 +14,68 @@ namespace Azure.ResourceManager.Media.Models
     /// <summary> The properties of the Content Key Policy. </summary>
     public partial class ContentKeyPolicyProperties
     {
-        /// <summary> Initializes a new instance of ContentKeyPolicyProperties. </summary>
-        /// <param name="preferences"> The Key Policy options. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="preferences"/> is null. </exception>
-        internal ContentKeyPolicyProperties(IEnumerable<ContentKeyPolicyPreference> preferences)
-        {
-            if (preferences == null)
-            {
-                throw new ArgumentNullException(nameof(preferences));
-            }
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-            Preferences = preferences.ToList();
+        /// <summary> Initializes a new instance of <see cref="ContentKeyPolicyProperties"/>. </summary>
+        /// <param name="options"> The Key Policy options. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="options"/> is null. </exception>
+        internal ContentKeyPolicyProperties(IEnumerable<ContentKeyPolicyOption> options)
+        {
+            Argument.AssertNotNull(options, nameof(options));
+
+            Options = options.ToList();
         }
 
-        /// <summary> Initializes a new instance of ContentKeyPolicyProperties. </summary>
+        /// <summary> Initializes a new instance of <see cref="ContentKeyPolicyProperties"/>. </summary>
         /// <param name="policyId"> The legacy Policy ID. </param>
         /// <param name="createdOn"> The creation date of the Policy. </param>
         /// <param name="lastModifiedOn"> The last modified date of the Policy. </param>
         /// <param name="description"> A description for the Policy. </param>
-        /// <param name="preferences"> The Key Policy options. </param>
-        internal ContentKeyPolicyProperties(Guid? policyId, DateTimeOffset? createdOn, DateTimeOffset? lastModifiedOn, string description, IReadOnlyList<ContentKeyPolicyPreference> preferences)
+        /// <param name="options"> The Key Policy options. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal ContentKeyPolicyProperties(Guid? policyId, DateTimeOffset? createdOn, DateTimeOffset? lastModifiedOn, string description, IReadOnlyList<ContentKeyPolicyOption> options, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             PolicyId = policyId;
             CreatedOn = createdOn;
             LastModifiedOn = lastModifiedOn;
             Description = description;
-            Preferences = preferences;
+            Options = options;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="ContentKeyPolicyProperties"/> for deserialization. </summary>
+        internal ContentKeyPolicyProperties()
+        {
         }
 
         /// <summary> The legacy Policy ID. </summary>
@@ -51,6 +87,6 @@ namespace Azure.ResourceManager.Media.Models
         /// <summary> A description for the Policy. </summary>
         public string Description { get; }
         /// <summary> The Key Policy options. </summary>
-        public IReadOnlyList<ContentKeyPolicyPreference> Preferences { get; }
+        public IReadOnlyList<ContentKeyPolicyOption> Options { get; }
     }
 }

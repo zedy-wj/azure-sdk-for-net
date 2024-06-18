@@ -22,17 +22,10 @@ namespace Azure.ResourceManager.MySql.Models
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private const string TLS10Value = "TLS1_0";
-        private const string TLS11Value = "TLS1_1";
-        private const string TLS12Value = "TLS1_2";
+        private const string Tls1_0Value = "TLS1_0";
+        private const string Tls1_1Value = "TLS1_1";
+        private const string Tls1_2Value = "TLS1_2";
         private const string TLSEnforcementDisabledValue = "TLSEnforcementDisabled";
-
-        /// <summary> TLS1_0. </summary>
-        public static MySqlMinimalTlsVersionEnum TLS10 { get; } = new MySqlMinimalTlsVersionEnum(TLS10Value);
-        /// <summary> TLS1_1. </summary>
-        public static MySqlMinimalTlsVersionEnum TLS11 { get; } = new MySqlMinimalTlsVersionEnum(TLS11Value);
-        /// <summary> TLS1_2. </summary>
-        public static MySqlMinimalTlsVersionEnum TLS12 { get; } = new MySqlMinimalTlsVersionEnum(TLS12Value);
         /// <summary> TLSEnforcementDisabled. </summary>
         public static MySqlMinimalTlsVersionEnum TLSEnforcementDisabled { get; } = new MySqlMinimalTlsVersionEnum(TLSEnforcementDisabledValue);
         /// <summary> Determines if two <see cref="MySqlMinimalTlsVersionEnum"/> values are the same. </summary>

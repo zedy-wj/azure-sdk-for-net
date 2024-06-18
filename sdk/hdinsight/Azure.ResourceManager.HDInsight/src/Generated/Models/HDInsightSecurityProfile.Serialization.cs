@@ -5,55 +5,70 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
 
 namespace Azure.ResourceManager.HDInsight.Models
 {
-    public partial class HDInsightSecurityProfile : IUtf8JsonSerializable
+    public partial class HDInsightSecurityProfile : IUtf8JsonSerializable, IJsonModel<HDInsightSecurityProfile>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<HDInsightSecurityProfile>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<HDInsightSecurityProfile>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightSecurityProfile>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(HDInsightSecurityProfile)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
             if (Optional.IsDefined(DirectoryType))
             {
-                writer.WritePropertyName("directoryType");
+                writer.WritePropertyName("directoryType"u8);
                 writer.WriteStringValue(DirectoryType.Value.ToString());
             }
             if (Optional.IsDefined(Domain))
             {
-                writer.WritePropertyName("domain");
+                writer.WritePropertyName("domain"u8);
                 writer.WriteStringValue(Domain);
             }
             if (Optional.IsDefined(OrganizationalUnitDN))
             {
-                writer.WritePropertyName("organizationalUnitDN");
+                writer.WritePropertyName("organizationalUnitDN"u8);
                 writer.WriteStringValue(OrganizationalUnitDN);
             }
-            if (Optional.IsCollectionDefined(LdapsUrls))
+            if (Optional.IsCollectionDefined(LdapUris))
             {
-                writer.WritePropertyName("ldapsUrls");
+                writer.WritePropertyName("ldapsUrls"u8);
                 writer.WriteStartArray();
-                foreach (var item in LdapsUrls)
+                foreach (var item in LdapUris)
                 {
-                    writer.WriteStringValue(item);
+                    if (item == null)
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+                    writer.WriteStringValue(item.AbsoluteUri);
                 }
                 writer.WriteEndArray();
             }
             if (Optional.IsDefined(DomainUsername))
             {
-                writer.WritePropertyName("domainUsername");
+                writer.WritePropertyName("domainUsername"u8);
                 writer.WriteStringValue(DomainUsername);
             }
             if (Optional.IsDefined(DomainUserPassword))
             {
-                writer.WritePropertyName("domainUserPassword");
+                writer.WritePropertyName("domainUserPassword"u8);
                 writer.WriteStringValue(DomainUserPassword);
             }
             if (Optional.IsCollectionDefined(ClusterUsersGroupDNs))
             {
-                writer.WritePropertyName("clusterUsersGroupDNs");
+                writer.WritePropertyName("clusterUsersGroupDNs"u8);
                 writer.WriteStartArray();
                 foreach (var item in ClusterUsersGroupDNs)
                 {
@@ -63,80 +78,119 @@ namespace Azure.ResourceManager.HDInsight.Models
             }
             if (Optional.IsDefined(AaddsResourceId))
             {
-                writer.WritePropertyName("aaddsResourceId");
+                writer.WritePropertyName("aaddsResourceId"u8);
                 writer.WriteStringValue(AaddsResourceId);
             }
             if (Optional.IsDefined(MsiResourceId))
             {
-                writer.WritePropertyName("msiResourceId");
+                writer.WritePropertyName("msiResourceId"u8);
                 writer.WriteStringValue(MsiResourceId);
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
             writer.WriteEndObject();
         }
 
-        internal static HDInsightSecurityProfile DeserializeHDInsightSecurityProfile(JsonElement element)
+        HDInsightSecurityProfile IJsonModel<HDInsightSecurityProfile>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            Optional<DirectoryType> directoryType = default;
-            Optional<string> domain = default;
-            Optional<string> organizationalUnitDN = default;
-            Optional<IList<string>> ldapsUrls = default;
-            Optional<string> domainUsername = default;
-            Optional<string> domainUserPassword = default;
-            Optional<IList<string>> clusterUsersGroupDNs = default;
-            Optional<string> aaddsResourceId = default;
-            Optional<ResourceIdentifier> msiResourceId = default;
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightSecurityProfile>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(HDInsightSecurityProfile)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeHDInsightSecurityProfile(document.RootElement, options);
+        }
+
+        internal static HDInsightSecurityProfile DeserializeHDInsightSecurityProfile(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            AuthenticationDirectoryType? directoryType = default;
+            string domain = default;
+            string organizationalUnitDN = default;
+            IList<Uri> ldapsUrls = default;
+            string domainUsername = default;
+            string domainUserPassword = default;
+            IList<string> clusterUsersGroupDNs = default;
+            ResourceIdentifier aaddsResourceId = default;
+            ResourceIdentifier msiResourceId = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("directoryType"))
+                if (property.NameEquals("directoryType"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    directoryType = new DirectoryType(property.Value.GetString());
+                    directoryType = new AuthenticationDirectoryType(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("domain"))
+                if (property.NameEquals("domain"u8))
                 {
                     domain = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("organizationalUnitDN"))
+                if (property.NameEquals("organizationalUnitDN"u8))
                 {
                     organizationalUnitDN = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("ldapsUrls"))
+                if (property.NameEquals("ldapsUrls"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    List<string> array = new List<string>();
+                    List<Uri> array = new List<Uri>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(item.GetString());
+                        if (item.ValueKind == JsonValueKind.Null)
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            array.Add(new Uri(item.GetString()));
+                        }
                     }
                     ldapsUrls = array;
                     continue;
                 }
-                if (property.NameEquals("domainUsername"))
+                if (property.NameEquals("domainUsername"u8))
                 {
                     domainUsername = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("domainUserPassword"))
+                if (property.NameEquals("domainUserPassword"u8))
                 {
                     domainUserPassword = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("clusterUsersGroupDNs"))
+                if (property.NameEquals("clusterUsersGroupDNs"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     List<string> array = new List<string>();
@@ -147,23 +201,72 @@ namespace Azure.ResourceManager.HDInsight.Models
                     clusterUsersGroupDNs = array;
                     continue;
                 }
-                if (property.NameEquals("aaddsResourceId"))
-                {
-                    aaddsResourceId = property.Value.GetString();
-                    continue;
-                }
-                if (property.NameEquals("msiResourceId"))
+                if (property.NameEquals("aaddsResourceId"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
+                        continue;
+                    }
+                    aaddsResourceId = new ResourceIdentifier(property.Value.GetString());
+                    continue;
+                }
+                if (property.NameEquals("msiResourceId"u8))
+                {
+                    if (property.Value.ValueKind == JsonValueKind.Null)
+                    {
                         continue;
                     }
                     msiResourceId = new ResourceIdentifier(property.Value.GetString());
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new HDInsightSecurityProfile(Optional.ToNullable(directoryType), domain.Value, organizationalUnitDN.Value, Optional.ToList(ldapsUrls), domainUsername.Value, domainUserPassword.Value, Optional.ToList(clusterUsersGroupDNs), aaddsResourceId.Value, msiResourceId.Value);
+            serializedAdditionalRawData = rawDataDictionary;
+            return new HDInsightSecurityProfile(
+                directoryType,
+                domain,
+                organizationalUnitDN,
+                ldapsUrls ?? new ChangeTrackingList<Uri>(),
+                domainUsername,
+                domainUserPassword,
+                clusterUsersGroupDNs ?? new ChangeTrackingList<string>(),
+                aaddsResourceId,
+                msiResourceId,
+                serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<HDInsightSecurityProfile>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightSecurityProfile>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(HDInsightSecurityProfile)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        HDInsightSecurityProfile IPersistableModel<HDInsightSecurityProfile>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightSecurityProfile>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeHDInsightSecurityProfile(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(HDInsightSecurityProfile)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<HDInsightSecurityProfile>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

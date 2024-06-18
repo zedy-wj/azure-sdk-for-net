@@ -7,8 +7,6 @@
 
 using System.Collections.Generic;
 using System.Text.Json;
-using Azure.Communication;
-using Azure.Core;
 
 namespace Azure.Communication.CallingServer
 {
@@ -16,35 +14,44 @@ namespace Azure.Communication.CallingServer
     {
         internal static AddParticipantsSucceededInternal DeserializeAddParticipantsSucceededInternal(JsonElement element)
         {
-            Optional<string> operationContext = default;
-            Optional<ResultInformation> resultInfo = default;
-            Optional<IReadOnlyList<CommunicationIdentifierModel>> participants = default;
-            Optional<AcsEventType> type = default;
-            Optional<string> callConnectionId = default;
-            Optional<string> serverCallId = default;
-            Optional<string> correlationId = default;
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string eventSource = default;
+            string operationContext = default;
+            ResultInformation resultInformation = default;
+            IReadOnlyList<CommunicationIdentifierModel> participants = default;
+            string version = default;
+            string callConnectionId = default;
+            string serverCallId = default;
+            string correlationId = default;
+            string publicEventType = default;
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("operationContext"))
+                if (property.NameEquals("eventSource"u8))
+                {
+                    eventSource = property.Value.GetString();
+                    continue;
+                }
+                if (property.NameEquals("operationContext"u8))
                 {
                     operationContext = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("resultInfo"))
+                if (property.NameEquals("resultInformation"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    resultInfo = ResultInformation.DeserializeResultInformation(property.Value);
+                    resultInformation = ResultInformation.DeserializeResultInformation(property.Value);
                     continue;
                 }
-                if (property.NameEquals("participants"))
+                if (property.NameEquals("participants"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     List<CommunicationIdentifierModel> array = new List<CommunicationIdentifierModel>();
@@ -55,33 +62,50 @@ namespace Azure.Communication.CallingServer
                     participants = array;
                     continue;
                 }
-                if (property.NameEquals("type"))
+                if (property.NameEquals("version"u8))
                 {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    type = new AcsEventType(property.Value.GetString());
+                    version = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("callConnectionId"))
+                if (property.NameEquals("callConnectionId"u8))
                 {
                     callConnectionId = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("serverCallId"))
+                if (property.NameEquals("serverCallId"u8))
                 {
                     serverCallId = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("correlationId"))
+                if (property.NameEquals("correlationId"u8))
                 {
                     correlationId = property.Value.GetString();
                     continue;
                 }
+                if (property.NameEquals("publicEventType"u8))
+                {
+                    publicEventType = property.Value.GetString();
+                    continue;
+                }
             }
-            return new AddParticipantsSucceededInternal(operationContext.Value, resultInfo.Value, Optional.ToList(participants), type, callConnectionId.Value, serverCallId.Value, correlationId.Value);
+            return new AddParticipantsSucceededInternal(
+                eventSource,
+                operationContext,
+                resultInformation,
+                participants ?? new ChangeTrackingList<CommunicationIdentifierModel>(),
+                version,
+                callConnectionId,
+                serverCallId,
+                correlationId,
+                publicEventType);
+        }
+
+        /// <summary> Deserializes the model from a raw response. </summary>
+        /// <param name="response"> The response to deserialize the model from. </param>
+        internal static AddParticipantsSucceededInternal FromResponse(Response response)
+        {
+            using var document = JsonDocument.Parse(response.Content);
+            return DeserializeAddParticipantsSucceededInternal(document.RootElement);
         }
     }
 }

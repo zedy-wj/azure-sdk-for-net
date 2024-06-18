@@ -23,7 +23,6 @@ namespace Azure.AI.TextAnalytics
         /// <summary>
         /// Initializes a new instance of the <see cref="AnalyzeHealthcareEntitiesAction"/>
         /// class based on the values of a <see cref="AnalyzeHealthcareEntitiesOptions"/>.
-        /// It sets the <see cref="ModelVersion"/> and <see cref="DisableServiceLogs"/> properties.
         /// </summary>
         public AnalyzeHealthcareEntitiesAction(AnalyzeHealthcareEntitiesOptions options)
         {
@@ -48,9 +47,6 @@ namespace Azure.AI.TextAnalytics
         /// and Microsoft Responsible AI principles at <see href="https://www.microsoft.com/ai/responsible-ai"/>.
         /// </para>
         /// </summary>
-        /// <remarks>
-        /// This property only applies for <see cref="TextAnalyticsClientOptions.ServiceVersion.V3_1"/>, <see cref="TextAnalyticsClientOptions.ServiceVersion.V2022_05_01"/>, and up.
-        /// </remarks>
         public bool? DisableServiceLogs { get; set; }
 
         /// <summary>

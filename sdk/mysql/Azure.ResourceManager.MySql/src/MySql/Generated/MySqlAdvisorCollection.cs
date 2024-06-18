@@ -9,20 +9,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
+using Autorest.CSharp.Core;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 
 namespace Azure.ResourceManager.MySql
 {
     /// <summary>
-    /// A class representing a collection of <see cref="MySqlAdvisorResource" /> and their operations.
-    /// Each <see cref="MySqlAdvisorResource" /> in the collection will belong to the same instance of <see cref="MySqlServerResource" />.
-    /// To get a <see cref="MySqlAdvisorCollection" /> instance call the GetMySqlAdvisors method from an instance of <see cref="MySqlServerResource" />.
+    /// A class representing a collection of <see cref="MySqlAdvisorResource"/> and their operations.
+    /// Each <see cref="MySqlAdvisorResource"/> in the collection will belong to the same instance of <see cref="MySqlServerResource"/>.
+    /// To get a <see cref="MySqlAdvisorCollection"/> instance call the GetMySqlAdvisors method from an instance of <see cref="MySqlServerResource"/>.
     /// </summary>
     public partial class MySqlAdvisorCollection : ArmCollection, IEnumerable<MySqlAdvisorResource>, IAsyncEnumerable<MySqlAdvisorResource>
     {
@@ -55,8 +53,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Get a recommendation action advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}
-        /// Operation Id: Advisors_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="advisorName"> The advisor name for recommendation action. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -84,8 +98,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Get a recommendation action advisor.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}
-        /// Operation Id: Advisors_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="advisorName"> The advisor name for recommendation action. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -113,92 +143,84 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// List recommendation action advisors.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors
-        /// Operation Id: Advisors_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> An async collection of <see cref="MySqlAdvisorResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> An async collection of <see cref="MySqlAdvisorResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual AsyncPageable<MySqlAdvisorResource> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            async Task<Page<MySqlAdvisorResource>> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _mySqlAdvisorAdvisorsClientDiagnostics.CreateScope("MySqlAdvisorCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _mySqlAdvisorAdvisorsRestClient.ListByServerAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlAdvisorResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            async Task<Page<MySqlAdvisorResource>> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _mySqlAdvisorAdvisorsClientDiagnostics.CreateScope("MySqlAdvisorCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _mySqlAdvisorAdvisorsRestClient.ListByServerNextPageAsync(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlAdvisorResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateAsyncEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _mySqlAdvisorAdvisorsRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _mySqlAdvisorAdvisorsRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            return GeneratorPageableHelpers.CreateAsyncPageable(FirstPageRequest, NextPageRequest, e => new MySqlAdvisorResource(Client, MySqlAdvisorData.DeserializeMySqlAdvisorData(e)), _mySqlAdvisorAdvisorsClientDiagnostics, Pipeline, "MySqlAdvisorCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// List recommendation action advisors.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors
-        /// Operation Id: Advisors_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> A collection of <see cref="MySqlAdvisorResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> A collection of <see cref="MySqlAdvisorResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual Pageable<MySqlAdvisorResource> GetAll(CancellationToken cancellationToken = default)
         {
-            Page<MySqlAdvisorResource> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _mySqlAdvisorAdvisorsClientDiagnostics.CreateScope("MySqlAdvisorCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _mySqlAdvisorAdvisorsRestClient.ListByServer(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlAdvisorResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            Page<MySqlAdvisorResource> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _mySqlAdvisorAdvisorsClientDiagnostics.CreateScope("MySqlAdvisorCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _mySqlAdvisorAdvisorsRestClient.ListByServerNextPage(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlAdvisorResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _mySqlAdvisorAdvisorsRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _mySqlAdvisorAdvisorsRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            return GeneratorPageableHelpers.CreatePageable(FirstPageRequest, NextPageRequest, e => new MySqlAdvisorResource(Client, MySqlAdvisorData.DeserializeMySqlAdvisorData(e)), _mySqlAdvisorAdvisorsClientDiagnostics, Pipeline, "MySqlAdvisorCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}
-        /// Operation Id: Advisors_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="advisorName"> The advisor name for recommendation action. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -224,8 +246,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}
-        /// Operation Id: Advisors_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="advisorName"> The advisor name for recommendation action. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -241,6 +279,96 @@ namespace Azure.ResourceManager.MySql
             {
                 var response = _mySqlAdvisorAdvisorsRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, advisorName, cancellationToken: cancellationToken);
                 return Response.FromValue(response.Value != null, response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="advisorName"> The advisor name for recommendation action. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="advisorName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="advisorName"/> is null. </exception>
+        public virtual async Task<NullableResponse<MySqlAdvisorResource>> GetIfExistsAsync(string advisorName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(advisorName, nameof(advisorName));
+
+            using var scope = _mySqlAdvisorAdvisorsClientDiagnostics.CreateScope("MySqlAdvisorCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = await _mySqlAdvisorAdvisorsRestClient.GetAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, advisorName, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (response.Value == null)
+                    return new NoValueResponse<MySqlAdvisorResource>(response.GetRawResponse());
+                return Response.FromValue(new MySqlAdvisorResource(Client, response.Value), response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/advisors/{advisorName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Advisors_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlAdvisorResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="advisorName"> The advisor name for recommendation action. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="advisorName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="advisorName"/> is null. </exception>
+        public virtual NullableResponse<MySqlAdvisorResource> GetIfExists(string advisorName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(advisorName, nameof(advisorName));
+
+            using var scope = _mySqlAdvisorAdvisorsClientDiagnostics.CreateScope("MySqlAdvisorCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = _mySqlAdvisorAdvisorsRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, advisorName, cancellationToken: cancellationToken);
+                if (response.Value == null)
+                    return new NoValueResponse<MySqlAdvisorResource>(response.GetRawResponse());
+                return Response.FromValue(new MySqlAdvisorResource(Client, response.Value), response.GetRawResponse());
             }
             catch (Exception e)
             {

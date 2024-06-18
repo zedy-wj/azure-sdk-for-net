@@ -3,12 +3,11 @@
 
 using System;
 using System.Threading.Tasks;
-using Azure.AI.FormRecognizer.DocumentAnalysis.Tests;
 using Azure.Core.TestFramework;
 
 namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 {
-    public partial class DocumentAnalysisSamples : SamplesBase<DocumentAnalysisTestEnvironment>
+    public partial class DocumentAnalysisSamples
     {
         [RecordedTest]
         public async Task GetAndListOperationsAsync()
@@ -22,18 +21,18 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 
             // Make sure there is at least one operation, so we are going to build a custom model.
 #if SNIPPET
-            Uri trainingFileUri = new Uri("<trainingFileUri>");
+            Uri blobContainerUri = new Uri("<blobContainerUri>");
 #else
-            Uri trainingFileUri = new Uri(TestEnvironment.BlobContainerSasUrl);
+            Uri blobContainerUri = new Uri(TestEnvironment.BlobContainerSasUrl);
 #endif
-            BuildModelOperation operation = await client.BuildModelAsync(WaitUntil.Completed, trainingFileUri, DocumentBuildMode.Template);
+            BuildDocumentModelOperation operation = await client.BuildDocumentModelAsync(WaitUntil.Completed, blobContainerUri, DocumentBuildMode.Template);
 
             // List the first ten or fewer operations that have been executed in the last 24h.
-            AsyncPageable<DocumentModelOperationSummary> operationSummaries = client.GetOperationsAsync();
+            AsyncPageable<OperationSummary> operationSummaries = client.GetOperationsAsync();
 
             string operationId = string.Empty;
             int count = 0;
-            await foreach (DocumentModelOperationSummary operationSummary in operationSummaries)
+            await foreach (OperationSummary operationSummary in operationSummaries)
             {
                 Console.WriteLine($"Model operation summary:");
                 Console.WriteLine($"  Id: {operationSummary.OperationId}");
@@ -52,13 +51,31 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
             }
 
             // Get an operation by ID
-            DocumentModelOperationDetails operationDetails = await client.GetOperationAsync(operationId);
+            OperationDetails operationDetails = await client.GetOperationAsync(operationId);
 
             if (operationDetails.Status == DocumentOperationStatus.Succeeded)
             {
-                Console.WriteLine($"My {operationDetails.Kind} operation is completed.");
-                DocumentModelDetails result = operationDetails.Result;
-                Console.WriteLine($"Model ID: {result.ModelId}");
+                Console.WriteLine($"My {operationDetails.Kind} operation is complete.");
+
+                // Extract the result based on the kind of operation.
+                switch (operationDetails)
+                {
+                    case DocumentModelBuildOperationDetails modelOperation:
+                        Console.WriteLine($"Model ID: {modelOperation.Result.ModelId}");
+                        break;
+
+                    case DocumentModelCopyToOperationDetails modelOperation:
+                        Console.WriteLine($"Model ID: {modelOperation.Result.ModelId}");
+                        break;
+
+                    case DocumentModelComposeOperationDetails modelOperation:
+                        Console.WriteLine($"Model ID: {modelOperation.Result.ModelId}");
+                        break;
+
+                    case DocumentClassifierBuildOperationDetails classifierOperation:
+                        Console.WriteLine($"Classifier ID: {classifierOperation.Result.ClassifierId}");
+                        break;
+                }
             }
             else if (operationDetails.Status == DocumentOperationStatus.Failed)
             {

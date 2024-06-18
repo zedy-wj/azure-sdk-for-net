@@ -33,18 +33,22 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             SanitizedHeaders.Add("ServiceBusSupplementaryAuthorization");
             BodyRegexSanitizers.Add(
                 new BodyRegexSanitizer(
-                    "\\u003CPrimaryKey\\u003E.*\\u003C/PrimaryKey\\u003E",
-                    $"\u003CPrimaryKey\u003E{SanitizedKeyValue}\u003C/PrimaryKey\u003E"));
+                    "\\u003CPrimaryKey\\u003E.*\\u003C/PrimaryKey\\u003E")
+                    {
+                        Value = $"\u003CPrimaryKey\u003E{SanitizedKeyValue}\u003C/PrimaryKey\u003E"
+                    });
             BodyRegexSanitizers.Add(
                 new BodyRegexSanitizer(
-                    "\\u003CSecondaryKey\\u003E.*\\u003C/SecondaryKey\\u003E",
-                    $"\u003CSecondaryKey\u003E{SanitizedKeyValue}\u003C/SecondaryKey\u003E"));
+                    "\\u003CSecondaryKey\\u003E.*\\u003C/SecondaryKey\\u003E")
+                    {
+                        Value = $"\u003CSecondaryKey\u003E{SanitizedKeyValue}\u003C/SecondaryKey\u003E"
+                    });
             BodyRegexSanitizers.Add(
                 new BodyRegexSanitizer(
-                    "[^\\r](?<break>\\n)",
-                    "\r\n")
+                    "[^\\r](?<break>\\n)")
                 {
-                    GroupForReplace = "break"
+                    GroupForReplace = "break",
+                    Value = "\r\n"
                 });
             _serviceVersion = serviceVersion;
         }
@@ -93,7 +97,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
                     InstrumentClientOptions(new ServiceBusAdministrationClientOptions())));
         }
 
-        [Test]
+        [RecordedTest]
         [TestCase(false)]
         [TestCase(true)]
         public async Task BasicQueueCrudOperations(bool premium)
@@ -222,10 +226,12 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             Assert.False(isExistsResponse.Value);
         }
 
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task BasicTopicCrudOperations(bool premium)
+        [RecordedTest]
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task BasicTopicCrudOperations(bool premium, bool supportOrdering)
         {
             var topicName = nameof(BasicTopicCrudOperations).ToLower() + Recording.Random.NewGuid().ToString("D").Substring(0, 8);
             var client = CreateClient(premium);
@@ -240,6 +246,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
                 MaxSizeInMegabytes = 1024,
                 RequiresDuplicateDetection = true,
                 UserMetadata = nameof(BasicTopicCrudOperations),
+                SupportOrdering = supportOrdering
             };
 
             if (CanSetMaxMessageSize(premium))
@@ -336,7 +343,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             return premium && _serviceVersion >= ServiceBusAdministrationClientOptions.ServiceVersion.V2021_05;
         }
 
-        [Test]
+        [RecordedTest]
         public async Task BasicSubscriptionCrudOperations()
         {
             var topicName = nameof(BasicSubscriptionCrudOperations).ToLower() + Recording.Random.NewGuid().ToString("D").Substring(0, 8);
@@ -408,7 +415,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             Assert.False(exists);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task BasicRuleCrudOperations()
         {
             var topicName = Recording.Random.NewGuid().ToString("D").Substring(0, 8);
@@ -496,7 +503,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         [LiveOnly]
         public async Task GetQueueRuntimeInfo()
         {
@@ -555,7 +562,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await mgmtClient.DeleteQueueAsync(queueName);
         }
 
-        [Test]
+        [RecordedTest]
         [LiveOnly]
         public async Task GetSubscriptionRuntimeInfoTest()
         {
@@ -648,7 +655,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task GetTopicRuntimeInfo()
         {
             var topicName = nameof(GetTopicRuntimeInfo).ToLower() + Recording.Random.NewGuid().ToString("D").Substring(0, 8);
@@ -692,7 +699,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task ThrowsIfEntityDoesNotExist()
         {
             var client = CreateClient();
@@ -773,7 +780,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task ThrowsIfEntityAlreadyExists()
         {
             var client = CreateClient();
@@ -804,7 +811,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         [LiveOnly]
         public async Task ForwardingEntity()
         {
@@ -848,7 +855,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await mgmtClient.DeleteQueueAsync(dlqDestinationName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task SqlFilterParams()
         {
             var client = CreateClient();
@@ -885,7 +892,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task CorrelationFilterProperties()
         {
             var topicName = Recording.Random.NewGuid().ToString("D").Substring(0, 8);
@@ -910,7 +917,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task GetNamespaceProperties()
         {
             var client = CreateClient();
@@ -921,7 +928,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             Assert.AreEqual(NamespaceType.Messaging, nsInfo.NamespaceType); // Common namespace type used for testing is messaging.
         }
 
-        [Test]
+        [RecordedTest]
         public async Task AuthenticateWithAAD()
         {
             var queueName = Recording.Random.NewGuid().ToString("D").Substring(0, 8);
@@ -942,7 +949,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task AuthenticateWithSharedKeyCredential()
         {
             var queueName = Recording.Random.NewGuid().ToString("D").Substring(0, 8);
@@ -963,7 +970,7 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
             await client.DeleteTopicAsync(topicName);
         }
 
-        [Test]
+        [RecordedTest]
         public async Task AuthenticateWithSasCredential()
         {
             var queueName = Recording.Random.NewGuid().ToString("D").Substring(0, 8);
@@ -982,6 +989,81 @@ namespace Azure.Messaging.ServiceBus.Tests.Management
 
             await client.DeleteQueueAsync(queueName);
             await client.DeleteTopicAsync(topicName);
+        }
+
+        [RecordedTest]
+        public async Task ThrowsWhenAttemptingToUseDeadLetterPathOnQueueMethods()
+        {
+            var queueName = nameof(ThrowsWhenAttemptingToUseDeadLetterPathOnQueueMethods).ToLower() + Recording.Random.NewGuid().ToString("D").Substring(0, 8);
+            var client = CreateClient();
+
+            var queueOptions = new CreateQueueOptions(queueName)
+            {
+                AutoDeleteOnIdle = TimeSpan.FromHours(1),
+                DefaultMessageTimeToLive = TimeSpan.FromDays(2),
+                DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(1),
+                EnableBatchedOperations = false,
+                DeadLetteringOnMessageExpiration = true,
+                EnablePartitioning = false,
+                ForwardDeadLetteredMessagesTo = null,
+                ForwardTo = null,
+                LockDuration = TimeSpan.FromSeconds(45),
+                MaxDeliveryCount = 8,
+                MaxSizeInMegabytes = 1024,
+                RequiresDuplicateDetection = true,
+                RequiresSession = false,
+                UserMetadata = nameof(BasicQueueCrudOperations),
+                Status = EntityStatus.Disabled
+            };
+            await client.CreateQueueAsync(queueOptions);
+
+            Assert.That(
+                async () =>
+                    await client.GetQueueAsync(EntityNameFormatter.FormatDeadLetterPath(queueName)),
+                Throws.InstanceOf<ArgumentException>().And.Property(nameof(Exception.InnerException))
+                    .InstanceOf(typeof(RequestFailedException)));
+
+            Assert.That(
+                async () =>
+                    await client.GetQueueRuntimePropertiesAsync(EntityNameFormatter.FormatDeadLetterPath(queueName)),
+                Throws.InstanceOf<ArgumentException>().And.Property(nameof(Exception.InnerException))
+                    .InstanceOf(typeof(RequestFailedException)));
+        }
+
+        [RecordedTest]
+        public async Task ThrowsWhenAttemptingToUseDeadLetterPathOnTopicMethods()
+        {
+            var topicName = nameof(ThrowsWhenAttemptingToUseDeadLetterPathOnTopicMethods).ToLower() + Recording.Random.NewGuid().ToString("D").Substring(0, 8);
+            var client = CreateClient();
+
+            var options = new CreateTopicOptions(topicName)
+            {
+                AutoDeleteOnIdle = TimeSpan.FromHours(1),
+                DefaultMessageTimeToLive = TimeSpan.FromDays(2),
+                DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(1),
+                EnableBatchedOperations = true,
+                EnablePartitioning = false,
+                MaxSizeInMegabytes = 1024,
+                RequiresDuplicateDetection = true,
+                UserMetadata = nameof(BasicTopicCrudOperations),
+            };
+            await client.CreateTopicAsync(options);
+
+            var subscriptionName = Recording.Random.NewGuid().ToString("D").Substring(0, 8);
+
+            await client.CreateSubscriptionAsync(topicName, subscriptionName);
+
+            Assert.That(
+                async () =>
+                    await client.GetTopicAsync(EntityNameFormatter.FormatDeadLetterPath(topicName)),
+                Throws.InstanceOf<ArgumentException>().And.Property(nameof(Exception.InnerException))
+                    .InstanceOf(typeof(RequestFailedException)));
+
+            Assert.That(
+                async () =>
+                    await client.GetTopicRuntimePropertiesAsync(EntityNameFormatter.FormatDeadLetterPath(topicName)),
+                Throws.InstanceOf<ArgumentException>().And.Property(nameof(Exception.InnerException))
+                    .InstanceOf(typeof(RequestFailedException)));
         }
 
         private void AssertQueueOptions(CreateQueueOptions queueOptions, QueueProperties createdQueue)

@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.AppContainers.Models;
@@ -33,8 +32,23 @@ namespace Azure.ResourceManager.AppContainers
         {
             _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
-            _apiVersion = apiVersion ?? "2022-03-01";
+            _apiVersion = apiVersion ?? "2023-05-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListByContainerAppRequestUri(string subscriptionId, string resourceGroupName, string containerAppName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/containerApps/", false);
+            uri.AppendPath(containerAppName, true);
+            uri.AppendPath("/authConfigs", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListByContainerAppRequest(string subscriptionId, string resourceGroupName, string containerAppName)
@@ -65,7 +79,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<Models.AuthConfigCollection>> ListByContainerAppAsync(string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
+        public async Task<Response<AuthConfigCollection>> ListByContainerAppAsync(string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -77,9 +91,9 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        Models.AuthConfigCollection value = default;
+                        AuthConfigCollection value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = Models.AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
+                        value = AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -94,7 +108,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<Models.AuthConfigCollection> ListByContainerApp(string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
+        public Response<AuthConfigCollection> ListByContainerApp(string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -106,14 +120,30 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        Models.AuthConfigCollection value = default;
+                        AuthConfigCollection value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = Models.AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
+                        value = AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateGetRequestUri(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/containerApps/", false);
+            uri.AppendPath(containerAppName, true);
+            uri.AppendPath("/authConfigs/", false);
+            uri.AppendPath(authConfigName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateGetRequest(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName)
@@ -146,7 +176,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/> or <paramref name="authConfigName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/> or <paramref name="authConfigName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<AuthConfigData>> GetAsync(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, CancellationToken cancellationToken = default)
+        public async Task<Response<ContainerAppAuthConfigData>> GetAsync(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -159,13 +189,13 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        AuthConfigData value = default;
+                        ContainerAppAuthConfigData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = AuthConfigData.DeserializeAuthConfigData(document.RootElement);
+                        value = ContainerAppAuthConfigData.DeserializeContainerAppAuthConfigData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((AuthConfigData)null, message.Response);
+                    return Response.FromValue((ContainerAppAuthConfigData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
@@ -179,7 +209,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/> or <paramref name="authConfigName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/> or <paramref name="authConfigName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<AuthConfigData> Get(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, CancellationToken cancellationToken = default)
+        public Response<ContainerAppAuthConfigData> Get(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -192,19 +222,35 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        AuthConfigData value = default;
+                        ContainerAppAuthConfigData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = AuthConfigData.DeserializeAuthConfigData(document.RootElement);
+                        value = ContainerAppAuthConfigData.DeserializeContainerAppAuthConfigData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((AuthConfigData)null, message.Response);
+                    return Response.FromValue((ContainerAppAuthConfigData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
         }
 
-        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, AuthConfigData data)
+        internal RequestUriBuilder CreateCreateOrUpdateRequestUri(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, ContainerAppAuthConfigData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/containerApps/", false);
+            uri.AppendPath(containerAppName, true);
+            uri.AppendPath("/authConfigs/", false);
+            uri.AppendPath(authConfigName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, ContainerAppAuthConfigData data)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -224,7 +270,7 @@ namespace Azure.ResourceManager.AppContainers
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(data);
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
@@ -239,7 +285,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/>, <paramref name="authConfigName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/> or <paramref name="authConfigName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<AuthConfigData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, AuthConfigData data, CancellationToken cancellationToken = default)
+        public async Task<Response<ContainerAppAuthConfigData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, ContainerAppAuthConfigData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -253,9 +299,9 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        AuthConfigData value = default;
+                        ContainerAppAuthConfigData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = AuthConfigData.DeserializeAuthConfigData(document.RootElement);
+                        value = ContainerAppAuthConfigData.DeserializeContainerAppAuthConfigData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -272,7 +318,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/>, <paramref name="authConfigName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="containerAppName"/> or <paramref name="authConfigName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<AuthConfigData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, AuthConfigData data, CancellationToken cancellationToken = default)
+        public Response<ContainerAppAuthConfigData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName, ContainerAppAuthConfigData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -286,14 +332,30 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        AuthConfigData value = default;
+                        ContainerAppAuthConfigData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = AuthConfigData.DeserializeAuthConfigData(document.RootElement);
+                        value = ContainerAppAuthConfigData.DeserializeContainerAppAuthConfigData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateDeleteRequestUri(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/containerApps/", false);
+            uri.AppendPath(containerAppName, true);
+            uri.AppendPath("/authConfigs/", false);
+            uri.AppendPath(authConfigName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string containerAppName, string authConfigName)
@@ -372,6 +434,14 @@ namespace Azure.ResourceManager.AppContainers
             }
         }
 
+        internal RequestUriBuilder CreateListByContainerAppNextPageRequestUri(string nextLink, string subscriptionId, string resourceGroupName, string containerAppName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendRawNextLink(nextLink, false);
+            return uri;
+        }
+
         internal HttpMessage CreateListByContainerAppNextPageRequest(string nextLink, string subscriptionId, string resourceGroupName, string containerAppName)
         {
             var message = _pipeline.CreateMessage();
@@ -394,7 +464,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="nextLink"/>, <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<Models.AuthConfigCollection>> ListByContainerAppNextPageAsync(string nextLink, string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
+        public async Task<Response<AuthConfigCollection>> ListByContainerAppNextPageAsync(string nextLink, string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(nextLink, nameof(nextLink));
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
@@ -407,9 +477,9 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        Models.AuthConfigCollection value = default;
+                        AuthConfigCollection value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = Models.AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
+                        value = AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -425,7 +495,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="nextLink"/>, <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="containerAppName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<Models.AuthConfigCollection> ListByContainerAppNextPage(string nextLink, string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
+        public Response<AuthConfigCollection> ListByContainerAppNextPage(string nextLink, string subscriptionId, string resourceGroupName, string containerAppName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(nextLink, nameof(nextLink));
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
@@ -438,9 +508,9 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        Models.AuthConfigCollection value = default;
+                        AuthConfigCollection value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = Models.AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
+                        value = AuthConfigCollection.DeserializeAuthConfigCollection(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:

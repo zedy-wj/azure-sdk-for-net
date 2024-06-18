@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.AppContainers.Models;
@@ -33,8 +32,23 @@ namespace Azure.ResourceManager.AppContainers
         {
             _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
-            _apiVersion = apiVersion ?? "2022-03-01";
+            _apiVersion = apiVersion ?? "2023-05-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListRequestUri(string subscriptionId, string resourceGroupName, string environmentName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/managedEnvironments/", false);
+            uri.AppendPath(environmentName, true);
+            uri.AppendPath("/storages", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListRequest(string subscriptionId, string resourceGroupName, string environmentName)
@@ -116,6 +130,22 @@ namespace Azure.ResourceManager.AppContainers
             }
         }
 
+        internal RequestUriBuilder CreateGetRequestUri(string subscriptionId, string resourceGroupName, string environmentName, string storageName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/managedEnvironments/", false);
+            uri.AppendPath(environmentName, true);
+            uri.AppendPath("/storages/", false);
+            uri.AppendPath(storageName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateGetRequest(string subscriptionId, string resourceGroupName, string environmentName, string storageName)
         {
             var message = _pipeline.CreateMessage();
@@ -146,7 +176,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/> or <paramref name="storageName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/> or <paramref name="storageName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<ManagedEnvironmentStorageData>> GetAsync(string subscriptionId, string resourceGroupName, string environmentName, string storageName, CancellationToken cancellationToken = default)
+        public async Task<Response<ContainerAppManagedEnvironmentStorageData>> GetAsync(string subscriptionId, string resourceGroupName, string environmentName, string storageName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -159,13 +189,13 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        ManagedEnvironmentStorageData value = default;
+                        ContainerAppManagedEnvironmentStorageData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = ManagedEnvironmentStorageData.DeserializeManagedEnvironmentStorageData(document.RootElement);
+                        value = ContainerAppManagedEnvironmentStorageData.DeserializeContainerAppManagedEnvironmentStorageData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((ManagedEnvironmentStorageData)null, message.Response);
+                    return Response.FromValue((ContainerAppManagedEnvironmentStorageData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
@@ -179,7 +209,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/> or <paramref name="storageName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/> or <paramref name="storageName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<ManagedEnvironmentStorageData> Get(string subscriptionId, string resourceGroupName, string environmentName, string storageName, CancellationToken cancellationToken = default)
+        public Response<ContainerAppManagedEnvironmentStorageData> Get(string subscriptionId, string resourceGroupName, string environmentName, string storageName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -192,19 +222,35 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        ManagedEnvironmentStorageData value = default;
+                        ContainerAppManagedEnvironmentStorageData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = ManagedEnvironmentStorageData.DeserializeManagedEnvironmentStorageData(document.RootElement);
+                        value = ContainerAppManagedEnvironmentStorageData.DeserializeContainerAppManagedEnvironmentStorageData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((ManagedEnvironmentStorageData)null, message.Response);
+                    return Response.FromValue((ContainerAppManagedEnvironmentStorageData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
         }
 
-        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string environmentName, string storageName, ManagedEnvironmentStorageData data)
+        internal RequestUriBuilder CreateCreateOrUpdateRequestUri(string subscriptionId, string resourceGroupName, string environmentName, string storageName, ContainerAppManagedEnvironmentStorageData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/managedEnvironments/", false);
+            uri.AppendPath(environmentName, true);
+            uri.AppendPath("/storages/", false);
+            uri.AppendPath(storageName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string environmentName, string storageName, ContainerAppManagedEnvironmentStorageData data)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -224,7 +270,7 @@ namespace Azure.ResourceManager.AppContainers
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(data);
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
@@ -239,7 +285,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/>, <paramref name="storageName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/> or <paramref name="storageName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<ManagedEnvironmentStorageData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string environmentName, string storageName, ManagedEnvironmentStorageData data, CancellationToken cancellationToken = default)
+        public async Task<Response<ContainerAppManagedEnvironmentStorageData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string environmentName, string storageName, ContainerAppManagedEnvironmentStorageData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -253,9 +299,9 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        ManagedEnvironmentStorageData value = default;
+                        ContainerAppManagedEnvironmentStorageData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = ManagedEnvironmentStorageData.DeserializeManagedEnvironmentStorageData(document.RootElement);
+                        value = ContainerAppManagedEnvironmentStorageData.DeserializeContainerAppManagedEnvironmentStorageData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -272,7 +318,7 @@ namespace Azure.ResourceManager.AppContainers
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/>, <paramref name="storageName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="environmentName"/> or <paramref name="storageName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<ManagedEnvironmentStorageData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string environmentName, string storageName, ManagedEnvironmentStorageData data, CancellationToken cancellationToken = default)
+        public Response<ContainerAppManagedEnvironmentStorageData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string environmentName, string storageName, ContainerAppManagedEnvironmentStorageData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -286,14 +332,30 @@ namespace Azure.ResourceManager.AppContainers
             {
                 case 200:
                     {
-                        ManagedEnvironmentStorageData value = default;
+                        ContainerAppManagedEnvironmentStorageData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = ManagedEnvironmentStorageData.DeserializeManagedEnvironmentStorageData(document.RootElement);
+                        value = ContainerAppManagedEnvironmentStorageData.DeserializeContainerAppManagedEnvironmentStorageData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateDeleteRequestUri(string subscriptionId, string resourceGroupName, string environmentName, string storageName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.App/managedEnvironments/", false);
+            uri.AppendPath(environmentName, true);
+            uri.AppendPath("/storages/", false);
+            uri.AppendPath(storageName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string environmentName, string storageName)

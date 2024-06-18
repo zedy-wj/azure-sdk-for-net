@@ -6,21 +6,57 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 using Azure.Core;
 using Azure.ResourceManager.AppContainers.Models;
 using Azure.ResourceManager.Models;
 
 namespace Azure.ResourceManager.AppContainers
 {
-    /// <summary> A class representing the ContainerAppRevision data model. </summary>
+    /// <summary>
+    /// A class representing the ContainerAppRevision data model.
+    /// Container App Revision.
+    /// </summary>
     public partial class ContainerAppRevisionData : ResourceData
     {
-        /// <summary> Initializes a new instance of ContainerAppRevisionData. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="ContainerAppRevisionData"/>. </summary>
         public ContainerAppRevisionData()
         {
         }
 
-        /// <summary> Initializes a new instance of ContainerAppRevisionData. </summary>
+        /// <summary> Initializes a new instance of <see cref="ContainerAppRevisionData"/>. </summary>
         /// <param name="id"> The id. </param>
         /// <param name="name"> The name. </param>
         /// <param name="resourceType"> The resourceType. </param>
@@ -29,29 +65,35 @@ namespace Azure.ResourceManager.AppContainers
         /// Timestamp describing when the revision was created
         /// by controller
         /// </param>
+        /// <param name="lastActiveOn"> Timestamp describing when the revision was last active. Only meaningful when revision is inactive. </param>
         /// <param name="fqdn"> Fully qualified domain name of the revision. </param>
         /// <param name="template">
         /// Container App Revision Template with all possible settings and the
         /// defaults if user did not provide them. The defaults are populated
         /// as they were at the creation time
         /// </param>
-        /// <param name="active"> Boolean describing if the Revision is Active. </param>
+        /// <param name="isActive"> Boolean describing if the Revision is Active. </param>
         /// <param name="replicas"> Number of pods currently running for this revision. </param>
         /// <param name="trafficWeight"> Traffic weight assigned to this revision. </param>
         /// <param name="provisioningError"> Optional Field - Platform Error Message. </param>
         /// <param name="healthState"> Current health State of the revision. </param>
         /// <param name="provisioningState"> Current provisioning State of the revision. </param>
-        internal ContainerAppRevisionData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, DateTimeOffset? createdOn, string fqdn, ContainerAppTemplate template, bool? active, int? replicas, int? trafficWeight, string provisioningError, RevisionHealthState? healthState, RevisionProvisioningState? provisioningState) : base(id, name, resourceType, systemData)
+        /// <param name="runningState"> Current running state of the revision. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal ContainerAppRevisionData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, DateTimeOffset? createdOn, DateTimeOffset? lastActiveOn, string fqdn, ContainerAppTemplate template, bool? isActive, int? replicas, int? trafficWeight, string provisioningError, ContainerAppRevisionHealthState? healthState, ContainerAppRevisionProvisioningState? provisioningState, RevisionRunningState? runningState, IDictionary<string, BinaryData> serializedAdditionalRawData) : base(id, name, resourceType, systemData)
         {
             CreatedOn = createdOn;
+            LastActiveOn = lastActiveOn;
             Fqdn = fqdn;
             Template = template;
-            Active = active;
+            IsActive = isActive;
             Replicas = replicas;
             TrafficWeight = trafficWeight;
             ProvisioningError = provisioningError;
             HealthState = healthState;
             ProvisioningState = provisioningState;
+            RunningState = runningState;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary>
@@ -59,6 +101,8 @@ namespace Azure.ResourceManager.AppContainers
         /// by controller
         /// </summary>
         public DateTimeOffset? CreatedOn { get; }
+        /// <summary> Timestamp describing when the revision was last active. Only meaningful when revision is inactive. </summary>
+        public DateTimeOffset? LastActiveOn { get; }
         /// <summary> Fully qualified domain name of the revision. </summary>
         public string Fqdn { get; }
         /// <summary>
@@ -68,7 +112,7 @@ namespace Azure.ResourceManager.AppContainers
         /// </summary>
         public ContainerAppTemplate Template { get; }
         /// <summary> Boolean describing if the Revision is Active. </summary>
-        public bool? Active { get; }
+        public bool? IsActive { get; }
         /// <summary> Number of pods currently running for this revision. </summary>
         public int? Replicas { get; }
         /// <summary> Traffic weight assigned to this revision. </summary>
@@ -76,8 +120,10 @@ namespace Azure.ResourceManager.AppContainers
         /// <summary> Optional Field - Platform Error Message. </summary>
         public string ProvisioningError { get; }
         /// <summary> Current health State of the revision. </summary>
-        public RevisionHealthState? HealthState { get; }
+        public ContainerAppRevisionHealthState? HealthState { get; }
         /// <summary> Current provisioning State of the revision. </summary>
-        public RevisionProvisioningState? ProvisioningState { get; }
+        public ContainerAppRevisionProvisioningState? ProvisioningState { get; }
+        /// <summary> Current running state of the revision. </summary>
+        public RevisionRunningState? RunningState { get; }
     }
 }

@@ -16,13 +16,14 @@ using Moq;
 using Azure.Storage.Queues.Specialized;
 using Moq.Protected;
 using Azure.Core.TestFramework;
+using Azure.Identity;
 
 namespace Azure.Storage.Queues.Test
 {
     public class QueueClientTests : QueueTestBase
     {
-        public QueueClientTests(bool async)
-            : base(async, null /* RecordedTestMode.Record /* to re-record */)
+        public QueueClientTests(bool async, QueueClientOptions.ServiceVersion serviceVersion)
+            : base(async, serviceVersion, null /* RecordedTestMode.Record /* to re-record */)
         {
         }
 
@@ -165,6 +166,103 @@ namespace Azure.Storage.Queues.Test
         }
 
         [RecordedTest]
+        public async Task Ctor_DefaultAudience()
+        {
+            // Arrange
+            await using DisposingQueue test = await GetTestQueueAsync();
+
+            // Act - Create new blob client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(QueueAudience.PublicAudience);
+
+            QueueUriBuilder uriBuilder = new QueueUriBuilder(new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint))
+            {
+                QueueName = test.Queue.Name,
+            };
+
+            QueueClient aadQueue = InstrumentClient(new QueueClient(
+                uriBuilder.ToUri(),
+                Tenants.GetOAuthCredential(),
+                options));
+
+            // Assert
+            bool exists = await aadQueue.ExistsAsync();
+            Assert.IsTrue(exists);
+        }
+
+        [RecordedTest]
+        public async Task Ctor_CustomAudience()
+        {
+            // Arrange
+            await using DisposingQueue test = await GetTestQueueAsync();
+
+            // Act - Create new blob client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(new QueueAudience($"https://{test.Queue.AccountName}.queue.core.windows.net/"));
+
+            QueueUriBuilder uriBuilder = new QueueUriBuilder(new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint))
+            {
+                QueueName = test.Queue.Name,
+            };
+
+            QueueClient aadQueue = InstrumentClient(new QueueClient(
+                uriBuilder.ToUri(),
+                Tenants.GetOAuthCredential(),
+                options));
+
+            // Assert
+            bool exists = await aadQueue.ExistsAsync();
+            Assert.IsTrue(exists);
+        }
+
+        [RecordedTest]
+        public async Task Ctor_StorageAccountAudience()
+        {
+            // Arrange
+            await using DisposingQueue test = await GetTestQueueAsync();
+
+            // Act - Create new blob client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(QueueAudience.CreateQueueServiceAccountAudience(test.Queue.AccountName));
+
+            QueueUriBuilder uriBuilder = new QueueUriBuilder(new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint))
+            {
+                QueueName = test.Queue.Name,
+            };
+
+            QueueClient aadQueue = InstrumentClient(new QueueClient(
+                uriBuilder.ToUri(),
+                Tenants.GetOAuthCredential(),
+                options));
+
+            // Assert
+            bool exists = await aadQueue.ExistsAsync();
+            Assert.IsTrue(exists);
+        }
+
+        [RecordedTest]
+        public async Task Ctor_AudienceError()
+        {
+            // Arrange
+            await using DisposingQueue test = await GetTestQueueAsync();
+
+            // Act - Create new blob client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(new QueueAudience("https://badaudience.queue.core.windows.net"));
+
+            QueueUriBuilder uriBuilder = new QueueUriBuilder(new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint))
+            {
+                QueueName = test.Queue.Name,
+            };
+
+            QueueClient aadQueue = InstrumentClient(new QueueClient(
+                uriBuilder.ToUri(),
+                new MockCredential(),
+                options));
+
+            // Assert
+            await TestHelper.AssertExpectedExceptionAsync<RequestFailedException>(
+                aadQueue.ExistsAsync(),
+                e => Assert.AreEqual("InvalidAuthenticationInfo", e.ErrorCode));
+        }
+
+        [RecordedTest]
         public async Task CreateAsync_WithSharedKey()
         {
             // Arrange
@@ -213,6 +311,34 @@ namespace Azure.Storage.Queues.Test
             // Arrange
             var queueName = GetNewQueueName();
             QueueServiceClient service = QueuesClientBuilder.GetServiceClient_OAuth();
+            QueueClient queue = InstrumentClient(service.GetQueueClient(queueName));
+
+            try
+            {
+                // Act
+                Response result = await queue.CreateAsync();
+
+                // Assert
+                Assert.IsNotNull(result.Headers.RequestId, $"{nameof(result)} may not be populated");
+            }
+            finally
+            {
+                await queue.DeleteIfExistsAsync();
+            }
+        }
+
+        // Not possible to record
+        [LiveOnly]
+        [ServiceVersion(Min = QueueClientOptions.ServiceVersion.V2021_06_08)]
+        public async Task CreateAsync_WithOauthBearerChallenge()
+        {
+            // Arrange
+            var queueName = GetNewQueueName();
+            QueueClientOptions options = new QueueClientOptions
+            {
+                Audience = QueueAudience.CreateQueueServiceAccountAudience("account"),
+            };
+            QueueServiceClient service = QueuesClientBuilder.GetServiceClient_OAuth(options);
             QueueClient queue = InstrumentClient(service.GetQueueClient(queueName));
 
             try
@@ -365,7 +491,7 @@ namespace Azure.Storage.Queues.Test
             // Act
             await TestHelper.AssertExpectedExceptionAsync<RequestFailedException>(
                 unauthorizedQueueClient.CreateIfNotExistsAsync(),
-                e => Assert.AreEqual("ResourceNotFound", e.ErrorCode));
+                e => Assert.AreEqual("NoAuthenticationInformation", e.ErrorCode));
         }
 
         [RecordedTest]
@@ -414,7 +540,7 @@ namespace Azure.Storage.Queues.Test
             // Act
             await TestHelper.AssertExpectedExceptionAsync<RequestFailedException>(
                 unauthorizedQueueClient.ExistsAsync(),
-                e => Assert.AreEqual("ResourceNotFound", e.ErrorCode));
+                e => Assert.AreEqual("NoAuthenticationInformation", e.ErrorCode));
         }
 
         [RecordedTest]
@@ -460,7 +586,7 @@ namespace Azure.Storage.Queues.Test
             // Act
             await TestHelper.AssertExpectedExceptionAsync<RequestFailedException>(
                 unauthorizedQueueClient.DeleteIfExistsAsync(),
-                e => Assert.AreEqual("ResourceNotFound", e.ErrorCode));
+                e => Assert.AreEqual("NoAuthenticationInformation", e.ErrorCode));
         }
 
         [RecordedTest]

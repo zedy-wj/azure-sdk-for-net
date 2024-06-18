@@ -15,11 +15,11 @@ namespace Azure.AI.TextAnalytics.Models
         void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
         {
             writer.WriteStartObject();
-            writer.WritePropertyName("kind");
+            writer.WritePropertyName("kind"u8);
             writer.WriteStringValue(Kind.ToString());
             if (Optional.IsDefined(TaskName))
             {
-                writer.WritePropertyName("taskName");
+                writer.WritePropertyName("taskName"u8);
                 writer.WriteStringValue(TaskName);
             }
             writer.WriteEndObject();
@@ -27,37 +27,44 @@ namespace Azure.AI.TextAnalytics.Models
 
         internal static AnalyzeTextLROTask DeserializeAnalyzeTextLROTask(JsonElement element)
         {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             if (element.TryGetProperty("kind", out JsonElement discriminator))
             {
                 switch (discriminator.GetString())
                 {
+                    case "AbstractiveSummarization": return AbstractiveSummarizationLROTask.DeserializeAbstractiveSummarizationLROTask(element);
                     case "CustomEntityRecognition": return CustomEntitiesLROTask.DeserializeCustomEntitiesLROTask(element);
                     case "CustomMultiLabelClassification": return CustomMultiLabelClassificationLROTask.DeserializeCustomMultiLabelClassificationLROTask(element);
                     case "CustomSingleLabelClassification": return CustomSingleLabelClassificationLROTask.DeserializeCustomSingleLabelClassificationLROTask(element);
                     case "EntityLinking": return EntityLinkingLROTask.DeserializeEntityLinkingLROTask(element);
                     case "EntityRecognition": return EntitiesLROTask.DeserializeEntitiesLROTask(element);
+                    case "ExtractiveSummarization": return ExtractiveSummarizationLROTask.DeserializeExtractiveSummarizationLROTask(element);
                     case "Healthcare": return HealthcareLROTask.DeserializeHealthcareLROTask(element);
                     case "KeyPhraseExtraction": return KeyPhraseLROTask.DeserializeKeyPhraseLROTask(element);
                     case "PiiEntityRecognition": return PiiLROTask.DeserializePiiLROTask(element);
                     case "SentimentAnalysis": return SentimentAnalysisLROTask.DeserializeSentimentAnalysisLROTask(element);
                 }
             }
-            AnalyzeTextLROTaskKind kind = default;
-            Optional<string> taskName = default;
-            foreach (var property in element.EnumerateObject())
-            {
-                if (property.NameEquals("kind"))
-                {
-                    kind = new AnalyzeTextLROTaskKind(property.Value.GetString());
-                    continue;
-                }
-                if (property.NameEquals("taskName"))
-                {
-                    taskName = property.Value.GetString();
-                    continue;
-                }
-            }
-            return new AnalyzeTextLROTask(taskName.Value, kind);
+            return UnknownAnalyzeTextLROTask.DeserializeUnknownAnalyzeTextLROTask(element);
+        }
+
+        /// <summary> Deserializes the model from a raw response. </summary>
+        /// <param name="response"> The response to deserialize the model from. </param>
+        internal static new AnalyzeTextLROTask FromResponse(Response response)
+        {
+            using var document = JsonDocument.Parse(response.Content);
+            return DeserializeAnalyzeTextLROTask(document.RootElement);
+        }
+
+        /// <summary> Convert into a <see cref="RequestContent"/>. </summary>
+        internal override RequestContent ToRequestContent()
+        {
+            var content = new Utf8JsonRequestContent();
+            content.JsonWriter.WriteObjectValue(this);
+            return content;
         }
     }
 }

@@ -7,32 +7,27 @@
 
 using System;
 using System.Collections.Generic;
+using Azure.Core.Expressions.DataFactory;
 
 namespace Azure.ResourceManager.DataFactory.Models
 {
     /// <summary> Microsoft Azure Document Database Collection dataset. </summary>
-    public partial class DocumentDBCollectionDataset : FactoryDatasetDefinition
+    public partial class DocumentDBCollectionDataset : DataFactoryDatasetProperties
     {
-        /// <summary> Initializes a new instance of DocumentDBCollectionDataset. </summary>
+        /// <summary> Initializes a new instance of <see cref="DocumentDBCollectionDataset"/>. </summary>
         /// <param name="linkedServiceName"> Linked service reference. </param>
         /// <param name="collectionName"> Document Database collection name. Type: string (or Expression with resultType string). </param>
         /// <exception cref="ArgumentNullException"> <paramref name="linkedServiceName"/> or <paramref name="collectionName"/> is null. </exception>
-        public DocumentDBCollectionDataset(FactoryLinkedServiceReference linkedServiceName, BinaryData collectionName) : base(linkedServiceName)
+        public DocumentDBCollectionDataset(DataFactoryLinkedServiceReference linkedServiceName, DataFactoryElement<string> collectionName) : base(linkedServiceName)
         {
-            if (linkedServiceName == null)
-            {
-                throw new ArgumentNullException(nameof(linkedServiceName));
-            }
-            if (collectionName == null)
-            {
-                throw new ArgumentNullException(nameof(collectionName));
-            }
+            Argument.AssertNotNull(linkedServiceName, nameof(linkedServiceName));
+            Argument.AssertNotNull(collectionName, nameof(collectionName));
 
             CollectionName = collectionName;
             DatasetType = "DocumentDbCollection";
         }
 
-        /// <summary> Initializes a new instance of DocumentDBCollectionDataset. </summary>
+        /// <summary> Initializes a new instance of <see cref="DocumentDBCollectionDataset"/>. </summary>
         /// <param name="datasetType"> Type of dataset. </param>
         /// <param name="description"> Dataset description. </param>
         /// <param name="structure"> Columns that define the structure of the dataset. Type: array (or Expression with resultType array), itemType: DatasetDataElement. </param>
@@ -43,13 +38,18 @@ namespace Azure.ResourceManager.DataFactory.Models
         /// <param name="folder"> The folder that this Dataset is in. If not specified, Dataset will appear at the root level. </param>
         /// <param name="additionalProperties"> Additional Properties. </param>
         /// <param name="collectionName"> Document Database collection name. Type: string (or Expression with resultType string). </param>
-        internal DocumentDBCollectionDataset(string datasetType, string description, BinaryData structure, BinaryData schema, FactoryLinkedServiceReference linkedServiceName, IDictionary<string, EntityParameterSpecification> parameters, IList<BinaryData> annotations, DatasetFolder folder, IDictionary<string, BinaryData> additionalProperties, BinaryData collectionName) : base(datasetType, description, structure, schema, linkedServiceName, parameters, annotations, folder, additionalProperties)
+        internal DocumentDBCollectionDataset(string datasetType, string description, DataFactoryElement<IList<DatasetDataElement>> structure, DataFactoryElement<IList<DatasetSchemaDataElement>> schema, DataFactoryLinkedServiceReference linkedServiceName, IDictionary<string, EntityParameterSpecification> parameters, IList<BinaryData> annotations, DatasetFolder folder, IDictionary<string, BinaryData> additionalProperties, DataFactoryElement<string> collectionName) : base(datasetType, description, structure, schema, linkedServiceName, parameters, annotations, folder, additionalProperties)
         {
             CollectionName = collectionName;
             DatasetType = datasetType ?? "DocumentDbCollection";
         }
 
+        /// <summary> Initializes a new instance of <see cref="DocumentDBCollectionDataset"/> for deserialization. </summary>
+        internal DocumentDBCollectionDataset()
+        {
+        }
+
         /// <summary> Document Database collection name. Type: string (or Expression with resultType string). </summary>
-        public BinaryData CollectionName { get; set; }
+        public DataFactoryElement<string> CollectionName { get; set; }
     }
 }

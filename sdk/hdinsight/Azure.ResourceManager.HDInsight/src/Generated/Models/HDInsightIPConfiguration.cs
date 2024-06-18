@@ -6,6 +6,8 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using System.Net;
 using Azure.Core;
 using Azure.ResourceManager.Resources.Models;
 
@@ -14,20 +16,49 @@ namespace Azure.ResourceManager.HDInsight.Models
     /// <summary> The ip configurations for the private link service. </summary>
     public partial class HDInsightIPConfiguration
     {
-        /// <summary> Initializes a new instance of HDInsightIPConfiguration. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="HDInsightIPConfiguration"/>. </summary>
         /// <param name="name"> The name of private link IP configuration. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         public HDInsightIPConfiguration(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+            Argument.AssertNotNull(name, nameof(name));
 
             Name = name;
         }
 
-        /// <summary> Initializes a new instance of HDInsightIPConfiguration. </summary>
+        /// <summary> Initializes a new instance of <see cref="HDInsightIPConfiguration"/>. </summary>
         /// <param name="id"> The private link IP configuration id. </param>
         /// <param name="name"> The name of private link IP configuration. </param>
         /// <param name="resourceType"> The type of the private link IP configuration. </param>
@@ -36,7 +67,8 @@ namespace Azure.ResourceManager.HDInsight.Models
         /// <param name="privateIPAddress"> The IP address. </param>
         /// <param name="privateIPAllocationMethod"> The method that private IP address is allocated. </param>
         /// <param name="subnet"> The subnet resource id. </param>
-        internal HDInsightIPConfiguration(ResourceIdentifier id, string name, ResourceIdentifier resourceType, HDInsightPrivateLinkConfigurationProvisioningState? provisioningState, bool? isPrimary, string privateIPAddress, HDInsightPrivateIPAllocationMethod? privateIPAllocationMethod, WritableSubResource subnet)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal HDInsightIPConfiguration(ResourceIdentifier id, string name, ResourceType? resourceType, HDInsightPrivateLinkConfigurationProvisioningState? provisioningState, bool? isPrimary, IPAddress privateIPAddress, HDInsightPrivateIPAllocationMethod? privateIPAllocationMethod, WritableSubResource subnet, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Id = id;
             Name = name;
@@ -46,6 +78,12 @@ namespace Azure.ResourceManager.HDInsight.Models
             PrivateIPAddress = privateIPAddress;
             PrivateIPAllocationMethod = privateIPAllocationMethod;
             Subnet = subnet;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="HDInsightIPConfiguration"/> for deserialization. </summary>
+        internal HDInsightIPConfiguration()
+        {
         }
 
         /// <summary> The private link IP configuration id. </summary>
@@ -53,13 +91,13 @@ namespace Azure.ResourceManager.HDInsight.Models
         /// <summary> The name of private link IP configuration. </summary>
         public string Name { get; set; }
         /// <summary> The type of the private link IP configuration. </summary>
-        public ResourceIdentifier ResourceType { get; }
+        public ResourceType? ResourceType { get; }
         /// <summary> The private link configuration provisioning state, which only appears in the response. </summary>
         public HDInsightPrivateLinkConfigurationProvisioningState? ProvisioningState { get; }
         /// <summary> Indicates whether this IP configuration is primary for the corresponding NIC. </summary>
         public bool? IsPrimary { get; set; }
         /// <summary> The IP address. </summary>
-        public string PrivateIPAddress { get; set; }
+        public IPAddress PrivateIPAddress { get; set; }
         /// <summary> The method that private IP address is allocated. </summary>
         public HDInsightPrivateIPAllocationMethod? PrivateIPAllocationMethod { get; set; }
         /// <summary> The subnet resource id. </summary>

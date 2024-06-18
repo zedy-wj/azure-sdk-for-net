@@ -10,22 +10,22 @@ using Azure.Core.TestFramework;
 
 namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 {
-    public partial class DocumentAnalysisSamples : SamplesBase<DocumentAnalysisTestEnvironment>
+    public partial class DocumentAnalysisSamples
     {
         [RecordedTest]
         public async Task AnalyzeWithCustomModelFromFileAsync()
         {
             string endpoint = TestEnvironment.Endpoint;
             string apiKey = TestEnvironment.ApiKey;
-            Uri trainingFileUri = new Uri(TestEnvironment.BlobContainerSasUrl);
+            Uri blobContainerUri = new Uri(TestEnvironment.BlobContainerSasUrl);
 
             // Firstly, create a custom built model we can use to recognize the custom document. Please note
-            // that models can also be built using a graphical user interface such as the Form Recognizer
-            // Labeling Tool found here:
-            // https://aka.ms/azsdk/formrecognizer/labelingtool
+            // that models can also be built using a graphical user interface such as the Document Intelligence
+            // Studio found here:
+            // https://aka.ms/azsdk/formrecognizer/formrecognizerstudio
 
             var adminClient = new DocumentModelAdministrationClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
-            BuildModelOperation buildOperation = await adminClient.BuildModelAsync(WaitUntil.Completed, trainingFileUri, DocumentBuildMode.Template);
+            BuildDocumentModelOperation buildOperation = await adminClient.BuildDocumentModelAsync(WaitUntil.Completed, blobContainerUri, DocumentBuildMode.Template);
             DocumentModelDetails customModel = buildOperation.Value;
 
             // Proceed with the custom document recognition.
@@ -50,7 +50,7 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 
             foreach (AnalyzedDocument document in result.Documents)
             {
-                Console.WriteLine($"Document of type: {document.DocType}");
+                Console.WriteLine($"Document of type: {document.DocumentType}");
 
                 foreach (KeyValuePair<string, DocumentField> fieldKvp in document.Fields)
                 {
@@ -92,7 +92,7 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
             }
 
             // Delete the model on completion to clean environment.
-            await adminClient.DeleteModelAsync(customModel.ModelId);
+            await adminClient.DeleteDocumentModelAsync(customModel.ModelId);
         }
     }
 }

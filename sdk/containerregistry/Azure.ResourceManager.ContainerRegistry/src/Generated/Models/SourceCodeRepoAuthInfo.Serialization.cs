@@ -5,79 +5,166 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
 
 namespace Azure.ResourceManager.ContainerRegistry.Models
 {
-    public partial class SourceCodeRepoAuthInfo : IUtf8JsonSerializable
+    public partial class SourceCodeRepoAuthInfo : IUtf8JsonSerializable, IJsonModel<SourceCodeRepoAuthInfo>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<SourceCodeRepoAuthInfo>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<SourceCodeRepoAuthInfo>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<SourceCodeRepoAuthInfo>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(SourceCodeRepoAuthInfo)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
-            writer.WritePropertyName("tokenType");
+            writer.WritePropertyName("tokenType"u8);
             writer.WriteStringValue(TokenType.ToString());
-            writer.WritePropertyName("token");
+            writer.WritePropertyName("token"u8);
             writer.WriteStringValue(Token);
             if (Optional.IsDefined(RefreshToken))
             {
-                writer.WritePropertyName("refreshToken");
+                writer.WritePropertyName("refreshToken"u8);
                 writer.WriteStringValue(RefreshToken);
             }
             if (Optional.IsDefined(Scope))
             {
-                writer.WritePropertyName("scope");
+                writer.WritePropertyName("scope"u8);
                 writer.WriteStringValue(Scope);
             }
             if (Optional.IsDefined(ExpireInSeconds))
             {
-                writer.WritePropertyName("expiresIn");
+                writer.WritePropertyName("expiresIn"u8);
                 writer.WriteNumberValue(ExpireInSeconds.Value);
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
             writer.WriteEndObject();
         }
 
-        internal static SourceCodeRepoAuthInfo DeserializeSourceCodeRepoAuthInfo(JsonElement element)
+        SourceCodeRepoAuthInfo IJsonModel<SourceCodeRepoAuthInfo>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<SourceCodeRepoAuthInfo>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(SourceCodeRepoAuthInfo)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeSourceCodeRepoAuthInfo(document.RootElement, options);
+        }
+
+        internal static SourceCodeRepoAuthInfo DeserializeSourceCodeRepoAuthInfo(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             SourceCodeRepoAuthTokenType tokenType = default;
             string token = default;
-            Optional<string> refreshToken = default;
-            Optional<string> scope = default;
-            Optional<int> expiresIn = default;
+            string refreshToken = default;
+            string scope = default;
+            int? expiresIn = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("tokenType"))
+                if (property.NameEquals("tokenType"u8))
                 {
                     tokenType = new SourceCodeRepoAuthTokenType(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("token"))
+                if (property.NameEquals("token"u8))
                 {
                     token = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("refreshToken"))
+                if (property.NameEquals("refreshToken"u8))
                 {
                     refreshToken = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("scope"))
+                if (property.NameEquals("scope"u8))
                 {
                     scope = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("expiresIn"))
+                if (property.NameEquals("expiresIn"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     expiresIn = property.Value.GetInt32();
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new SourceCodeRepoAuthInfo(tokenType, token, refreshToken.Value, scope.Value, Optional.ToNullable(expiresIn));
+            serializedAdditionalRawData = rawDataDictionary;
+            return new SourceCodeRepoAuthInfo(
+                tokenType,
+                token,
+                refreshToken,
+                scope,
+                expiresIn,
+                serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<SourceCodeRepoAuthInfo>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<SourceCodeRepoAuthInfo>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(SourceCodeRepoAuthInfo)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        SourceCodeRepoAuthInfo IPersistableModel<SourceCodeRepoAuthInfo>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<SourceCodeRepoAuthInfo>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeSourceCodeRepoAuthInfo(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(SourceCodeRepoAuthInfo)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<SourceCodeRepoAuthInfo>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

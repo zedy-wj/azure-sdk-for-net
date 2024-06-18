@@ -5,9 +5,8 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
-using Azure;
-using Azure.Core;
 
 namespace Azure.ResourceManager.StreamAnalytics.Models
 {
@@ -16,15 +15,47 @@ namespace Azure.ResourceManager.StreamAnalytics.Models
     /// Please note <see cref="StreamingJobFunctionProperties"/> is the base class. According to the scenario, a derived class of the base class might need to be assigned here, or this property needs to be casted to one of the possible derived classes.
     /// The available derived classes include <see cref="AggregateFunctionProperties"/> and <see cref="ScalarFunctionProperties"/>.
     /// </summary>
-    public partial class StreamingJobFunctionProperties
+    public abstract partial class StreamingJobFunctionProperties
     {
-        /// <summary> Initializes a new instance of StreamingJobFunctionProperties. </summary>
-        public StreamingJobFunctionProperties()
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private protected IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="StreamingJobFunctionProperties"/>. </summary>
+        protected StreamingJobFunctionProperties()
         {
             Inputs = new ChangeTrackingList<StreamingJobFunctionInput>();
         }
 
-        /// <summary> Initializes a new instance of StreamingJobFunctionProperties. </summary>
+        /// <summary> Initializes a new instance of <see cref="StreamingJobFunctionProperties"/>. </summary>
         /// <param name="functionPropertiesType"> Indicates the type of function. </param>
         /// <param name="etag"> The current entity tag for the function. This is an opaque string. You can use it to detect whether the resource has changed between requests. You can also use it in the If-Match or If-None-Match headers for write operations for optimistic concurrency. </param>
         /// <param name="inputs"></param>
@@ -32,15 +63,17 @@ namespace Azure.ResourceManager.StreamAnalytics.Models
         /// <param name="binding">
         /// The physical binding of the function. For example, in the Azure Machine Learning web service’s case, this describes the endpoint.
         /// Please note <see cref="StreamingJobFunctionBinding"/> is the base class. According to the scenario, a derived class of the base class might need to be assigned here, or this property needs to be casted to one of the possible derived classes.
-        /// The available derived classes include <see cref="AzureMachineLearningStudioFunctionBinding"/>, <see cref="AzureMachineLearningServiceFunctionBinding"/>, <see cref="CSharpFunctionBinding"/> and <see cref="JavaScriptFunctionBinding"/>.
+        /// The available derived classes include <see cref="EMachineLearningStudioFunctionBinding"/>, <see cref="MachineLearningServiceFunctionBinding"/>, <see cref="CSharpFunctionBinding"/> and <see cref="JavaScriptFunctionBinding"/>.
         /// </param>
-        internal StreamingJobFunctionProperties(string functionPropertiesType, ETag? etag, IList<StreamingJobFunctionInput> inputs, StreamingJobFunctionOutput output, StreamingJobFunctionBinding binding)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal StreamingJobFunctionProperties(string functionPropertiesType, ETag? etag, IList<StreamingJobFunctionInput> inputs, StreamingJobFunctionOutput output, StreamingJobFunctionBinding binding, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             FunctionPropertiesType = functionPropertiesType;
             ETag = etag;
             Inputs = inputs;
             Output = output;
             Binding = binding;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> Indicates the type of function. </summary>
@@ -66,7 +99,7 @@ namespace Azure.ResourceManager.StreamAnalytics.Models
         /// <summary>
         /// The physical binding of the function. For example, in the Azure Machine Learning web service’s case, this describes the endpoint.
         /// Please note <see cref="StreamingJobFunctionBinding"/> is the base class. According to the scenario, a derived class of the base class might need to be assigned here, or this property needs to be casted to one of the possible derived classes.
-        /// The available derived classes include <see cref="AzureMachineLearningStudioFunctionBinding"/>, <see cref="AzureMachineLearningServiceFunctionBinding"/>, <see cref="CSharpFunctionBinding"/> and <see cref="JavaScriptFunctionBinding"/>.
+        /// The available derived classes include <see cref="EMachineLearningStudioFunctionBinding"/>, <see cref="MachineLearningServiceFunctionBinding"/>, <see cref="CSharpFunctionBinding"/> and <see cref="JavaScriptFunctionBinding"/>.
         /// </summary>
         public StreamingJobFunctionBinding Binding { get; set; }
     }

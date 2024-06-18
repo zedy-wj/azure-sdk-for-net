@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.ApiManagement.Models;
@@ -35,6 +34,37 @@ namespace Azure.ResourceManager.ApiManagement
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
             _apiVersion = apiVersion ?? "2021-08-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListByServiceRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string filter, int? top, int? skip, bool? expandGroups)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users", false);
+            if (filter != null)
+            {
+                uri.AppendQuery("$filter", filter, true);
+            }
+            if (top != null)
+            {
+                uri.AppendQuery("$top", top.Value, true);
+            }
+            if (skip != null)
+            {
+                uri.AppendQuery("$skip", skip.Value, true);
+            }
+            if (expandGroups != null)
+            {
+                uri.AppendQuery("expandGroups", expandGroups.Value, true);
+            }
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListByServiceRequest(string subscriptionId, string resourceGroupName, string serviceName, string filter, int? top, int? skip, bool? expandGroups)
@@ -140,6 +170,22 @@ namespace Azure.ResourceManager.ApiManagement
             }
         }
 
+        internal RequestUriBuilder CreateGetEntityTagRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string userId)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users/", false);
+            uri.AppendPath(userId, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateGetEntityTagRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId)
         {
             var message = _pipeline.CreateMessage();
@@ -230,6 +276,22 @@ namespace Azure.ResourceManager.ApiManagement
             }
         }
 
+        internal RequestUriBuilder CreateGetRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string userId)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users/", false);
+            uri.AppendPath(userId, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateGetRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId)
         {
             var message = _pipeline.CreateMessage();
@@ -318,7 +380,27 @@ namespace Azure.ResourceManager.ApiManagement
             }
         }
 
-        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId, ApiManagementUserCreateOrUpdateContent content, bool? notify, string ifMatch)
+        internal RequestUriBuilder CreateCreateOrUpdateRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string userId, ApiManagementUserCreateOrUpdateContent content, bool? notify, ETag? ifMatch)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users/", false);
+            uri.AppendPath(userId, true);
+            if (notify != null)
+            {
+                uri.AppendQuery("notify", notify.Value, true);
+            }
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId, ApiManagementUserCreateOrUpdateContent content, bool? notify, ETag? ifMatch)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -341,12 +423,12 @@ namespace Azure.ResourceManager.ApiManagement
             request.Uri = uri;
             if (ifMatch != null)
             {
-                request.Headers.Add("If-Match", ifMatch);
+                request.Headers.Add("If-Match", ifMatch.Value);
             }
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content0 = new Utf8JsonRequestContent();
-            content0.JsonWriter.WriteObjectValue(content);
+            content0.JsonWriter.WriteObjectValue(content, ModelSerializationExtensions.WireOptions);
             request.Content = content0;
             _userAgent.Apply(message);
             return message;
@@ -363,7 +445,7 @@ namespace Azure.ResourceManager.ApiManagement
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<UserContractData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string serviceName, string userId, ApiManagementUserCreateOrUpdateContent content, bool? notify = null, string ifMatch = null, CancellationToken cancellationToken = default)
+        public async Task<Response<UserContractData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string serviceName, string userId, ApiManagementUserCreateOrUpdateContent content, bool? notify = null, ETag? ifMatch = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -399,7 +481,7 @@ namespace Azure.ResourceManager.ApiManagement
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<UserContractData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string serviceName, string userId, ApiManagementUserCreateOrUpdateContent content, bool? notify = null, string ifMatch = null, CancellationToken cancellationToken = default)
+        public Response<UserContractData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string serviceName, string userId, ApiManagementUserCreateOrUpdateContent content, bool? notify = null, ETag? ifMatch = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -424,7 +506,23 @@ namespace Azure.ResourceManager.ApiManagement
             }
         }
 
-        internal HttpMessage CreateUpdateRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId, string ifMatch, ApiManagementUserPatch patch)
+        internal RequestUriBuilder CreateUpdateRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, ApiManagementUserPatch patch)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users/", false);
+            uri.AppendPath(userId, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateUpdateRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, ApiManagementUserPatch patch)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -444,9 +542,9 @@ namespace Azure.ResourceManager.ApiManagement
             request.Headers.Add("If-Match", ifMatch);
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
-            var content0 = new Utf8JsonRequestContent();
-            content0.JsonWriter.WriteObjectValue(patch);
-            request.Content = content0;
+            var content = new Utf8JsonRequestContent();
+            content.JsonWriter.WriteObjectValue(patch, ModelSerializationExtensions.WireOptions);
+            request.Content = content;
             _userAgent.Apply(message);
             return message;
         }
@@ -459,15 +557,14 @@ namespace Azure.ResourceManager.ApiManagement
         /// <param name="ifMatch"> ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update. </param>
         /// <param name="patch"> Update parameters. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/>, <paramref name="ifMatch"/> or <paramref name="patch"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/> or <paramref name="patch"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<UserContractData>> UpdateAsync(string subscriptionId, string resourceGroupName, string serviceName, string userId, string ifMatch, ApiManagementUserPatch patch, CancellationToken cancellationToken = default)
+        public async Task<Response<UserContractData>> UpdateAsync(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, ApiManagementUserPatch patch, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
             Argument.AssertNotNullOrEmpty(serviceName, nameof(serviceName));
             Argument.AssertNotNullOrEmpty(userId, nameof(userId));
-            Argument.AssertNotNull(ifMatch, nameof(ifMatch));
             Argument.AssertNotNull(patch, nameof(patch));
 
             using var message = CreateUpdateRequest(subscriptionId, resourceGroupName, serviceName, userId, ifMatch, patch);
@@ -494,15 +591,14 @@ namespace Azure.ResourceManager.ApiManagement
         /// <param name="ifMatch"> ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update. </param>
         /// <param name="patch"> Update parameters. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/>, <paramref name="ifMatch"/> or <paramref name="patch"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/> or <paramref name="patch"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<UserContractData> Update(string subscriptionId, string resourceGroupName, string serviceName, string userId, string ifMatch, ApiManagementUserPatch patch, CancellationToken cancellationToken = default)
+        public Response<UserContractData> Update(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, ApiManagementUserPatch patch, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
             Argument.AssertNotNullOrEmpty(serviceName, nameof(serviceName));
             Argument.AssertNotNullOrEmpty(userId, nameof(userId));
-            Argument.AssertNotNull(ifMatch, nameof(ifMatch));
             Argument.AssertNotNull(patch, nameof(patch));
 
             using var message = CreateUpdateRequest(subscriptionId, resourceGroupName, serviceName, userId, ifMatch, patch);
@@ -521,7 +617,35 @@ namespace Azure.ResourceManager.ApiManagement
             }
         }
 
-        internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId, string ifMatch, bool? deleteSubscriptions, bool? notify, AppType? appType)
+        internal RequestUriBuilder CreateDeleteRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, bool? deleteSubscriptions, bool? notify, AppType? appType)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users/", false);
+            uri.AppendPath(userId, true);
+            if (deleteSubscriptions != null)
+            {
+                uri.AppendQuery("deleteSubscriptions", deleteSubscriptions.Value, true);
+            }
+            if (notify != null)
+            {
+                uri.AppendQuery("notify", notify.Value, true);
+            }
+            uri.AppendQuery("api-version", _apiVersion, true);
+            if (appType != null)
+            {
+                uri.AppendQuery("appType", appType.Value.ToString(), true);
+            }
+            return uri;
+        }
+
+        internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, bool? deleteSubscriptions, bool? notify, AppType? appType)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -562,19 +686,18 @@ namespace Azure.ResourceManager.ApiManagement
         /// <param name="serviceName"> The name of the API Management service. </param>
         /// <param name="userId"> User identifier. Must be unique in the current API Management service instance. </param>
         /// <param name="ifMatch"> ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update. </param>
-        /// <param name="deleteSubscriptions"> Whether to delete user&apos;s subscription or not. </param>
+        /// <param name="deleteSubscriptions"> Whether to delete user's subscription or not. </param>
         /// <param name="notify"> Send an Account Closed Email notification to the User. </param>
         /// <param name="appType"> Determines the type of application which send the create user request. Default is legacy publisher portal. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/> or <paramref name="ifMatch"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response> DeleteAsync(string subscriptionId, string resourceGroupName, string serviceName, string userId, string ifMatch, bool? deleteSubscriptions = null, bool? notify = null, AppType? appType = null, CancellationToken cancellationToken = default)
+        public async Task<Response> DeleteAsync(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, bool? deleteSubscriptions = null, bool? notify = null, AppType? appType = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
             Argument.AssertNotNullOrEmpty(serviceName, nameof(serviceName));
             Argument.AssertNotNullOrEmpty(userId, nameof(userId));
-            Argument.AssertNotNull(ifMatch, nameof(ifMatch));
 
             using var message = CreateDeleteRequest(subscriptionId, resourceGroupName, serviceName, userId, ifMatch, deleteSubscriptions, notify, appType);
             await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
@@ -594,19 +717,18 @@ namespace Azure.ResourceManager.ApiManagement
         /// <param name="serviceName"> The name of the API Management service. </param>
         /// <param name="userId"> User identifier. Must be unique in the current API Management service instance. </param>
         /// <param name="ifMatch"> ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update. </param>
-        /// <param name="deleteSubscriptions"> Whether to delete user&apos;s subscription or not. </param>
+        /// <param name="deleteSubscriptions"> Whether to delete user's subscription or not. </param>
         /// <param name="notify"> Send an Account Closed Email notification to the User. </param>
         /// <param name="appType"> Determines the type of application which send the create user request. Default is legacy publisher portal. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/>, <paramref name="userId"/> or <paramref name="ifMatch"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="serviceName"/> or <paramref name="userId"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response Delete(string subscriptionId, string resourceGroupName, string serviceName, string userId, string ifMatch, bool? deleteSubscriptions = null, bool? notify = null, AppType? appType = null, CancellationToken cancellationToken = default)
+        public Response Delete(string subscriptionId, string resourceGroupName, string serviceName, string userId, ETag ifMatch, bool? deleteSubscriptions = null, bool? notify = null, AppType? appType = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
             Argument.AssertNotNullOrEmpty(serviceName, nameof(serviceName));
             Argument.AssertNotNullOrEmpty(userId, nameof(userId));
-            Argument.AssertNotNull(ifMatch, nameof(ifMatch));
 
             using var message = CreateDeleteRequest(subscriptionId, resourceGroupName, serviceName, userId, ifMatch, deleteSubscriptions, notify, appType);
             _pipeline.Send(message, cancellationToken);
@@ -618,6 +740,23 @@ namespace Azure.ResourceManager.ApiManagement
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateGenerateSsoUriRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string userId)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users/", false);
+            uri.AppendPath(userId, true);
+            uri.AppendPath("/generateSsoUrl", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateGenerateSsoUriRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId)
@@ -705,6 +844,23 @@ namespace Azure.ResourceManager.ApiManagement
             }
         }
 
+        internal RequestUriBuilder CreateGetSharedAccessTokenRequestUri(string subscriptionId, string resourceGroupName, string serviceName, string userId, UserTokenContent content)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.ApiManagement/service/", false);
+            uri.AppendPath(serviceName, true);
+            uri.AppendPath("/users/", false);
+            uri.AppendPath(userId, true);
+            uri.AppendPath("/token", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateGetSharedAccessTokenRequest(string subscriptionId, string resourceGroupName, string serviceName, string userId, UserTokenContent content)
         {
             var message = _pipeline.CreateMessage();
@@ -726,7 +882,7 @@ namespace Azure.ResourceManager.ApiManagement
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content0 = new Utf8JsonRequestContent();
-            content0.JsonWriter.WriteObjectValue(content);
+            content0.JsonWriter.WriteObjectValue(content, ModelSerializationExtensions.WireOptions);
             request.Content = content0;
             _userAgent.Apply(message);
             return message;
@@ -796,6 +952,14 @@ namespace Azure.ResourceManager.ApiManagement
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateListByServiceNextPageRequestUri(string nextLink, string subscriptionId, string resourceGroupName, string serviceName, string filter, int? top, int? skip, bool? expandGroups)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendRawNextLink(nextLink, false);
+            return uri;
         }
 
         internal HttpMessage CreateListByServiceNextPageRequest(string nextLink, string subscriptionId, string resourceGroupName, string serviceName, string filter, int? top, int? skip, bool? expandGroups)

@@ -9,22 +9,25 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 
 namespace Azure.ResourceManager.ApiManagement
 {
     /// <summary>
     /// A Class representing an ApiManagementGatewayHostnameConfiguration along with the instance operations that can be performed on it.
-    /// If you have a <see cref="ResourceIdentifier" /> you can construct an <see cref="ApiManagementGatewayHostnameConfigurationResource" />
-    /// from an instance of <see cref="ArmClient" /> using the GetApiManagementGatewayHostnameConfigurationResource method.
-    /// Otherwise you can get one from its parent resource <see cref="ApiManagementGatewayResource" /> using the GetApiManagementGatewayHostnameConfiguration method.
+    /// If you have a <see cref="ResourceIdentifier"/> you can construct an <see cref="ApiManagementGatewayHostnameConfigurationResource"/>
+    /// from an instance of <see cref="ArmClient"/> using the GetApiManagementGatewayHostnameConfigurationResource method.
+    /// Otherwise you can get one from its parent resource <see cref="ApiManagementGatewayResource"/> using the GetApiManagementGatewayHostnameConfiguration method.
     /// </summary>
     public partial class ApiManagementGatewayHostnameConfigurationResource : ArmResource
     {
         /// <summary> Generate the resource identifier of a <see cref="ApiManagementGatewayHostnameConfigurationResource"/> instance. </summary>
+        /// <param name="subscriptionId"> The subscriptionId. </param>
+        /// <param name="resourceGroupName"> The resourceGroupName. </param>
+        /// <param name="serviceName"> The serviceName. </param>
+        /// <param name="gatewayId"> The gatewayId. </param>
+        /// <param name="hcId"> The hcId. </param>
         public static ResourceIdentifier CreateResourceIdentifier(string subscriptionId, string resourceGroupName, string serviceName, string gatewayId, string hcId)
         {
             var resourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}";
@@ -35,12 +38,15 @@ namespace Azure.ResourceManager.ApiManagement
         private readonly GatewayHostnameConfigurationRestOperations _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient;
         private readonly ApiManagementGatewayHostnameConfigurationData _data;
 
+        /// <summary> Gets the resource type for the operations. </summary>
+        public static readonly ResourceType ResourceType = "Microsoft.ApiManagement/service/gateways/hostnameConfigurations";
+
         /// <summary> Initializes a new instance of the <see cref="ApiManagementGatewayHostnameConfigurationResource"/> class for mocking. </summary>
         protected ApiManagementGatewayHostnameConfigurationResource()
         {
         }
 
-        /// <summary> Initializes a new instance of the <see cref = "ApiManagementGatewayHostnameConfigurationResource"/> class. </summary>
+        /// <summary> Initializes a new instance of the <see cref="ApiManagementGatewayHostnameConfigurationResource"/> class. </summary>
         /// <param name="client"> The client parameters to use in these operations. </param>
         /// <param name="data"> The resource that is the target of operations. </param>
         internal ApiManagementGatewayHostnameConfigurationResource(ArmClient client, ApiManagementGatewayHostnameConfigurationData data) : this(client, data.Id)
@@ -61,9 +67,6 @@ namespace Azure.ResourceManager.ApiManagement
 			ValidateResourceId(Id);
 #endif
         }
-
-        /// <summary> Gets the resource type for the operations. </summary>
-        public static readonly ResourceType ResourceType = "Microsoft.ApiManagement/service/gateways/hostnameConfigurations";
 
         /// <summary> Gets whether or not the current instance has data. </summary>
         public virtual bool HasData { get; }
@@ -88,8 +91,24 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Get details of a hostname configuration
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual async Task<Response<ApiManagementGatewayHostnameConfigurationResource>> GetAsync(CancellationToken cancellationToken = default)
@@ -112,8 +131,24 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Get details of a hostname configuration
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual Response<ApiManagementGatewayHostnameConfigurationResource> Get(CancellationToken cancellationToken = default)
@@ -136,23 +171,38 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Deletes the specified hostname configuration from the specified Gateway.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_Delete
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_Delete</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="ifMatch"> ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ifMatch"/> is null. </exception>
-        public virtual async Task<ArmOperation> DeleteAsync(WaitUntil waitUntil, string ifMatch, CancellationToken cancellationToken = default)
+        public virtual async Task<ArmOperation> DeleteAsync(WaitUntil waitUntil, ETag ifMatch, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(ifMatch, nameof(ifMatch));
-
             using var scope = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationClientDiagnostics.CreateScope("ApiManagementGatewayHostnameConfigurationResource.Delete");
             scope.Start();
             try
             {
                 var response = await _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.DeleteAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, ifMatch, cancellationToken).ConfigureAwait(false);
-                var operation = new ApiManagementArmOperation(response);
+                var uri = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.CreateDeleteRequestUri(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, ifMatch);
+                var rehydrationToken = NextLinkOperationImplementation.GetRehydrationToken(RequestMethod.Delete, uri.ToUri(), uri.ToString(), "None", null, OperationFinalStateVia.OriginalUri.ToString());
+                var operation = new ApiManagementArmOperation(response, rehydrationToken);
                 if (waitUntil == WaitUntil.Completed)
                     await operation.WaitForCompletionResponseAsync(cancellationToken).ConfigureAwait(false);
                 return operation;
@@ -166,23 +216,38 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Deletes the specified hostname configuration from the specified Gateway.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_Delete
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_Delete</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="ifMatch"> ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ifMatch"/> is null. </exception>
-        public virtual ArmOperation Delete(WaitUntil waitUntil, string ifMatch, CancellationToken cancellationToken = default)
+        public virtual ArmOperation Delete(WaitUntil waitUntil, ETag ifMatch, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(ifMatch, nameof(ifMatch));
-
             using var scope = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationClientDiagnostics.CreateScope("ApiManagementGatewayHostnameConfigurationResource.Delete");
             scope.Start();
             try
             {
                 var response = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.Delete(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, ifMatch, cancellationToken);
-                var operation = new ApiManagementArmOperation(response);
+                var uri = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.CreateDeleteRequestUri(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, ifMatch);
+                var rehydrationToken = NextLinkOperationImplementation.GetRehydrationToken(RequestMethod.Delete, uri.ToUri(), uri.ToString(), "None", null, OperationFinalStateVia.OriginalUri.ToString());
+                var operation = new ApiManagementArmOperation(response, rehydrationToken);
                 if (waitUntil == WaitUntil.Completed)
                     operation.WaitForCompletionResponse(cancellationToken);
                 return operation;
@@ -196,15 +261,31 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Creates of updates hostname configuration for a Gateway.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
-        /// <param name="data"> The ApiManagementGatewayHostnameConfiguration to use. </param>
+        /// <param name="data"> The <see cref="ApiManagementGatewayHostnameConfigurationData"/> to use. </param>
         /// <param name="ifMatch"> ETag of the Entity. Not required when creating an entity, but required when updating an entity. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null. </exception>
-        public virtual async Task<ArmOperation<ApiManagementGatewayHostnameConfigurationResource>> UpdateAsync(WaitUntil waitUntil, ApiManagementGatewayHostnameConfigurationData data, string ifMatch = null, CancellationToken cancellationToken = default)
+        public virtual async Task<ArmOperation<ApiManagementGatewayHostnameConfigurationResource>> UpdateAsync(WaitUntil waitUntil, ApiManagementGatewayHostnameConfigurationData data, ETag? ifMatch = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(data, nameof(data));
 
@@ -213,7 +294,9 @@ namespace Azure.ResourceManager.ApiManagement
             try
             {
                 var response = await _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.CreateOrUpdateAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, data, ifMatch, cancellationToken).ConfigureAwait(false);
-                var operation = new ApiManagementArmOperation<ApiManagementGatewayHostnameConfigurationResource>(Response.FromValue(new ApiManagementGatewayHostnameConfigurationResource(Client, response), response.GetRawResponse()));
+                var uri = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.CreateCreateOrUpdateRequestUri(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, data, ifMatch);
+                var rehydrationToken = NextLinkOperationImplementation.GetRehydrationToken(RequestMethod.Put, uri.ToUri(), uri.ToString(), "None", null, OperationFinalStateVia.OriginalUri.ToString());
+                var operation = new ApiManagementArmOperation<ApiManagementGatewayHostnameConfigurationResource>(Response.FromValue(new ApiManagementGatewayHostnameConfigurationResource(Client, response), response.GetRawResponse()), rehydrationToken);
                 if (waitUntil == WaitUntil.Completed)
                     await operation.WaitForCompletionAsync(cancellationToken).ConfigureAwait(false);
                 return operation;
@@ -227,15 +310,31 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Creates of updates hostname configuration for a Gateway.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
-        /// <param name="data"> The ApiManagementGatewayHostnameConfiguration to use. </param>
+        /// <param name="data"> The <see cref="ApiManagementGatewayHostnameConfigurationData"/> to use. </param>
         /// <param name="ifMatch"> ETag of the Entity. Not required when creating an entity, but required when updating an entity. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null. </exception>
-        public virtual ArmOperation<ApiManagementGatewayHostnameConfigurationResource> Update(WaitUntil waitUntil, ApiManagementGatewayHostnameConfigurationData data, string ifMatch = null, CancellationToken cancellationToken = default)
+        public virtual ArmOperation<ApiManagementGatewayHostnameConfigurationResource> Update(WaitUntil waitUntil, ApiManagementGatewayHostnameConfigurationData data, ETag? ifMatch = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(data, nameof(data));
 
@@ -244,7 +343,9 @@ namespace Azure.ResourceManager.ApiManagement
             try
             {
                 var response = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.CreateOrUpdate(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, data, ifMatch, cancellationToken);
-                var operation = new ApiManagementArmOperation<ApiManagementGatewayHostnameConfigurationResource>(Response.FromValue(new ApiManagementGatewayHostnameConfigurationResource(Client, response), response.GetRawResponse()));
+                var uri = _apiManagementGatewayHostnameConfigurationGatewayHostnameConfigurationRestClient.CreateCreateOrUpdateRequestUri(Id.SubscriptionId, Id.ResourceGroupName, Id.Parent.Parent.Name, Id.Parent.Name, Id.Name, data, ifMatch);
+                var rehydrationToken = NextLinkOperationImplementation.GetRehydrationToken(RequestMethod.Put, uri.ToUri(), uri.ToString(), "None", null, OperationFinalStateVia.OriginalUri.ToString());
+                var operation = new ApiManagementArmOperation<ApiManagementGatewayHostnameConfigurationResource>(Response.FromValue(new ApiManagementGatewayHostnameConfigurationResource(Client, response), response.GetRawResponse()), rehydrationToken);
                 if (waitUntil == WaitUntil.Completed)
                     operation.WaitForCompletion(cancellationToken);
                 return operation;
@@ -258,8 +359,24 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Checks that hostname configuration entity specified by identifier exists for specified Gateway entity.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_GetEntityTag
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_GetEntityTag</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual async Task<Response<bool>> GetEntityTagAsync(CancellationToken cancellationToken = default)
@@ -280,8 +397,24 @@ namespace Azure.ResourceManager.ApiManagement
 
         /// <summary>
         /// Checks that hostname configuration entity specified by identifier exists for specified Gateway entity.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}
-        /// Operation Id: GatewayHostnameConfiguration_GetEntityTag
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/gateways/{gatewayId}/hostnameConfigurations/{hcId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>GatewayHostnameConfiguration_GetEntityTag</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2021-08-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="ApiManagementGatewayHostnameConfigurationResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual Response<bool> GetEntityTag(CancellationToken cancellationToken = default)

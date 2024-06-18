@@ -5,54 +5,158 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
-using Azure.ResourceManager.ApiManagement;
 
 namespace Azure.ResourceManager.ApiManagement.Models
 {
-    internal partial class NotificationListResult
+    internal partial class NotificationListResult : IUtf8JsonSerializable, IJsonModel<NotificationListResult>
     {
-        internal static NotificationListResult DeserializeNotificationListResult(JsonElement element)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<NotificationListResult>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<NotificationListResult>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            Optional<IReadOnlyList<ApiManagementNotificationData>> value = default;
-            Optional<long> count = default;
-            Optional<string> nextLink = default;
+            var format = options.Format == "W" ? ((IPersistableModel<NotificationListResult>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(NotificationListResult)} does not support writing '{format}' format.");
+            }
+
+            writer.WriteStartObject();
+            if (Optional.IsCollectionDefined(Value))
+            {
+                writer.WritePropertyName("value"u8);
+                writer.WriteStartArray();
+                foreach (var item in Value)
+                {
+                    writer.WriteObjectValue(item, options);
+                }
+                writer.WriteEndArray();
+            }
+            if (Optional.IsDefined(Count))
+            {
+                writer.WritePropertyName("count"u8);
+                writer.WriteNumberValue(Count.Value);
+            }
+            if (Optional.IsDefined(NextLink))
+            {
+                writer.WritePropertyName("nextLink"u8);
+                writer.WriteStringValue(NextLink);
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+            writer.WriteEndObject();
+        }
+
+        NotificationListResult IJsonModel<NotificationListResult>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<NotificationListResult>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(NotificationListResult)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeNotificationListResult(document.RootElement, options);
+        }
+
+        internal static NotificationListResult DeserializeNotificationListResult(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            IReadOnlyList<ApiManagementNotificationData> value = default;
+            long? count = default;
+            string nextLink = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("value"))
+                if (property.NameEquals("value"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     List<ApiManagementNotificationData> array = new List<ApiManagementNotificationData>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(ApiManagementNotificationData.DeserializeApiManagementNotificationData(item));
+                        array.Add(ApiManagementNotificationData.DeserializeApiManagementNotificationData(item, options));
                     }
                     value = array;
                     continue;
                 }
-                if (property.NameEquals("count"))
+                if (property.NameEquals("count"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     count = property.Value.GetInt64();
                     continue;
                 }
-                if (property.NameEquals("nextLink"))
+                if (property.NameEquals("nextLink"u8))
                 {
                     nextLink = property.Value.GetString();
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new NotificationListResult(Optional.ToList(value), Optional.ToNullable(count), nextLink.Value);
+            serializedAdditionalRawData = rawDataDictionary;
+            return new NotificationListResult(value ?? new ChangeTrackingList<ApiManagementNotificationData>(), count, nextLink, serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<NotificationListResult>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<NotificationListResult>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(NotificationListResult)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        NotificationListResult IPersistableModel<NotificationListResult>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<NotificationListResult>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeNotificationListResult(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(NotificationListResult)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<NotificationListResult>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

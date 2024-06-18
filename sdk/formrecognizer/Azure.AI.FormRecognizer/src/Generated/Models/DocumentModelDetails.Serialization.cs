@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using Azure.Core;
 
 namespace Azure.AI.FormRecognizer.DocumentAnalysis
 {
@@ -16,54 +15,52 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis
     {
         internal static DocumentModelDetails DeserializeDocumentModelDetails(JsonElement element)
         {
-            Optional<IReadOnlyDictionary<string, DocTypeInfo>> docTypes = default;
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             string modelId = default;
-            Optional<string> description = default;
+            string description = default;
             DateTimeOffset createdDateTime = default;
-            Optional<string> apiVersion = default;
-            Optional<IReadOnlyDictionary<string, string>> tags = default;
+            DateTimeOffset? expirationDateTime = default;
+            string apiVersion = default;
+            IReadOnlyDictionary<string, string> tags = default;
+            IReadOnlyDictionary<string, DocumentTypeDetails> docTypes = default;
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("docTypes"))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        property.ThrowNonNullablePropertyIsNull();
-                        continue;
-                    }
-                    Dictionary<string, DocTypeInfo> dictionary = new Dictionary<string, DocTypeInfo>();
-                    foreach (var property0 in property.Value.EnumerateObject())
-                    {
-                        dictionary.Add(property0.Name, DocTypeInfo.DeserializeDocTypeInfo(property0.Value));
-                    }
-                    docTypes = dictionary;
-                    continue;
-                }
-                if (property.NameEquals("modelId"))
+                if (property.NameEquals("modelId"u8))
                 {
                     modelId = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("description"))
+                if (property.NameEquals("description"u8))
                 {
                     description = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("createdDateTime"))
+                if (property.NameEquals("createdDateTime"u8))
                 {
                     createdDateTime = property.Value.GetDateTimeOffset("O");
                     continue;
                 }
-                if (property.NameEquals("apiVersion"))
+                if (property.NameEquals("expirationDateTime"u8))
+                {
+                    if (property.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    expirationDateTime = property.Value.GetDateTimeOffset("O");
+                    continue;
+                }
+                if (property.NameEquals("apiVersion"u8))
                 {
                     apiVersion = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("tags"))
+                if (property.NameEquals("tags"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     Dictionary<string, string> dictionary = new Dictionary<string, string>();
@@ -74,8 +71,37 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis
                     tags = dictionary;
                     continue;
                 }
+                if (property.NameEquals("docTypes"u8))
+                {
+                    if (property.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    Dictionary<string, DocumentTypeDetails> dictionary = new Dictionary<string, DocumentTypeDetails>();
+                    foreach (var property0 in property.Value.EnumerateObject())
+                    {
+                        dictionary.Add(property0.Name, DocumentTypeDetails.DeserializeDocumentTypeDetails(property0.Value));
+                    }
+                    docTypes = dictionary;
+                    continue;
+                }
             }
-            return new DocumentModelDetails(modelId, description.Value, createdDateTime, apiVersion.Value, Optional.ToDictionary(tags), Optional.ToDictionary(docTypes));
+            return new DocumentModelDetails(
+                modelId,
+                description,
+                createdDateTime,
+                expirationDateTime,
+                apiVersion,
+                tags ?? new ChangeTrackingDictionary<string, string>(),
+                docTypes ?? new ChangeTrackingDictionary<string, DocumentTypeDetails>());
+        }
+
+        /// <summary> Deserializes the model from a raw response. </summary>
+        /// <param name="response"> The response to deserialize the model from. </param>
+        internal static DocumentModelDetails FromResponse(Response response)
+        {
+            using var document = JsonDocument.Parse(response.Content);
+            return DeserializeDocumentModelDetails(document.RootElement);
         }
     }
 }

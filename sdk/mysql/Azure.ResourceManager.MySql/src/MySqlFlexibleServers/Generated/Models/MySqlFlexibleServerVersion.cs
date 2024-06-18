@@ -22,13 +22,8 @@ namespace Azure.ResourceManager.MySql.FlexibleServers.Models
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private const string Five7Value = "5.7";
-        private const string Eight021Value = "8.0.21";
-
-        /// <summary> 5.7. </summary>
-        public static MySqlFlexibleServerVersion Five7 { get; } = new MySqlFlexibleServerVersion(Five7Value);
-        /// <summary> 8.0.21. </summary>
-        public static MySqlFlexibleServerVersion Eight021 { get; } = new MySqlFlexibleServerVersion(Eight021Value);
+        private const string Ver5_7Value = "5.7";
+        private const string Ver8_0_21Value = "8.0.21";
         /// <summary> Determines if two <see cref="MySqlFlexibleServerVersion"/> values are the same. </summary>
         public static bool operator ==(MySqlFlexibleServerVersion left, MySqlFlexibleServerVersion right) => left.Equals(right);
         /// <summary> Determines if two <see cref="MySqlFlexibleServerVersion"/> values are not the same. </summary>

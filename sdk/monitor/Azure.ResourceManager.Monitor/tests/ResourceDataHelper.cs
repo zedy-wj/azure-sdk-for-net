@@ -9,6 +9,8 @@ using Azure.ResourceManager.Resources.Models;
 using NUnit.Framework;
 using Azure.Core;
 using System;
+using Azure.ResourceManager.Storage;
+using Azure.ResourceManager.Storage.Models;
 
 namespace Azure.ResourceManager.Monitor.Tests
 {
@@ -130,7 +132,7 @@ namespace Azure.ResourceManager.Monitor.Tests
             var ruleCondition = new ThresholdRuleCondition(MonitorConditionOperator.GreaterThan, 3.0)
             {
                 WindowSize = TimeSpan.FromMinutes(15),
-                TimeAggregation = MonitorTimeAggregationOperator.Average,
+                TimeAggregation = ThresholdRuleConditionTimeAggregationType.Average,
                 DataSource = ruleDataSource
             };
             var data = new AlertRuleData(location, "testAlertRule", true, ruleCondition)
@@ -150,21 +152,32 @@ namespace Azure.ResourceManager.Monitor.Tests
 
         public static AutoscaleSettingData GetBasicAutoscaleSettingData(AzureLocation location)
         {
-            var fixDate = new MonitorTimeWindow("UTC", DateTime.Parse("2014-04-15T21:06:11.7882792Z"), DateTime.Parse("2014-04-15T21:06:11.7882792Z"));
-            var Schedule = new RecurrentSchedule("UTC-11", new List<string> { "Monday" }, new List<int> { 0 }, new List<int> { 10 });
+            var fixDate = new MonitorTimeWindow(DateTime.Parse("2014-04-15T21:06:11.7882792Z"), DateTime.Parse("2014-04-15T21:06:11.7882792Z"))
+            {
+                TimeZone = "UTC"
+            };
+            var Schedule = new RecurrentSchedule("UTC-11", new MonitorDayOfWeek[] { "Monday" }, new[] { 0 }, new[] { 10 });
             var recurrence = new MonitorRecurrence(RecurrenceFrequency.Week, Schedule);
-            var scaleCapacity = new MonitorScaleCapacity("1", "1", "1");
-            var metricTtigger = new MetricTrigger("AbandonMessage", "microsoft.servicebus/namespaces", new ResourceIdentifier("/subscriptions/db1ab6f0-4769-4b27-930e-01e2ef9c123c/resourceGroups/testservicebusRG-9432/providers/Microsoft.ServiceBus/namespaces/testnamespacemgmt7892"), "East US 2", TimeSpan.FromMinutes(1), MetricStatisticType.Average, TimeSpan.FromMinutes(10), MonitorTimeAggregationType.Average, ComparisonOperationType.GreaterThan, 70, new ChangeTrackingList<ScaleRuleMetricDimension>(), false);
-            IList<ScaleRule> rules = new List<ScaleRule>()
+            var scaleCapacity = new MonitorScaleCapacity(1, 1, 1);
+            var metricTrigger = new MetricTrigger("AbandonMessage", new ResourceIdentifier("/subscriptions/db1ab6f0-4769-4b27-930e-01e2ef9c123c/resourceGroups/testservicebusRG-9432/providers/Microsoft.ServiceBus/namespaces/testnamespacemgmt7892"), TimeSpan.FromMinutes(1), MetricStatisticType.Average, TimeSpan.FromMinutes(10), MetricTriggerTimeAggregationType.Average, MetricTriggerComparisonOperation.GreaterThan, 70)
             {
-                new ScaleRule(metricTtigger, new MonitorScaleAction(MonitorScaleDirection.Increase, MonitorScaleType.ServiceAllowedNextValue, "1", TimeSpan.FromMinutes(5)))
+                MetricNamespace = "microsoft.servicebus/namespaces",
+                MetricResourceLocation = AzureLocation.EastUS2,
+                IsDividedPerInstance = false
             };
-            IEnumerable<AutoscaleProfile> profiles = new List<AutoscaleProfile>()
-            {
-                //new AutoscaleProfile("Profiles2", scaleCapacity, rules)
-                new AutoscaleProfile("Profiles2", scaleCapacity, rules, fixDate, null),
-                new AutoscaleProfile("Profiles3", scaleCapacity, rules,null, recurrence),
-            };
+            var rules = new List<AutoscaleRule>()
+                {
+                    new(
+                        metricTrigger,
+                        new MonitorScaleAction(MonitorScaleDirection.Increase, MonitorScaleType.ServiceAllowedNextValue, TimeSpan.FromMinutes(5)) { Value = "1" }
+                    )
+                };
+            var profiles = new List<AutoscaleProfile>()
+                {
+                    //new AutoscaleProfile("Profiles2", scaleCapacity, rules)
+                    new AutoscaleProfile("Profiles2", scaleCapacity, rules, fixDate, null, null),
+                    new AutoscaleProfile("Profiles3", scaleCapacity, rules,null, recurrence, null),
+                };
             var data = new AutoscaleSettingData(location, profiles)
             {
                 IsEnabled = true,
@@ -195,7 +208,7 @@ namespace Azure.ResourceManager.Monitor.Tests
                         }
                     },
                 },*/
-                Tags = {},
+                Tags = { },
             };
             return data;
         }
@@ -277,19 +290,19 @@ namespace Azure.ResourceManager.Monitor.Tests
             Assert.AreEqual(data1.Description, data2.Description);
         }
 
-        public static MetricAlertData GetBasicMetricAlertData(AzureLocation location, ActionGroupResource actionGroup)
+        public static MetricAlertData GetBasicMetricAlertData(AzureLocation location, ActionGroupResource actionGroup, string storageAccountId)
         {
             IEnumerable<string> scopes = new List<string>()
             {
-                "/subscriptions/db1ab6f0-4769-4b27-930e-01e2ef9c123c/resourceGroups/deleteme0122/providers/Microsoft.Compute/virtualMachines/MetricAlertActionTestVM01",
+                storageAccountId,
                 // "/subscriptions/db1ab6f0-4769-4b27-930e-01e2ef9c123c/resourceGroups/deleteme0122/providers/Microsoft.Compute/virtualMachines/MetricAlertActionTestVM02"
             };
             var metricAlertAction = new MetricAlertAction()
             {
                 ActionGroupId = actionGroup.Id,
-                WebHookProperties = { new KeyValuePair<string, string>("key1","value1") }
+                WebHookProperties = { new KeyValuePair<string, string>("key1", "value1") }
             };
-            var metricCriteria = new MetricCriteria("High_CPU_80", "Percentage CPU", MonitorAggregationType.Average, MonitorOperator.GreaterThan, 80.50){};
+            var metricCriteria = new MetricCriteria("High_CPU_80", "Transactions", MetricCriteriaTimeAggregationType.Total, MetricCriteriaOperator.GreaterThan, 80.50) { };
             return new MetricAlertData(
                 location,
                 3,
@@ -299,6 +312,24 @@ namespace Azure.ResourceManager.Monitor.Tests
                 new TimeSpan(0, 5, 0),
                 new MetricAlertSingleResourceMultipleMetricCriteria() { AllOf = { metricCriteria } })
             { Actions = { metricAlertAction } };
+        }
+        #endregion
+
+        #region storage account
+        public static StorageAccountData GetStorageAccountData()
+        {
+            var data = new StorageAccountData(AzureLocation.EastUS)
+            {
+            };
+            return data;
+        }
+        public static StorageAccountCreateOrUpdateContent GetContent()
+        {
+            var content = new StorageAccountCreateOrUpdateContent(new StorageSku(StorageSkuName.StandardLrs), StorageKind.BlobStorage, AzureLocation.EastUS)
+            {
+                AccessTier = StorageAccountAccessTier.Hot
+            };
+            return content;
         }
         #endregion
     }

@@ -9,23 +9,25 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 using Azure.ResourceManager.PostgreSql.Models;
 
 namespace Azure.ResourceManager.PostgreSql
 {
     /// <summary>
     /// A Class representing a PostgreSqlServerSecurityAlertPolicy along with the instance operations that can be performed on it.
-    /// If you have a <see cref="ResourceIdentifier" /> you can construct a <see cref="PostgreSqlServerSecurityAlertPolicyResource" />
-    /// from an instance of <see cref="ArmClient" /> using the GetPostgreSqlServerSecurityAlertPolicyResource method.
-    /// Otherwise you can get one from its parent resource <see cref="PostgreSqlServerResource" /> using the GetPostgreSqlServerSecurityAlertPolicy method.
+    /// If you have a <see cref="ResourceIdentifier"/> you can construct a <see cref="PostgreSqlServerSecurityAlertPolicyResource"/>
+    /// from an instance of <see cref="ArmClient"/> using the GetPostgreSqlServerSecurityAlertPolicyResource method.
+    /// Otherwise you can get one from its parent resource <see cref="PostgreSqlServerResource"/> using the GetPostgreSqlServerSecurityAlertPolicy method.
     /// </summary>
     public partial class PostgreSqlServerSecurityAlertPolicyResource : ArmResource
     {
         /// <summary> Generate the resource identifier of a <see cref="PostgreSqlServerSecurityAlertPolicyResource"/> instance. </summary>
+        /// <param name="subscriptionId"> The subscriptionId. </param>
+        /// <param name="resourceGroupName"> The resourceGroupName. </param>
+        /// <param name="serverName"> The serverName. </param>
+        /// <param name="securityAlertPolicyName"> The securityAlertPolicyName. </param>
         public static ResourceIdentifier CreateResourceIdentifier(string subscriptionId, string resourceGroupName, string serverName, PostgreSqlSecurityAlertPolicyName securityAlertPolicyName)
         {
             var resourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}";
@@ -36,12 +38,15 @@ namespace Azure.ResourceManager.PostgreSql
         private readonly ServerSecurityAlertPoliciesRestOperations _postgreSqlServerSecurityAlertPolicyServerSecurityAlertPoliciesRestClient;
         private readonly PostgreSqlServerSecurityAlertPolicyData _data;
 
+        /// <summary> Gets the resource type for the operations. </summary>
+        public static readonly ResourceType ResourceType = "Microsoft.DBforPostgreSQL/servers/securityAlertPolicies";
+
         /// <summary> Initializes a new instance of the <see cref="PostgreSqlServerSecurityAlertPolicyResource"/> class for mocking. </summary>
         protected PostgreSqlServerSecurityAlertPolicyResource()
         {
         }
 
-        /// <summary> Initializes a new instance of the <see cref = "PostgreSqlServerSecurityAlertPolicyResource"/> class. </summary>
+        /// <summary> Initializes a new instance of the <see cref="PostgreSqlServerSecurityAlertPolicyResource"/> class. </summary>
         /// <param name="client"> The client parameters to use in these operations. </param>
         /// <param name="data"> The resource that is the target of operations. </param>
         internal PostgreSqlServerSecurityAlertPolicyResource(ArmClient client, PostgreSqlServerSecurityAlertPolicyData data) : this(client, data.Id)
@@ -62,9 +67,6 @@ namespace Azure.ResourceManager.PostgreSql
 			ValidateResourceId(Id);
 #endif
         }
-
-        /// <summary> Gets the resource type for the operations. </summary>
-        public static readonly ResourceType ResourceType = "Microsoft.DBforPostgreSQL/servers/securityAlertPolicies";
 
         /// <summary> Gets whether or not the current instance has data. </summary>
         public virtual bool HasData { get; }
@@ -88,9 +90,25 @@ namespace Azure.ResourceManager.PostgreSql
         }
 
         /// <summary>
-        /// Get a server&apos;s security alert policy.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}
-        /// Operation Id: ServerSecurityAlertPolicies_Get
+        /// Get a server's security alert policy.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerSecurityAlertPolicies_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2017-12-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerSecurityAlertPolicyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual async Task<Response<PostgreSqlServerSecurityAlertPolicyResource>> GetAsync(CancellationToken cancellationToken = default)
@@ -112,9 +130,25 @@ namespace Azure.ResourceManager.PostgreSql
         }
 
         /// <summary>
-        /// Get a server&apos;s security alert policy.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}
-        /// Operation Id: ServerSecurityAlertPolicies_Get
+        /// Get a server's security alert policy.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerSecurityAlertPolicies_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2017-12-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerSecurityAlertPolicyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         public virtual Response<PostgreSqlServerSecurityAlertPolicyResource> Get(CancellationToken cancellationToken = default)
@@ -137,8 +171,24 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Creates or updates a threat detection policy.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}
-        /// Operation Id: ServerSecurityAlertPolicies_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerSecurityAlertPolicies_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2017-12-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerSecurityAlertPolicyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="data"> The server security alert policy. </param>
@@ -167,8 +217,24 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Creates or updates a threat detection policy.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}
-        /// Operation Id: ServerSecurityAlertPolicies_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerSecurityAlertPolicies_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2017-12-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerSecurityAlertPolicyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="data"> The server security alert policy. </param>

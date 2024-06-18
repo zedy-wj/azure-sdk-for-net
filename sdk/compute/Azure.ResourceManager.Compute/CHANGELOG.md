@@ -1,6 +1,6 @@
 # Release History
 
-## 1.1.0-beta.1 (Unreleased)
+## 1.6.0-beta.1 (Unreleased)
 
 ### Features Added
 
@@ -10,9 +10,130 @@
 
 ### Other Changes
 
+## 1.5.0 (2024-05-10)
+
+### Features Added
+
+- Updated the CRP api-version from 'package-2023-09-01' to the newer 'package-2024-03-01'. This is for the latest Compute RP release (VM, VMSS, etc).
+
+## 1.5.0-beta.1 (2024-04-25)
+
+### Features Added
+
+- Support long-running operation rehydration.
+
+### Other Changes
+
+- Upgraded dependent `Azure.ResourceManager` to 1.11.1.
+
+## 1.4.0 (2024-02-21)
+
+### Features Added
+
+- Added a new property 'virtualMachineId' to the 'GalleryArtifactVersionFullSource'.
+- Updated the api-version tag from 'package-2023-10-02' to the newer 'package-2023-07-03'. This is for the latest Gallery RP release (Galleries, CommunityGalleries, etc).
+
+## 1.4.0-beta.1 (2024-01-26)
+
+### Features Added
+
+- Upgraded api-version tag from 'package-2023-09-01' to 'package-2023-10-02'. Tag detail available at https://github.com/Azure/azure-rest-api-specs/blob/ce47f9b775ec53750f37def0402ecacf3f1d661b/specification/compute/resource-manager/readme.md.
+- Enable the new model serialization by using the System.ClientModel, refer this [document](https://aka.ms/azsdk/net/mrw) for more details.
+
+### Other Changes
+
+- Upgraded dependent `Azure.ResourceManager` to 1.10.0.
+
+## 1.3.0 (2023-12-29)
+
+### Features Added
+
+- Compute RP to `2023-09-01` (AvailabilitySets, VirtualMachines, VirtualMachineScaleSets, etc)
+
+## 1.2.1 (2023-11-21)
+
+### Features Added
+
+- Enable mocking for extension methods, refer this [document](https://aka.ms/azsdk/net/mocking) for more details.
+
+### Other Changes
+
+- Upgraded dependent `Azure.ResourceManager` to 1.9.0.
+
+## 1.2.0 (2023-09-15)
+
+### Features Added
+
+- Compute RP to `2023-03-01` (AvailabilitySets, VirtualMachines, VirtualMachineScaleSets, etc)
+  - Added new parameter `DomainNameLabelScope` to VM and VMSS Public IP Dns Settings.
+  - Added new parameter `TimeCreated` to VMSS VM properties.
+  - Added new parameters `AuxiliaryMode` and `AuxiliarySku` to VM and VMSS Network Configuration Properties.
+
+## 1.2.0-beta.3 (2023-08-14)
+
+### Features Added
+
+- Make `ComputeArmClientMockingExtension`, `ComputeResourceGroupMockingExtension`, `ComputeSubscriptionMockingExtension` public for mocking the extension methods.
+
+## 1.2.0-beta.2 (2023-07-28)
+
+### Features Added
+
+- Disk RP to `2023-01-02`
+    - Added new property class `DiskImageFileFormat` to `GrantAccessData` class
+
+## 1.2.0-beta.1 (2023-06-01)
+
+### Features Added
+
+- Enable the model factory feature for model mocking, more information can be found [here](https://azure.github.io/azure-sdk/dotnet_introduction.html#dotnet-mocking-factory-builder).
+- Added new properties `ComputerName`, `OSName`, `OSVersion` and `HyperVGeneration` to `VirtualMachineScaleSetVmInstanceView` class
+- Added new value `StandardSsdLrs` to `ImageStorageAccountType`
+- Compute RP to `2023-03-01` (AvailabilitySets, VirtualMachines, VirtualMachineScaleSets, etc)
+  - Added new method `Reapply` for `VirtualMachineScaleSet` class.
+  - Added new method `ListAvailabeSizes` for `DedicatedHost` class.
+  - Added new parameter `expand` for `VirtualMachine` List methods.
+  - Added new parameter `hibernate` for `VirtualMachineScaleSet` deallocate methods.
+  - Added new parameters `PriorityMixPolicy` and `SpotRestorePolicy` for `VirtualMachineScaleSet` update methods.
+  - Added new property `BypassPlatformSafetyChecksOnUserSchedule` for `VirtualMachine` class.
+  - Added new property `SecurityPostureReference` to `VirtualMachineScaleSet` class.
+  - Added new properties `OutputBlobManagedIdentity` and `ErrorBlobManagedIdentity` to `RunCommand` class.
+  - Added new properties `RestorePointEncryption`, `SourceDiskRestorePoint` , `HyperVGeneration` and `WriteAcceleratorEnabled` for `RestorePoint` class.
+
+### Breaking Changes
+
+- Class `VirtualMachineScaleSetNetworkConfiguration` and `VirtualMachineScaleSetIPConfiguration` no longer have the property `Id`
+
+### Other Changes
+
+- Upgraded dependent `Azure.Core` to 1.32.0.
+- Upgraded dependent `Azure.ResourceManager` to 1.6.0.
+
+## 1.1.0 (2023-02-16)
+
+### Features Added
+
+Bumps the api-version
+
+- Compute RP to `2022-11-01` (AvailabilitySets, VirtualMachines, VirtualMachineScaleSets, etc)
+- Disk RP to `2022-07-02` (ManagedDisks, Snapshots, etc)
+- Gallery RP to `2022-03-03` (Galleries, CommunityGalleries, etc)
+- CloudService RP to `2022-09-04` (CloudServices, etc)
+
+### Other Changes
+
+- Upgraded dependent `Azure.Core` to `1.28.0`.
+- Upgraded dependent `Azure.ResourceManager` to `1.4.0`.
+
+## 1.0.1 (2022-11-29)
+
+### Bugs Fixed
+
+- Fixes [a bug](https://github.com/Azure/azure-sdk-for-net/issues/32599) that exceptions are thrown during serialization when constructor `VirtualMachineScaleSetExtensionData(string name)` is called
+
 ## 1.0.0 (2022-07-11)
 
-This is the first stable release of the Compute Management client library.
+This release is the first stable release of the Compute Management client library.
 
 ### Features Added
 
@@ -28,10 +149,10 @@ Polishing since last public beta release:
 - Corrected the format of all `ETag` type properties / parameters.
 - Corrected the format of all `AzureLocation` type properties / parameters.
 - Corrected the format of all binary type properties / parameters.
-- Corrected all acronyms which not follow [.Net Naming Guidelines](https://docs.microsoft.com/dotnet/standard/design-guidelines/naming-guidelines).
+- Corrected all acronyms that not follow [.Net Naming Guidelines](https://docs.microsoft.com/dotnet/standard/design-guidelines/naming-guidelines).
 - Corrected enumeration name by following [Naming Enumerations Rule](https://docs.microsoft.com/dotnet/standard/design-guidelines/names-of-classes-structs-and-interfaces#naming-enumerations).
 - Corrected the suffix of `DateTimeOffset` properties / parameters.
-- Corrected the name of interval / duration properties / parameters which end with units.
+- Corrected the name of interval / duration properties / parameters that end with units.
 - Optimized the name of some models and functions.
 - Correct inherits
   - Base type of `VirtualMachineScaleSetVmExtensionData` changed to `Azure.ResourceManager.Models.ResourceData`.
@@ -142,18 +263,32 @@ Polishing since last public beta release:
 
 ## 1.0.0-beta.1 (2021-08-31)
 
-### Breaking Changes
+### General New Features
 
-Guidance to migrate from Previous Version of Azure Management SDK
+This package follows the [new Azure SDK guidelines](https://azure.github.io/azure-sdk/general_introduction.html), and provides many core capabilities:
+
+    - Support MSAL.NET, Azure.Identity is out of box for supporting MSAL.NET.
+    - Support [OpenTelemetry](https://opentelemetry.io/) for distributed tracing.
+    - HTTP pipeline with custom policies.
+    - Better error-handling.
+    - Support uniform telemetry across all languages.
+
+This package is a Public Preview version, so expect incompatible changes in subsequent releases as we improve the product. To provide feedback, submit an issue in our [Azure SDK for .NET GitHub repo](https://github.com/Azure/azure-sdk-for-net/issues).
+
+> NOTE: For more information about unified authentication, please refer to [Microsoft Azure Identity documentation for .NET](https://docs.microsoft.com//dotnet/api/overview/azure/identity-readme?view=azure-dotnet).
 
 #### Package Name
 The package name has been changed from `Microsoft.Azure.Management.Compute` to `Azure.ResourceManager.Compute`
 
-#### Management Client Changes
+### Breaking Changes
+
+New design of track 2 initial commit.
 
 Example: Create a VM:
 
 Before upgrade:
+
+You need the following using statements:
 ```C#
 using System.Collections.Generic;
 using System.Linq;
@@ -169,7 +304,10 @@ using IPVersion = Microsoft.Azure.Management.Network.Models.IPVersion;
 using ResourceManagementClient = Microsoft.Azure.Management.ResourceManager.ResourceManagementClient;
 using Sku = Microsoft.Azure.Management.Compute.Models.Sku;
 using SubResource = Microsoft.Azure.Management.Compute.Models.SubResource;
+```
 
+The code looks like:
+```C#
 var credentials = new TokenCredentials("YOUR ACCESS TOKEN");;
 
 var resourceClient = new ResourceManagementClient(credentials);
@@ -274,7 +412,9 @@ await computeClient.VirtualMachines.BeginCreateOrUpdateAsync(resourceGroupName, 
 ```
 
 After upgrade:
-```C# Snippet:Changelog_New
+
+You need the following using statements:
+```C# Snippet:Changelog_NewUsing
 using Azure.Identity;
 using Azure.ResourceManager.Compute.Models;
 using Azure.ResourceManager.Network;
@@ -284,7 +424,10 @@ using Azure.ResourceManager.Resources.Models;
 using Azure.Core;
 using System;
 using System.Linq;
+```
 
+The code looks like:
+```C# Snippet:Changelog_New
 ArmClient armClient = new ArmClient(new DefaultAzureCredential());
 
 AzureLocation location = AzureLocation.WestUS;

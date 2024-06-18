@@ -9,20 +9,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
+using Autorest.CSharp.Core;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 
 namespace Azure.ResourceManager.PostgreSql
 {
     /// <summary>
-    /// A class representing a collection of <see cref="PostgreSqlServerKeyResource" /> and their operations.
-    /// Each <see cref="PostgreSqlServerKeyResource" /> in the collection will belong to the same instance of <see cref="PostgreSqlServerResource" />.
-    /// To get a <see cref="PostgreSqlServerKeyCollection" /> instance call the GetPostgreSqlServerKeys method from an instance of <see cref="PostgreSqlServerResource" />.
+    /// A class representing a collection of <see cref="PostgreSqlServerKeyResource"/> and their operations.
+    /// Each <see cref="PostgreSqlServerKeyResource"/> in the collection will belong to the same instance of <see cref="PostgreSqlServerResource"/>.
+    /// To get a <see cref="PostgreSqlServerKeyCollection"/> instance call the GetPostgreSqlServerKeys method from an instance of <see cref="PostgreSqlServerResource"/>.
     /// </summary>
     public partial class PostgreSqlServerKeyCollection : ArmCollection, IEnumerable<PostgreSqlServerKeyResource>, IAsyncEnumerable<PostgreSqlServerKeyResource>
     {
@@ -55,8 +53,24 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Creates or updates a PostgreSQL Server key.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}
-        /// Operation Id: ServerKeys_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="keyName"> The name of the PostgreSQL Server key to be operated on (updated or created). </param>
@@ -88,8 +102,24 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Creates or updates a PostgreSQL Server key.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}
-        /// Operation Id: ServerKeys_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="keyName"> The name of the PostgreSQL Server key to be operated on (updated or created). </param>
@@ -121,8 +151,24 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Gets a PostgreSQL Server key.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}
-        /// Operation Id: ServerKeys_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="keyName"> The name of the PostgreSQL Server key to be retrieved. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -150,8 +196,24 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Gets a PostgreSQL Server key.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}
-        /// Operation Id: ServerKeys_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="keyName"> The name of the PostgreSQL Server key to be retrieved. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -179,92 +241,84 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Gets a list of  Server keys.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys
-        /// Operation Id: ServerKeys_List
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_List</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> An async collection of <see cref="PostgreSqlServerKeyResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> An async collection of <see cref="PostgreSqlServerKeyResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual AsyncPageable<PostgreSqlServerKeyResource> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            async Task<Page<PostgreSqlServerKeyResource>> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _postgreSqlServerKeyServerKeysClientDiagnostics.CreateScope("PostgreSqlServerKeyCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _postgreSqlServerKeyServerKeysRestClient.ListAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlServerKeyResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            async Task<Page<PostgreSqlServerKeyResource>> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _postgreSqlServerKeyServerKeysClientDiagnostics.CreateScope("PostgreSqlServerKeyCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _postgreSqlServerKeyServerKeysRestClient.ListNextPageAsync(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlServerKeyResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateAsyncEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _postgreSqlServerKeyServerKeysRestClient.CreateListRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _postgreSqlServerKeyServerKeysRestClient.CreateListNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            return GeneratorPageableHelpers.CreateAsyncPageable(FirstPageRequest, NextPageRequest, e => new PostgreSqlServerKeyResource(Client, PostgreSqlServerKeyData.DeserializePostgreSqlServerKeyData(e)), _postgreSqlServerKeyServerKeysClientDiagnostics, Pipeline, "PostgreSqlServerKeyCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// Gets a list of  Server keys.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys
-        /// Operation Id: ServerKeys_List
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_List</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> A collection of <see cref="PostgreSqlServerKeyResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> A collection of <see cref="PostgreSqlServerKeyResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual Pageable<PostgreSqlServerKeyResource> GetAll(CancellationToken cancellationToken = default)
         {
-            Page<PostgreSqlServerKeyResource> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _postgreSqlServerKeyServerKeysClientDiagnostics.CreateScope("PostgreSqlServerKeyCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _postgreSqlServerKeyServerKeysRestClient.List(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlServerKeyResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            Page<PostgreSqlServerKeyResource> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _postgreSqlServerKeyServerKeysClientDiagnostics.CreateScope("PostgreSqlServerKeyCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _postgreSqlServerKeyServerKeysRestClient.ListNextPage(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlServerKeyResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _postgreSqlServerKeyServerKeysRestClient.CreateListRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _postgreSqlServerKeyServerKeysRestClient.CreateListNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            return GeneratorPageableHelpers.CreatePageable(FirstPageRequest, NextPageRequest, e => new PostgreSqlServerKeyResource(Client, PostgreSqlServerKeyData.DeserializePostgreSqlServerKeyData(e)), _postgreSqlServerKeyServerKeysClientDiagnostics, Pipeline, "PostgreSqlServerKeyCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}
-        /// Operation Id: ServerKeys_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="keyName"> The name of the PostgreSQL Server key to be retrieved. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -290,8 +344,24 @@ namespace Azure.ResourceManager.PostgreSql
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}
-        /// Operation Id: ServerKeys_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="keyName"> The name of the PostgreSQL Server key to be retrieved. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -307,6 +377,96 @@ namespace Azure.ResourceManager.PostgreSql
             {
                 var response = _postgreSqlServerKeyServerKeysRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, keyName, cancellationToken: cancellationToken);
                 return Response.FromValue(response.Value != null, response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="keyName"> The name of the PostgreSQL Server key to be retrieved. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="keyName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="keyName"/> is null. </exception>
+        public virtual async Task<NullableResponse<PostgreSqlServerKeyResource>> GetIfExistsAsync(string keyName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(keyName, nameof(keyName));
+
+            using var scope = _postgreSqlServerKeyServerKeysClientDiagnostics.CreateScope("PostgreSqlServerKeyCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = await _postgreSqlServerKeyServerKeysRestClient.GetAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, keyName, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (response.Value == null)
+                    return new NoValueResponse<PostgreSqlServerKeyResource>(response.GetRawResponse());
+                return Response.FromValue(new PostgreSqlServerKeyResource(Client, response.Value), response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/keys/{keyName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>ServerKeys_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2020-01-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlServerKeyResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="keyName"> The name of the PostgreSQL Server key to be retrieved. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="keyName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="keyName"/> is null. </exception>
+        public virtual NullableResponse<PostgreSqlServerKeyResource> GetIfExists(string keyName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(keyName, nameof(keyName));
+
+            using var scope = _postgreSqlServerKeyServerKeysClientDiagnostics.CreateScope("PostgreSqlServerKeyCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = _postgreSqlServerKeyServerKeysRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, keyName, cancellationToken: cancellationToken);
+                if (response.Value == null)
+                    return new NoValueResponse<PostgreSqlServerKeyResource>(response.GetRawResponse());
+                return Response.FromValue(new PostgreSqlServerKeyResource(Client, response.Value), response.GetRawResponse());
             }
             catch (Exception e)
             {

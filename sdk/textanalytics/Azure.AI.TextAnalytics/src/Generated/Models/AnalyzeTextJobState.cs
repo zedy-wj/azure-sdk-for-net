@@ -7,14 +7,13 @@
 
 using System;
 using System.Collections.Generic;
-using Azure.AI.TextAnalytics;
 
 namespace Azure.AI.TextAnalytics.Models
 {
     /// <summary> The AnalyzeTextJobState. </summary>
     internal partial class AnalyzeTextJobState : JobState
     {
-        /// <summary> Initializes a new instance of AnalyzeTextJobState. </summary>
+        /// <summary> Initializes a new instance of <see cref="AnalyzeTextJobState"/>. </summary>
         /// <param name="createdDateTime"></param>
         /// <param name="jobId"></param>
         /// <param name="lastUpdatedDateTime"></param>
@@ -23,19 +22,13 @@ namespace Azure.AI.TextAnalytics.Models
         /// <exception cref="ArgumentNullException"> <paramref name="jobId"/> or <paramref name="tasks"/> is null. </exception>
         internal AnalyzeTextJobState(DateTimeOffset createdDateTime, string jobId, DateTimeOffset lastUpdatedDateTime, TextAnalyticsOperationStatus status, AnalyzeTasks tasks) : base(createdDateTime, jobId, lastUpdatedDateTime, status)
         {
-            if (jobId == null)
-            {
-                throw new ArgumentNullException(nameof(jobId));
-            }
-            if (tasks == null)
-            {
-                throw new ArgumentNullException(nameof(tasks));
-            }
+            Argument.AssertNotNull(jobId, nameof(jobId));
+            Argument.AssertNotNull(tasks, nameof(tasks));
 
             Tasks = tasks;
         }
 
-        /// <summary> Initializes a new instance of AnalyzeTextJobState. </summary>
+        /// <summary> Initializes a new instance of <see cref="AnalyzeTextJobState"/>. </summary>
         /// <param name="displayName"></param>
         /// <param name="createdDateTime"></param>
         /// <param name="expirationDateTime"></param>

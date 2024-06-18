@@ -6,7 +6,6 @@
 #nullable disable
 
 using System.Text.Json;
-using Azure.Core;
 
 namespace Azure.Communication.CallingServer
 {
@@ -14,39 +13,82 @@ namespace Azure.Communication.CallingServer
     {
         internal static CallConnected DeserializeCallConnected(JsonElement element)
         {
-            Optional<AcsEventType> type = default;
-            Optional<string> callConnectionId = default;
-            Optional<string> serverCallId = default;
-            Optional<string> correlationId = default;
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string eventSource = default;
+            string version = default;
+            string operationContext = default;
+            ResultInformation resultInformation = default;
+            string callConnectionId = default;
+            string serverCallId = default;
+            string correlationId = default;
+            string publicEventType = default;
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("type"))
+                if (property.NameEquals("eventSource"u8))
+                {
+                    eventSource = property.Value.GetString();
+                    continue;
+                }
+                if (property.NameEquals("version"u8))
+                {
+                    version = property.Value.GetString();
+                    continue;
+                }
+                if (property.NameEquals("operationContext"u8))
+                {
+                    operationContext = property.Value.GetString();
+                    continue;
+                }
+                if (property.NameEquals("resultInformation"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    type = new AcsEventType(property.Value.GetString());
+                    resultInformation = ResultInformation.DeserializeResultInformation(property.Value);
                     continue;
                 }
-                if (property.NameEquals("callConnectionId"))
+                if (property.NameEquals("callConnectionId"u8))
                 {
                     callConnectionId = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("serverCallId"))
+                if (property.NameEquals("serverCallId"u8))
                 {
                     serverCallId = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("correlationId"))
+                if (property.NameEquals("correlationId"u8))
                 {
                     correlationId = property.Value.GetString();
                     continue;
                 }
+                if (property.NameEquals("publicEventType"u8))
+                {
+                    publicEventType = property.Value.GetString();
+                    continue;
+                }
             }
-            return new CallConnected(type, callConnectionId.Value, serverCallId.Value, correlationId.Value);
+            return new CallConnected(
+                eventSource,
+                version,
+                operationContext,
+                resultInformation,
+                callConnectionId,
+                serverCallId,
+                correlationId,
+                publicEventType);
+        }
+
+        /// <summary> Deserializes the model from a raw response. </summary>
+        /// <param name="response"> The response to deserialize the model from. </param>
+        internal static CallConnected FromResponse(Response response)
+        {
+            using var document = JsonDocument.Parse(response.Content);
+            return DeserializeCallConnected(document.RootElement);
         }
     }
 }

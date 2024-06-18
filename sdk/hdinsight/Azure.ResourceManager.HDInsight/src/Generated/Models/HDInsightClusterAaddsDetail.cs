@@ -6,18 +6,52 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using Azure.Core;
 
 namespace Azure.ResourceManager.HDInsight.Models
 {
     /// <summary> The Azure active directory domain service resource details. </summary>
     public partial class HDInsightClusterAaddsDetail
     {
-        /// <summary> Initializes a new instance of HDInsightClusterAaddsDetail. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="HDInsightClusterAaddsDetail"/>. </summary>
         internal HDInsightClusterAaddsDetail()
         {
         }
 
-        /// <summary> Initializes a new instance of HDInsightClusterAaddsDetail. </summary>
+        /// <summary> Initializes a new instance of <see cref="HDInsightClusterAaddsDetail"/>. </summary>
         /// <param name="domainName"> The Azure active directory domain service name. </param>
         /// <param name="isInitialSyncComplete"> This indicates whether initial sync complete or not. </param>
         /// <param name="isLdapsEnabled"> This indicates whether enable ldaps or not. </param>
@@ -25,7 +59,8 @@ namespace Azure.ResourceManager.HDInsight.Models
         /// <param name="resourceId"> The resource id of azure active directory domain service. </param>
         /// <param name="subnetId"> The subnet resource id. </param>
         /// <param name="tenantId"> The tenant id of azure active directory domain service . </param>
-        internal HDInsightClusterAaddsDetail(string domainName, bool? isInitialSyncComplete, bool? isLdapsEnabled, string ldapsPublicCertificateInBase64, string resourceId, string subnetId, Guid? tenantId)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal HDInsightClusterAaddsDetail(string domainName, bool? isInitialSyncComplete, bool? isLdapsEnabled, string ldapsPublicCertificateInBase64, ResourceIdentifier resourceId, ResourceIdentifier subnetId, Guid? tenantId, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             DomainName = domainName;
             IsInitialSyncComplete = isInitialSyncComplete;
@@ -34,6 +69,7 @@ namespace Azure.ResourceManager.HDInsight.Models
             ResourceId = resourceId;
             SubnetId = subnetId;
             TenantId = tenantId;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> The Azure active directory domain service name. </summary>
@@ -45,9 +81,9 @@ namespace Azure.ResourceManager.HDInsight.Models
         /// <summary> The base 64 format string of public ldap certificate. </summary>
         public string LdapsPublicCertificateInBase64 { get; }
         /// <summary> The resource id of azure active directory domain service. </summary>
-        public string ResourceId { get; }
+        public ResourceIdentifier ResourceId { get; }
         /// <summary> The subnet resource id. </summary>
-        public string SubnetId { get; }
+        public ResourceIdentifier SubnetId { get; }
         /// <summary> The tenant id of azure active directory domain service . </summary>
         public Guid? TenantId { get; }
     }

@@ -13,17 +13,52 @@ using Azure.ResourceManager.Models;
 
 namespace Azure.ResourceManager.AppService
 {
-    /// <summary> A class representing the AppCertificate data model. </summary>
+    /// <summary>
+    /// A class representing the AppCertificate data model.
+    /// SSL certificate for an app.
+    /// </summary>
     public partial class AppCertificateData : TrackedResourceData
     {
-        /// <summary> Initializes a new instance of AppCertificateData. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="AppCertificateData"/>. </summary>
         /// <param name="location"> The location. </param>
         public AppCertificateData(AzureLocation location) : base(location)
         {
             HostNames = new ChangeTrackingList<string>();
         }
 
-        /// <summary> Initializes a new instance of AppCertificateData. </summary>
+        /// <summary> Initializes a new instance of <see cref="AppCertificateData"/>. </summary>
         /// <param name="id"> The id. </param>
         /// <param name="name"> The name. </param>
         /// <param name="resourceType"> The resourceType. </param>
@@ -40,7 +75,7 @@ namespace Azure.ResourceManager.AppService
         /// <param name="issuer"> Certificate issuer. </param>
         /// <param name="issueOn"> Certificate issue Date. </param>
         /// <param name="expireOn"> Certificate expiration date. </param>
-        /// <param name="thumbprint"> Certificate thumbprint. </param>
+        /// <param name="thumbprintString"> Certificate thumbprint. </param>
         /// <param name="isValid"> Is the certificate valid?. </param>
         /// <param name="cerBlob"> Raw bytes of .cer file. </param>
         /// <param name="publicKeyHash"> Public key hash. </param>
@@ -48,11 +83,12 @@ namespace Azure.ResourceManager.AppService
         /// <param name="keyVaultId"> Key Vault Csm resource Id. </param>
         /// <param name="keyVaultSecretName"> Key Vault secret name. </param>
         /// <param name="keyVaultSecretStatus"> Status of the Key Vault secret. </param>
-        /// <param name="serverFarmId"> Resource ID of the associated App Service plan, formatted as: &quot;/subscriptions/{subscriptionID}/resourceGroups/{groupName}/providers/Microsoft.Web/serverfarms/{appServicePlanName}&quot;. </param>
+        /// <param name="serverFarmId"> Resource ID of the associated App Service plan, formatted as: "/subscriptions/{subscriptionID}/resourceGroups/{groupName}/providers/Microsoft.Web/serverfarms/{appServicePlanName}". </param>
         /// <param name="canonicalName"> CNAME of the certificate to be issued via free certificate. </param>
         /// <param name="domainValidationMethod"> Method of domain validation for free cert. </param>
         /// <param name="kind"> Kind of resource. </param>
-        internal AppCertificateData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, string password, string friendlyName, string subjectName, IList<string> hostNames, byte[] pfxBlob, string siteName, string selfLink, string issuer, DateTimeOffset? issueOn, DateTimeOffset? expireOn, string thumbprint, bool? isValid, byte[] cerBlob, string publicKeyHash, HostingEnvironmentProfile hostingEnvironmentProfile, ResourceIdentifier keyVaultId, string keyVaultSecretName, KeyVaultSecretStatus? keyVaultSecretStatus, ResourceIdentifier serverFarmId, string canonicalName, string domainValidationMethod, string kind) : base(id, name, resourceType, systemData, tags, location)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal AppCertificateData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, string password, string friendlyName, string subjectName, IList<string> hostNames, byte[] pfxBlob, string siteName, string selfLink, string issuer, DateTimeOffset? issueOn, DateTimeOffset? expireOn, string thumbprintString, bool? isValid, byte[] cerBlob, string publicKeyHash, HostingEnvironmentProfile hostingEnvironmentProfile, ResourceIdentifier keyVaultId, string keyVaultSecretName, KeyVaultSecretStatus? keyVaultSecretStatus, ResourceIdentifier serverFarmId, string canonicalName, string domainValidationMethod, string kind, IDictionary<string, BinaryData> serializedAdditionalRawData) : base(id, name, resourceType, systemData, tags, location)
         {
             Password = password;
             FriendlyName = friendlyName;
@@ -64,7 +100,7 @@ namespace Azure.ResourceManager.AppService
             Issuer = issuer;
             IssueOn = issueOn;
             ExpireOn = expireOn;
-            Thumbprint = thumbprint;
+            ThumbprintString = thumbprintString;
             IsValid = isValid;
             CerBlob = cerBlob;
             PublicKeyHash = publicKeyHash;
@@ -76,51 +112,79 @@ namespace Azure.ResourceManager.AppService
             CanonicalName = canonicalName;
             DomainValidationMethod = domainValidationMethod;
             Kind = kind;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="AppCertificateData"/> for deserialization. </summary>
+        internal AppCertificateData()
+        {
         }
 
         /// <summary> Certificate password. </summary>
+        [WirePath("properties.password")]
         public string Password { get; set; }
         /// <summary> Friendly name of the certificate. </summary>
+        [WirePath("properties.friendlyName")]
         public string FriendlyName { get; }
         /// <summary> Subject name of the certificate. </summary>
+        [WirePath("properties.subjectName")]
         public string SubjectName { get; }
         /// <summary> Host names the certificate applies to. </summary>
+        [WirePath("properties.hostNames")]
         public IList<string> HostNames { get; }
         /// <summary> Pfx blob. </summary>
+        [WirePath("properties.pfxBlob")]
         public byte[] PfxBlob { get; set; }
         /// <summary> App name. </summary>
+        [WirePath("properties.siteName")]
         public string SiteName { get; }
         /// <summary> Self link. </summary>
+        [WirePath("properties.selfLink")]
         public string SelfLink { get; }
         /// <summary> Certificate issuer. </summary>
+        [WirePath("properties.issuer")]
         public string Issuer { get; }
         /// <summary> Certificate issue Date. </summary>
+        [WirePath("properties.issueDate")]
         public DateTimeOffset? IssueOn { get; }
         /// <summary> Certificate expiration date. </summary>
+        [WirePath("properties.expirationDate")]
         public DateTimeOffset? ExpireOn { get; }
         /// <summary> Certificate thumbprint. </summary>
-        public string Thumbprint { get; }
+        [WirePath("properties.thumbprint")]
+        public string ThumbprintString { get; }
         /// <summary> Is the certificate valid?. </summary>
+        [WirePath("properties.valid")]
         public bool? IsValid { get; }
         /// <summary> Raw bytes of .cer file. </summary>
+        [WirePath("properties.cerBlob")]
         public byte[] CerBlob { get; }
         /// <summary> Public key hash. </summary>
+        [WirePath("properties.publicKeyHash")]
         public string PublicKeyHash { get; }
         /// <summary> Specification for the App Service Environment to use for the certificate. </summary>
+        [WirePath("properties.hostingEnvironmentProfile")]
         public HostingEnvironmentProfile HostingEnvironmentProfile { get; }
         /// <summary> Key Vault Csm resource Id. </summary>
+        [WirePath("properties.keyVaultId")]
         public ResourceIdentifier KeyVaultId { get; set; }
         /// <summary> Key Vault secret name. </summary>
+        [WirePath("properties.keyVaultSecretName")]
         public string KeyVaultSecretName { get; set; }
         /// <summary> Status of the Key Vault secret. </summary>
+        [WirePath("properties.keyVaultSecretStatus")]
         public KeyVaultSecretStatus? KeyVaultSecretStatus { get; }
-        /// <summary> Resource ID of the associated App Service plan, formatted as: &quot;/subscriptions/{subscriptionID}/resourceGroups/{groupName}/providers/Microsoft.Web/serverfarms/{appServicePlanName}&quot;. </summary>
+        /// <summary> Resource ID of the associated App Service plan, formatted as: "/subscriptions/{subscriptionID}/resourceGroups/{groupName}/providers/Microsoft.Web/serverfarms/{appServicePlanName}". </summary>
+        [WirePath("properties.serverFarmId")]
         public ResourceIdentifier ServerFarmId { get; set; }
         /// <summary> CNAME of the certificate to be issued via free certificate. </summary>
+        [WirePath("properties.canonicalName")]
         public string CanonicalName { get; set; }
         /// <summary> Method of domain validation for free cert. </summary>
+        [WirePath("properties.domainValidationMethod")]
         public string DomainValidationMethod { get; set; }
         /// <summary> Kind of resource. </summary>
+        [WirePath("kind")]
         public string Kind { get; set; }
     }
 }

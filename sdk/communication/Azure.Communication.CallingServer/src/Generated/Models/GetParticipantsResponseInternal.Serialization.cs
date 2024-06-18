@@ -7,7 +7,6 @@
 
 using System.Collections.Generic;
 using System.Text.Json;
-using Azure.Core;
 
 namespace Azure.Communication.CallingServer
 {
@@ -15,32 +14,43 @@ namespace Azure.Communication.CallingServer
     {
         internal static GetParticipantsResponseInternal DeserializeGetParticipantsResponseInternal(JsonElement element)
         {
-            Optional<IReadOnlyList<AcsCallParticipantDtoInternal>> values = default;
-            Optional<string> nextLink = default;
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            IReadOnlyList<AcsCallParticipantInternal> values = default;
+            string nextLink = default;
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("values"))
+                if (property.NameEquals("values"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    List<AcsCallParticipantDtoInternal> array = new List<AcsCallParticipantDtoInternal>();
+                    List<AcsCallParticipantInternal> array = new List<AcsCallParticipantInternal>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(AcsCallParticipantDtoInternal.DeserializeAcsCallParticipantDtoInternal(item));
+                        array.Add(AcsCallParticipantInternal.DeserializeAcsCallParticipantInternal(item));
                     }
                     values = array;
                     continue;
                 }
-                if (property.NameEquals("nextLink"))
+                if (property.NameEquals("nextLink"u8))
                 {
                     nextLink = property.Value.GetString();
                     continue;
                 }
             }
-            return new GetParticipantsResponseInternal(Optional.ToList(values), nextLink.Value);
+            return new GetParticipantsResponseInternal(values ?? new ChangeTrackingList<AcsCallParticipantInternal>(), nextLink);
+        }
+
+        /// <summary> Deserializes the model from a raw response. </summary>
+        /// <param name="response"> The response to deserialize the model from. </param>
+        internal static GetParticipantsResponseInternal FromResponse(Response response)
+        {
+            using var document = JsonDocument.Parse(response.Content);
+            return DeserializeGetParticipantsResponseInternal(document.RootElement);
         }
     }
 }

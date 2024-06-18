@@ -8,7 +8,7 @@ using Azure.Core.TestFramework;
 
 namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 {
-    public partial class DocumentAnalysisSamples : SamplesBase<DocumentAnalysisTestEnvironment>
+    public partial class DocumentAnalysisSamples
     {
         [RecordedTest]
         public async Task AnalyzePrebuiltReadFromUriAsync()
@@ -47,7 +47,7 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 
                     Console.WriteLine($"    Its bounding polygon (points ordered clockwise):");
 
-                    for (int j = 0; j < line.BoundingPolygon.Length; j++)
+                    for (int j = 0; j < line.BoundingPolygon.Count; j++)
                     {
                         Console.WriteLine($"      Point {j} => X: {line.BoundingPolygon[j].X}, Y: {line.BoundingPolygon[j].Y}");
                     }
@@ -67,7 +67,7 @@ namespace Azure.AI.FormRecognizer.DocumentAnalysis.Samples
 
                     foreach (DocumentSpan span in style.Spans)
                     {
-                        Console.WriteLine($"  Content: {result.Content.Substring(span.Offset, span.Length)}");
+                        Console.WriteLine($"  Content: {result.Content.Substring(span.Index, span.Length)}");
                     }
                 }
             }

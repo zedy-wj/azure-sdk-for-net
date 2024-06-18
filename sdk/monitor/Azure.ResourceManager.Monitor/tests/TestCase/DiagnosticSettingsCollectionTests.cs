@@ -15,14 +15,14 @@ namespace Azure.ResourceManager.Monitor.Tests
     public class DiagnosticSettingsCollectionTests : MonitorTestBase
     {
         public DiagnosticSettingsCollectionTests(bool isAsync)
-           : base(isAsync)
+           : base(isAsync)//, RecordedTestMode.Record)
         {
         }
 
         private async Task<DiagnosticSettingCollection> GetDiagnosticSettingsCollectionAsync()
         {
             var resourceGroup = await CreateResourceGroupAsync();
-            return DefaultSubscription.GetDiagnosticSettings();
+            return Client.GetDiagnosticSettings(DefaultSubscription.Id);
         }
 
         [Ignore("Need to Update cleanup")]

@@ -7,8 +7,16 @@ Run `dotnet build /t:GenerateCode` to generate code.
 
 ``` yaml
 input-file:
-- https://raw.githubusercontent.com/Azure/azure-rest-api-specs/e59b6449e6613c0e4ecb73daacacdff320d65f67/specification/cognitiveservices/data-plane/Language/stable/2022-05-01/textanalytics.json
+- https://github.com/Azure/azure-rest-api-specs/blob/53240ebc58b3c4e99de723194032064db1d97e63/specification/cognitiveservices/data-plane/Language/stable/2023-04-01/analyzetext.json
 generation1-convenience-client: true
+```
+
+### Suppress Abstract Base Class
+
+``` yaml
+suppress-abstract-base-class:
+- AnalyzeTextTask
+- AnalyzeTextTaskResult
 ```
 
 ### Modify operationId names
@@ -35,6 +43,10 @@ directive:
 directive:
 - from: swagger-document
   where: $.definitions.*
+  transform: >
+    $["x-accessibility"] = "internal"
+- from: swagger-document
+  where: $.definitions..properties.*
   transform: >
     $["x-accessibility"] = "internal"
 ```

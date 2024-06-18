@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 
@@ -38,7 +37,7 @@ namespace Azure.Communication.CallingServer
             _apiVersion = apiVersion ?? throw new ArgumentNullException(nameof(apiVersion));
         }
 
-        internal HttpMessage CreateCreateCallRequest(CreateCallRequestInternal body)
+        internal HttpMessage CreateCreateCallRequest(CreateCallRequestInternal createCallRequest)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -48,65 +47,67 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath("/calling/callConnections", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(body);
+            content.JsonWriter.WriteObjectValue(createCallRequest);
             request.Content = content;
             return message;
         }
 
         /// <summary> Create an outbound call. </summary>
-        /// <param name="body"> The create call request. </param>
+        /// <param name="createCallRequest"> The create call request. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public async Task<Response<CallConnectionPropertiesDtoInternal>> CreateCallAsync(CreateCallRequestInternal body, CancellationToken cancellationToken = default)
+        /// <exception cref="ArgumentNullException"> <paramref name="createCallRequest"/> is null. </exception>
+        public async Task<Response<CallConnectionPropertiesInternal>> CreateCallAsync(CreateCallRequestInternal createCallRequest, CancellationToken cancellationToken = default)
         {
-            if (body == null)
+            if (createCallRequest == null)
             {
-                throw new ArgumentNullException(nameof(body));
+                throw new ArgumentNullException(nameof(createCallRequest));
             }
 
-            using var message = CreateCreateCallRequest(body);
+            using var message = CreateCreateCallRequest(createCallRequest);
             await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
             switch (message.Response.Status)
             {
                 case 201:
                     {
-                        CallConnectionPropertiesDtoInternal value = default;
+                        CallConnectionPropertiesInternal value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = CallConnectionPropertiesDtoInternal.DeserializeCallConnectionPropertiesDtoInternal(document.RootElement);
+                        value = CallConnectionPropertiesInternal.DeserializeCallConnectionPropertiesInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
         /// <summary> Create an outbound call. </summary>
-        /// <param name="body"> The create call request. </param>
+        /// <param name="createCallRequest"> The create call request. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public Response<CallConnectionPropertiesDtoInternal> CreateCall(CreateCallRequestInternal body, CancellationToken cancellationToken = default)
+        /// <exception cref="ArgumentNullException"> <paramref name="createCallRequest"/> is null. </exception>
+        public Response<CallConnectionPropertiesInternal> CreateCall(CreateCallRequestInternal createCallRequest, CancellationToken cancellationToken = default)
         {
-            if (body == null)
+            if (createCallRequest == null)
             {
-                throw new ArgumentNullException(nameof(body));
+                throw new ArgumentNullException(nameof(createCallRequest));
             }
 
-            using var message = CreateCreateCallRequest(body);
+            using var message = CreateCreateCallRequest(createCallRequest);
             _pipeline.Send(message, cancellationToken);
             switch (message.Response.Status)
             {
                 case 201:
                     {
-                        CallConnectionPropertiesDtoInternal value = default;
+                        CallConnectionPropertiesInternal value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = CallConnectionPropertiesDtoInternal.DeserializeCallConnectionPropertiesDtoInternal(document.RootElement);
+                        value = CallConnectionPropertiesInternal.DeserializeCallConnectionPropertiesInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -120,6 +121,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath("/calling/callConnections:answer", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
@@ -133,7 +136,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="answerCallRequest"/> is null. </exception>
         /// <remarks> Answer a call using the IncomingCallContext from Event Grid. </remarks>
-        public async Task<Response<CallConnectionPropertiesDtoInternal>> AnswerCallAsync(AnswerCallRequestInternal answerCallRequest, CancellationToken cancellationToken = default)
+        public async Task<Response<CallConnectionPropertiesInternal>> AnswerCallAsync(AnswerCallRequestInternal answerCallRequest, CancellationToken cancellationToken = default)
         {
             if (answerCallRequest == null)
             {
@@ -146,13 +149,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        CallConnectionPropertiesDtoInternal value = default;
+                        CallConnectionPropertiesInternal value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = CallConnectionPropertiesDtoInternal.DeserializeCallConnectionPropertiesDtoInternal(document.RootElement);
+                        value = CallConnectionPropertiesInternal.DeserializeCallConnectionPropertiesInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -161,7 +164,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="answerCallRequest"/> is null. </exception>
         /// <remarks> Answer a call using the IncomingCallContext from Event Grid. </remarks>
-        public Response<CallConnectionPropertiesDtoInternal> AnswerCall(AnswerCallRequestInternal answerCallRequest, CancellationToken cancellationToken = default)
+        public Response<CallConnectionPropertiesInternal> AnswerCall(AnswerCallRequestInternal answerCallRequest, CancellationToken cancellationToken = default)
         {
             if (answerCallRequest == null)
             {
@@ -174,13 +177,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        CallConnectionPropertiesDtoInternal value = default;
+                        CallConnectionPropertiesInternal value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = CallConnectionPropertiesDtoInternal.DeserializeCallConnectionPropertiesDtoInternal(document.RootElement);
+                        value = CallConnectionPropertiesInternal.DeserializeCallConnectionPropertiesInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -194,6 +197,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath("/calling/callConnections:redirect", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
             content.JsonWriter.WriteObjectValue(redirectCallRequest);
@@ -202,7 +207,7 @@ namespace Azure.Communication.CallingServer
         }
 
         /// <summary> Redirect a call. </summary>
-        /// <param name="redirectCallRequest"> The RedirectCallRequest to use. </param>
+        /// <param name="redirectCallRequest"> The <see cref="RedirectCallRequestInternal"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="redirectCallRequest"/> is null. </exception>
         public async Task<Response> RedirectCallAsync(RedirectCallRequestInternal redirectCallRequest, CancellationToken cancellationToken = default)
@@ -219,12 +224,12 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
         /// <summary> Redirect a call. </summary>
-        /// <param name="redirectCallRequest"> The RedirectCallRequest to use. </param>
+        /// <param name="redirectCallRequest"> The <see cref="RedirectCallRequestInternal"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="redirectCallRequest"/> is null. </exception>
         public Response RedirectCall(RedirectCallRequestInternal redirectCallRequest, CancellationToken cancellationToken = default)
@@ -241,7 +246,7 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -255,6 +260,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath("/calling/callConnections:reject", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
             content.JsonWriter.WriteObjectValue(rejectCallRequest);
@@ -280,7 +287,7 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -302,7 +309,7 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
     }

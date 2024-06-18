@@ -12,68 +12,72 @@ using Azure.ResourceManager.Models;
 
 namespace Azure.ResourceManager.NotificationHubs.Models
 {
-    /// <summary>
-    /// Description of a NotificationHub Resource.
-    /// Serialized Name: DebugSendResponse
-    /// </summary>
+    /// <summary> Description of a NotificationHub Resource. </summary>
     public partial class NotificationHubTestSendResult : TrackedResourceData
     {
-        /// <summary> Initializes a new instance of NotificationHubTestSendResult. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="NotificationHubTestSendResult"/>. </summary>
         /// <param name="location"> The location. </param>
         public NotificationHubTestSendResult(AzureLocation location) : base(location)
         {
+            FailureDescription = new ChangeTrackingList<NotificationHubPubRegistrationResult>();
         }
 
-        /// <summary> Initializes a new instance of NotificationHubTestSendResult. </summary>
+        /// <summary> Initializes a new instance of <see cref="NotificationHubTestSendResult"/>. </summary>
         /// <param name="id"> The id. </param>
         /// <param name="name"> The name. </param>
         /// <param name="resourceType"> The resourceType. </param>
         /// <param name="systemData"> The systemData. </param>
         /// <param name="tags"> The tags. </param>
         /// <param name="location"> The location. </param>
-        /// <param name="success">
-        /// successful send
-        /// Serialized Name: DebugSendResponse.properties.success
-        /// </param>
-        /// <param name="failure">
-        /// send failure
-        /// Serialized Name: DebugSendResponse.properties.failure
-        /// </param>
-        /// <param name="results">
-        /// actual failure description
-        /// Serialized Name: DebugSendResponse.properties.results
-        /// </param>
-        /// <param name="sku">
-        /// The sku of the created namespace
-        /// Serialized Name: Resource.sku
-        /// </param>
-        internal NotificationHubTestSendResult(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, float? success, float? failure, BinaryData results, NotificationHubSku sku) : base(id, name, resourceType, systemData, tags, location)
+        /// <param name="success"> Gets or sets successful send. </param>
+        /// <param name="failure"> Gets or sets send failure. </param>
+        /// <param name="failureDescription"> Gets or sets actual failure description. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal NotificationHubTestSendResult(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, int? success, int? failure, IReadOnlyList<NotificationHubPubRegistrationResult> failureDescription, IDictionary<string, BinaryData> serializedAdditionalRawData) : base(id, name, resourceType, systemData, tags, location)
         {
             Success = success;
             Failure = failure;
-            Results = results;
-            Sku = sku;
+            FailureDescription = failureDescription;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        /// <summary>
-        /// successful send
-        /// Serialized Name: DebugSendResponse.properties.success
-        /// </summary>
-        public float? Success { get; set; }
-        /// <summary>
-        /// send failure
-        /// Serialized Name: DebugSendResponse.properties.failure
-        /// </summary>
-        public float? Failure { get; set; }
-        /// <summary>
-        /// actual failure description
-        /// Serialized Name: DebugSendResponse.properties.results
-        /// </summary>
-        public BinaryData Results { get; set; }
-        /// <summary>
-        /// The sku of the created namespace
-        /// Serialized Name: Resource.sku
-        /// </summary>
-        public NotificationHubSku Sku { get; set; }
+        /// <summary> Initializes a new instance of <see cref="NotificationHubTestSendResult"/> for deserialization. </summary>
+        internal NotificationHubTestSendResult()
+        {
+        }
+        /// <summary> Gets or sets actual failure description. </summary>
+        public IReadOnlyList<NotificationHubPubRegistrationResult> FailureDescription { get; }
     }
 }

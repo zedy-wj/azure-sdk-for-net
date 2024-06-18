@@ -1,6 +1,6 @@
 # Release History
 
-## 1.1.0-beta.1 (Unreleased)
+## 1.4.0-beta.1 (Unreleased)
 
 ### Features Added
 
@@ -9,6 +9,40 @@
 ### Bugs Fixed
 
 ### Other Changes
+
+## 1.3.0 (2023-12-05)
+
+### Features Added
+
+- Added `VerifyConnection` property to `ConfidentialLedgerClientOptions` to allow the option to have a client connection without validating the service certificate.
+
+## 1.2.0 (2023-09-12)
+
+### Bugs Fixed
+
+- Service calls that result in a `HttpStatusCode.NotFound` status will now be retried by default. This is to handle scenarios where there is an unexpected loss of session stickiness when the connected node changes and transactions have not been fully replicated.
+
+## 1.2.0-beta.1 (2022-11-09)
+
+### Features Added
+
+### Breaking Changes
+
+### Bugs Fixed
+
+### Other Changes
+
+## 1.1.0 (2022-11-08)
+
+### Features Added
+
+- Added the `CertificateEndpoint` property to `ConfidentialLedgerClientOptions` to allow configuration of a custom certificate endpoint. When not configured, the current default is used.
+
+## 1.1.0-beta.1 (2022-08-10)
+
+### Features Added
+
+- Added the `CertificateEndpoint` property to `ConfidentialLedgerClientOptions` to allow configuration of a custom certificate endpoint. When not configured, the current default is used.
 
 ## 1.0.0 (2022-08-09)
 

@@ -13,60 +13,100 @@ using Azure.ResourceManager.Models;
 namespace Azure.ResourceManager.Authorization.Models
 {
     /// <summary> Expanded info of resource scope, role definition and policy. </summary>
-    public partial class PolicyAssignmentProperties : TrackedResourceData
+    public partial class PolicyAssignmentProperties : ResourceData
     {
-        /// <summary> Initializes a new instance of PolicyAssignmentProperties. </summary>
-        /// <param name="location"> The location. </param>
-        internal PolicyAssignmentProperties(AzureLocation location) : base(location)
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="PolicyAssignmentProperties"/>. </summary>
+        internal PolicyAssignmentProperties()
         {
         }
 
-        /// <summary> Initializes a new instance of PolicyAssignmentProperties. </summary>
+        /// <summary> Initializes a new instance of <see cref="PolicyAssignmentProperties"/>. </summary>
         /// <param name="id"> The id. </param>
         /// <param name="name"> The name. </param>
         /// <param name="resourceType"> The resourceType. </param>
         /// <param name="systemData"> The systemData. </param>
-        /// <param name="tags"> The tags. </param>
-        /// <param name="location"> The location. </param>
         /// <param name="policyId"> Id of the policy. </param>
         /// <param name="lastModifiedBy"> The name of the entity last modified it. </param>
         /// <param name="lastModifiedOn"> The last modified date time. </param>
         /// <param name="roleDefinitionId"> Id of the role definition. </param>
         /// <param name="roleDefinitionDisplayName"> Display name of the role definition. </param>
-        /// <param name="roleDefinitionType"> Type of the role definition. </param>
+        /// <param name="roleType"> The role type. </param>
         /// <param name="scopeId"> Scope id of the resource. </param>
         /// <param name="scopeDisplayName"> Display name of the resource. </param>
-        /// <param name="scopeType"> Type of the resource. </param>
-        internal PolicyAssignmentProperties(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, ResourceIdentifier policyId, RoleManagementPrincipal lastModifiedBy, DateTimeOffset? lastModifiedOn, ResourceIdentifier roleDefinitionId, string roleDefinitionDisplayName, string roleDefinitionType, ResourceIdentifier scopeId, string scopeDisplayName, string scopeType) : base(id, name, resourceType, systemData, tags, location)
+        /// <param name="scopeType"> Type of the scope. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal PolicyAssignmentProperties(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, ResourceIdentifier policyId, RoleManagementPrincipal lastModifiedBy, DateTimeOffset? lastModifiedOn, ResourceIdentifier roleDefinitionId, string roleDefinitionDisplayName, AuthorizationRoleType? roleType, ResourceIdentifier scopeId, string scopeDisplayName, RoleManagementScopeType? scopeType, IDictionary<string, BinaryData> serializedAdditionalRawData) : base(id, name, resourceType, systemData)
         {
             PolicyId = policyId;
             LastModifiedBy = lastModifiedBy;
             LastModifiedOn = lastModifiedOn;
             RoleDefinitionId = roleDefinitionId;
             RoleDefinitionDisplayName = roleDefinitionDisplayName;
-            RoleDefinitionType = roleDefinitionType;
+            RoleType = roleType;
             ScopeId = scopeId;
             ScopeDisplayName = scopeDisplayName;
             ScopeType = scopeType;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> Id of the policy. </summary>
+        [WirePath("policy.id")]
         public ResourceIdentifier PolicyId { get; }
         /// <summary> The name of the entity last modified it. </summary>
+        [WirePath("policy.lastModifiedBy")]
         public RoleManagementPrincipal LastModifiedBy { get; }
         /// <summary> The last modified date time. </summary>
+        [WirePath("policy.lastModifiedDateTime")]
         public DateTimeOffset? LastModifiedOn { get; }
         /// <summary> Id of the role definition. </summary>
+        [WirePath("roleDefinition.id")]
         public ResourceIdentifier RoleDefinitionId { get; }
         /// <summary> Display name of the role definition. </summary>
+        [WirePath("roleDefinition.displayName")]
         public string RoleDefinitionDisplayName { get; }
-        /// <summary> Type of the role definition. </summary>
-        public string RoleDefinitionType { get; }
+        /// <summary> The role type. </summary>
+        [WirePath("roleDefinition.type")]
+        public AuthorizationRoleType? RoleType { get; }
         /// <summary> Scope id of the resource. </summary>
+        [WirePath("scope.id")]
         public ResourceIdentifier ScopeId { get; }
         /// <summary> Display name of the resource. </summary>
+        [WirePath("scope.displayName")]
         public string ScopeDisplayName { get; }
-        /// <summary> Type of the resource. </summary>
-        public string ScopeType { get; }
+        /// <summary> Type of the scope. </summary>
+        [WirePath("scope.type")]
+        public RoleManagementScopeType? ScopeType { get; }
     }
 }

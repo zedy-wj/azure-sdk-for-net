@@ -5,6 +5,8 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
@@ -12,16 +14,44 @@ using Azure.ResourceManager.Models;
 
 namespace Azure.ResourceManager.ApiManagement.Models
 {
-    public partial class ApiManagementNamedValueCreateOrUpdateContent : IUtf8JsonSerializable
+    public partial class ApiManagementNamedValueCreateOrUpdateContent : IUtf8JsonSerializable, IJsonModel<ApiManagementNamedValueCreateOrUpdateContent>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<ApiManagementNamedValueCreateOrUpdateContent>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<ApiManagementNamedValueCreateOrUpdateContent>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementNamedValueCreateOrUpdateContent>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ApiManagementNamedValueCreateOrUpdateContent)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
-            writer.WritePropertyName("properties");
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("id"u8);
+                writer.WriteStringValue(Id);
+            }
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("name"u8);
+                writer.WriteStringValue(Name);
+            }
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("type"u8);
+                writer.WriteStringValue(ResourceType);
+            }
+            if (options.Format != "W" && Optional.IsDefined(SystemData))
+            {
+                writer.WritePropertyName("systemData"u8);
+                JsonSerializer.Serialize(writer, SystemData);
+            }
+            writer.WritePropertyName("properties"u8);
             writer.WriteStartObject();
             if (Optional.IsCollectionDefined(Tags))
             {
-                writer.WritePropertyName("tags");
+                writer.WritePropertyName("tags"u8);
                 writer.WriteStartArray();
                 foreach (var item in Tags)
                 {
@@ -31,67 +61,101 @@ namespace Azure.ResourceManager.ApiManagement.Models
             }
             if (Optional.IsDefined(IsSecret))
             {
-                writer.WritePropertyName("secret");
+                writer.WritePropertyName("secret"u8);
                 writer.WriteBooleanValue(IsSecret.Value);
             }
             if (Optional.IsDefined(DisplayName))
             {
-                writer.WritePropertyName("displayName");
+                writer.WritePropertyName("displayName"u8);
                 writer.WriteStringValue(DisplayName);
             }
             if (Optional.IsDefined(Value))
             {
-                writer.WritePropertyName("value");
+                writer.WritePropertyName("value"u8);
                 writer.WriteStringValue(Value);
             }
             if (Optional.IsDefined(KeyVault))
             {
-                writer.WritePropertyName("keyVault");
-                writer.WriteObjectValue(KeyVault);
+                writer.WritePropertyName("keyVault"u8);
+                writer.WriteObjectValue(KeyVault, options);
             }
             writer.WriteEndObject();
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
             writer.WriteEndObject();
         }
 
-        internal static ApiManagementNamedValueCreateOrUpdateContent DeserializeApiManagementNamedValueCreateOrUpdateContent(JsonElement element)
+        ApiManagementNamedValueCreateOrUpdateContent IJsonModel<ApiManagementNamedValueCreateOrUpdateContent>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementNamedValueCreateOrUpdateContent>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ApiManagementNamedValueCreateOrUpdateContent)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeApiManagementNamedValueCreateOrUpdateContent(document.RootElement, options);
+        }
+
+        internal static ApiManagementNamedValueCreateOrUpdateContent DeserializeApiManagementNamedValueCreateOrUpdateContent(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             ResourceIdentifier id = default;
             string name = default;
             ResourceType type = default;
-            Optional<SystemData> systemData = default;
-            Optional<IList<string>> tags = default;
-            Optional<bool> secret = default;
-            Optional<string> displayName = default;
-            Optional<string> value = default;
-            Optional<KeyVaultContractCreateProperties> keyVault = default;
+            SystemData systemData = default;
+            IList<string> tags = default;
+            bool? secret = default;
+            string displayName = default;
+            string value = default;
+            KeyVaultContractCreateProperties keyVault = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("id"))
+                if (property.NameEquals("id"u8))
                 {
                     id = new ResourceIdentifier(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("name"))
+                if (property.NameEquals("name"u8))
                 {
                     name = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("type"))
+                if (property.NameEquals("type"u8))
                 {
                     type = new ResourceType(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("systemData"))
+                if (property.NameEquals("systemData"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    systemData = JsonSerializer.Deserialize<SystemData>(property.Value.ToString());
+                    systemData = JsonSerializer.Deserialize<SystemData>(property.Value.GetRawText());
                     continue;
                 }
-                if (property.NameEquals("properties"))
+                if (property.NameEquals("properties"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
@@ -100,11 +164,10 @@ namespace Azure.ResourceManager.ApiManagement.Models
                     }
                     foreach (var property0 in property.Value.EnumerateObject())
                     {
-                        if (property0.NameEquals("tags"))
+                        if (property0.NameEquals("tags"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             List<string> array = new List<string>();
@@ -115,41 +178,85 @@ namespace Azure.ResourceManager.ApiManagement.Models
                             tags = array;
                             continue;
                         }
-                        if (property0.NameEquals("secret"))
+                        if (property0.NameEquals("secret"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             secret = property0.Value.GetBoolean();
                             continue;
                         }
-                        if (property0.NameEquals("displayName"))
+                        if (property0.NameEquals("displayName"u8))
                         {
                             displayName = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("value"))
+                        if (property0.NameEquals("value"u8))
                         {
                             value = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("keyVault"))
+                        if (property0.NameEquals("keyVault"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
-                            keyVault = KeyVaultContractCreateProperties.DeserializeKeyVaultContractCreateProperties(property0.Value);
+                            keyVault = KeyVaultContractCreateProperties.DeserializeKeyVaultContractCreateProperties(property0.Value, options);
                             continue;
                         }
                     }
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new ApiManagementNamedValueCreateOrUpdateContent(id, name, type, systemData.Value, Optional.ToList(tags), Optional.ToNullable(secret), displayName.Value, value.Value, keyVault.Value);
+            serializedAdditionalRawData = rawDataDictionary;
+            return new ApiManagementNamedValueCreateOrUpdateContent(
+                id,
+                name,
+                type,
+                systemData,
+                tags ?? new ChangeTrackingList<string>(),
+                secret,
+                displayName,
+                value,
+                keyVault,
+                serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<ApiManagementNamedValueCreateOrUpdateContent>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementNamedValueCreateOrUpdateContent>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ApiManagementNamedValueCreateOrUpdateContent)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        ApiManagementNamedValueCreateOrUpdateContent IPersistableModel<ApiManagementNamedValueCreateOrUpdateContent>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementNamedValueCreateOrUpdateContent>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeApiManagementNamedValueCreateOrUpdateContent(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ApiManagementNamedValueCreateOrUpdateContent)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<ApiManagementNamedValueCreateOrUpdateContent>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

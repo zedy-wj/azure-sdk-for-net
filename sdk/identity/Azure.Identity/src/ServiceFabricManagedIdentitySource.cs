@@ -42,7 +42,7 @@ namespace Azure.Identity
             {
                 var customSslHttpPipline = HttpPipelineBuilder.Build(new TokenCredentialOptions { Transport = GetServiceFabricMITransport() });
 
-                pipeline = new CredentialPipeline(pipeline.AuthorityHost, customSslHttpPipline, pipeline.Diagnostics);
+                pipeline = new CredentialPipeline(customSslHttpPipline, pipeline.Diagnostics);
             }
 
             return new ServiceFabricManagedIdentitySource(pipeline, endpointUri, identityHeader, options);
@@ -57,7 +57,7 @@ namespace Azure.Identity
             return new HttpClientTransport(httpHandler);
         }
 
-        private ServiceFabricManagedIdentitySource(CredentialPipeline pipeline, Uri endpoint, string identityHeaderValue, ManagedIdentityClientOptions options) : base(pipeline)
+        internal ServiceFabricManagedIdentitySource(CredentialPipeline pipeline, Uri endpoint, string identityHeaderValue, ManagedIdentityClientOptions options) : base(pipeline)
         {
             _endpoint = endpoint;
             _identityHeaderValue = identityHeaderValue;

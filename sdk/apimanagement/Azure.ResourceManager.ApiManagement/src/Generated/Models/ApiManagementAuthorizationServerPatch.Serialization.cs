@@ -5,6 +5,8 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
@@ -12,21 +14,49 @@ using Azure.ResourceManager.Models;
 
 namespace Azure.ResourceManager.ApiManagement.Models
 {
-    public partial class ApiManagementAuthorizationServerPatch : IUtf8JsonSerializable
+    public partial class ApiManagementAuthorizationServerPatch : IUtf8JsonSerializable, IJsonModel<ApiManagementAuthorizationServerPatch>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<ApiManagementAuthorizationServerPatch>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<ApiManagementAuthorizationServerPatch>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementAuthorizationServerPatch>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ApiManagementAuthorizationServerPatch)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
-            writer.WritePropertyName("properties");
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("id"u8);
+                writer.WriteStringValue(Id);
+            }
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("name"u8);
+                writer.WriteStringValue(Name);
+            }
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("type"u8);
+                writer.WriteStringValue(ResourceType);
+            }
+            if (options.Format != "W" && Optional.IsDefined(SystemData))
+            {
+                writer.WritePropertyName("systemData"u8);
+                JsonSerializer.Serialize(writer, SystemData);
+            }
+            writer.WritePropertyName("properties"u8);
             writer.WriteStartObject();
             if (Optional.IsDefined(Description))
             {
-                writer.WritePropertyName("description");
+                writer.WritePropertyName("description"u8);
                 writer.WriteStringValue(Description);
             }
             if (Optional.IsCollectionDefined(AuthorizationMethods))
             {
-                writer.WritePropertyName("authorizationMethods");
+                writer.WritePropertyName("authorizationMethods"u8);
                 writer.WriteStartArray();
                 foreach (var item in AuthorizationMethods)
                 {
@@ -36,7 +66,7 @@ namespace Azure.ResourceManager.ApiManagement.Models
             }
             if (Optional.IsCollectionDefined(ClientAuthenticationMethods))
             {
-                writer.WritePropertyName("clientAuthenticationMethod");
+                writer.WritePropertyName("clientAuthenticationMethod"u8);
                 writer.WriteStartArray();
                 foreach (var item in ClientAuthenticationMethods)
                 {
@@ -46,32 +76,32 @@ namespace Azure.ResourceManager.ApiManagement.Models
             }
             if (Optional.IsCollectionDefined(TokenBodyParameters))
             {
-                writer.WritePropertyName("tokenBodyParameters");
+                writer.WritePropertyName("tokenBodyParameters"u8);
                 writer.WriteStartArray();
                 foreach (var item in TokenBodyParameters)
                 {
-                    writer.WriteObjectValue(item);
+                    writer.WriteObjectValue(item, options);
                 }
                 writer.WriteEndArray();
             }
             if (Optional.IsDefined(TokenEndpoint))
             {
-                writer.WritePropertyName("tokenEndpoint");
+                writer.WritePropertyName("tokenEndpoint"u8);
                 writer.WriteStringValue(TokenEndpoint);
             }
             if (Optional.IsDefined(DoesSupportState))
             {
-                writer.WritePropertyName("supportState");
+                writer.WritePropertyName("supportState"u8);
                 writer.WriteBooleanValue(DoesSupportState.Value);
             }
             if (Optional.IsDefined(DefaultScope))
             {
-                writer.WritePropertyName("defaultScope");
+                writer.WritePropertyName("defaultScope"u8);
                 writer.WriteStringValue(DefaultScope);
             }
             if (Optional.IsCollectionDefined(BearerTokenSendingMethods))
             {
-                writer.WritePropertyName("bearerTokenSendingMethods");
+                writer.WritePropertyName("bearerTokenSendingMethods"u8);
                 writer.WriteStartArray();
                 foreach (var item in BearerTokenSendingMethods)
                 {
@@ -81,32 +111,32 @@ namespace Azure.ResourceManager.ApiManagement.Models
             }
             if (Optional.IsDefined(ResourceOwnerUsername))
             {
-                writer.WritePropertyName("resourceOwnerUsername");
+                writer.WritePropertyName("resourceOwnerUsername"u8);
                 writer.WriteStringValue(ResourceOwnerUsername);
             }
             if (Optional.IsDefined(ResourceOwnerPassword))
             {
-                writer.WritePropertyName("resourceOwnerPassword");
+                writer.WritePropertyName("resourceOwnerPassword"u8);
                 writer.WriteStringValue(ResourceOwnerPassword);
             }
             if (Optional.IsDefined(DisplayName))
             {
-                writer.WritePropertyName("displayName");
+                writer.WritePropertyName("displayName"u8);
                 writer.WriteStringValue(DisplayName);
             }
             if (Optional.IsDefined(ClientRegistrationEndpoint))
             {
-                writer.WritePropertyName("clientRegistrationEndpoint");
+                writer.WritePropertyName("clientRegistrationEndpoint"u8);
                 writer.WriteStringValue(ClientRegistrationEndpoint);
             }
             if (Optional.IsDefined(AuthorizationEndpoint))
             {
-                writer.WritePropertyName("authorizationEndpoint");
+                writer.WritePropertyName("authorizationEndpoint"u8);
                 writer.WriteStringValue(AuthorizationEndpoint);
             }
             if (Optional.IsCollectionDefined(GrantTypes))
             {
-                writer.WritePropertyName("grantTypes");
+                writer.WritePropertyName("grantTypes"u8);
                 writer.WriteStartArray();
                 foreach (var item in GrantTypes)
                 {
@@ -116,68 +146,102 @@ namespace Azure.ResourceManager.ApiManagement.Models
             }
             if (Optional.IsDefined(ClientId))
             {
-                writer.WritePropertyName("clientId");
+                writer.WritePropertyName("clientId"u8);
                 writer.WriteStringValue(ClientId);
             }
             if (Optional.IsDefined(ClientSecret))
             {
-                writer.WritePropertyName("clientSecret");
+                writer.WritePropertyName("clientSecret"u8);
                 writer.WriteStringValue(ClientSecret);
             }
             writer.WriteEndObject();
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
             writer.WriteEndObject();
         }
 
-        internal static ApiManagementAuthorizationServerPatch DeserializeApiManagementAuthorizationServerPatch(JsonElement element)
+        ApiManagementAuthorizationServerPatch IJsonModel<ApiManagementAuthorizationServerPatch>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementAuthorizationServerPatch>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ApiManagementAuthorizationServerPatch)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeApiManagementAuthorizationServerPatch(document.RootElement, options);
+        }
+
+        internal static ApiManagementAuthorizationServerPatch DeserializeApiManagementAuthorizationServerPatch(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             ResourceIdentifier id = default;
             string name = default;
             ResourceType type = default;
-            Optional<SystemData> systemData = default;
-            Optional<string> description = default;
-            Optional<IList<AuthorizationMethod>> authorizationMethods = default;
-            Optional<IList<ClientAuthenticationMethod>> clientAuthenticationMethod = default;
-            Optional<IList<TokenBodyParameterContract>> tokenBodyParameters = default;
-            Optional<string> tokenEndpoint = default;
-            Optional<bool> supportState = default;
-            Optional<string> defaultScope = default;
-            Optional<IList<BearerTokenSendingMethod>> bearerTokenSendingMethods = default;
-            Optional<string> resourceOwnerUsername = default;
-            Optional<string> resourceOwnerPassword = default;
-            Optional<string> displayName = default;
-            Optional<string> clientRegistrationEndpoint = default;
-            Optional<string> authorizationEndpoint = default;
-            Optional<IList<GrantType>> grantTypes = default;
-            Optional<string> clientId = default;
-            Optional<string> clientSecret = default;
+            SystemData systemData = default;
+            string description = default;
+            IList<AuthorizationMethod> authorizationMethods = default;
+            IList<ClientAuthenticationMethod> clientAuthenticationMethod = default;
+            IList<TokenBodyParameterContract> tokenBodyParameters = default;
+            string tokenEndpoint = default;
+            bool? supportState = default;
+            string defaultScope = default;
+            IList<BearerTokenSendingMethod> bearerTokenSendingMethods = default;
+            string resourceOwnerUsername = default;
+            string resourceOwnerPassword = default;
+            string displayName = default;
+            string clientRegistrationEndpoint = default;
+            string authorizationEndpoint = default;
+            IList<GrantType> grantTypes = default;
+            string clientId = default;
+            string clientSecret = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("id"))
+                if (property.NameEquals("id"u8))
                 {
                     id = new ResourceIdentifier(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("name"))
+                if (property.NameEquals("name"u8))
                 {
                     name = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("type"))
+                if (property.NameEquals("type"u8))
                 {
                     type = new ResourceType(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("systemData"))
+                if (property.NameEquals("systemData"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    systemData = JsonSerializer.Deserialize<SystemData>(property.Value.ToString());
+                    systemData = JsonSerializer.Deserialize<SystemData>(property.Value.GetRawText());
                     continue;
                 }
-                if (property.NameEquals("properties"))
+                if (property.NameEquals("properties"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
@@ -186,16 +250,15 @@ namespace Azure.ResourceManager.ApiManagement.Models
                     }
                     foreach (var property0 in property.Value.EnumerateObject())
                     {
-                        if (property0.NameEquals("description"))
+                        if (property0.NameEquals("description"u8))
                         {
                             description = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("authorizationMethods"))
+                        if (property0.NameEquals("authorizationMethods"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             List<AuthorizationMethod> array = new List<AuthorizationMethod>();
@@ -206,11 +269,10 @@ namespace Azure.ResourceManager.ApiManagement.Models
                             authorizationMethods = array;
                             continue;
                         }
-                        if (property0.NameEquals("clientAuthenticationMethod"))
+                        if (property0.NameEquals("clientAuthenticationMethod"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             List<ClientAuthenticationMethod> array = new List<ClientAuthenticationMethod>();
@@ -221,46 +283,43 @@ namespace Azure.ResourceManager.ApiManagement.Models
                             clientAuthenticationMethod = array;
                             continue;
                         }
-                        if (property0.NameEquals("tokenBodyParameters"))
+                        if (property0.NameEquals("tokenBodyParameters"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             List<TokenBodyParameterContract> array = new List<TokenBodyParameterContract>();
                             foreach (var item in property0.Value.EnumerateArray())
                             {
-                                array.Add(TokenBodyParameterContract.DeserializeTokenBodyParameterContract(item));
+                                array.Add(TokenBodyParameterContract.DeserializeTokenBodyParameterContract(item, options));
                             }
                             tokenBodyParameters = array;
                             continue;
                         }
-                        if (property0.NameEquals("tokenEndpoint"))
+                        if (property0.NameEquals("tokenEndpoint"u8))
                         {
                             tokenEndpoint = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("supportState"))
+                        if (property0.NameEquals("supportState"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             supportState = property0.Value.GetBoolean();
                             continue;
                         }
-                        if (property0.NameEquals("defaultScope"))
+                        if (property0.NameEquals("defaultScope"u8))
                         {
                             defaultScope = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("bearerTokenSendingMethods"))
+                        if (property0.NameEquals("bearerTokenSendingMethods"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             List<BearerTokenSendingMethod> array = new List<BearerTokenSendingMethod>();
@@ -271,36 +330,35 @@ namespace Azure.ResourceManager.ApiManagement.Models
                             bearerTokenSendingMethods = array;
                             continue;
                         }
-                        if (property0.NameEquals("resourceOwnerUsername"))
+                        if (property0.NameEquals("resourceOwnerUsername"u8))
                         {
                             resourceOwnerUsername = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("resourceOwnerPassword"))
+                        if (property0.NameEquals("resourceOwnerPassword"u8))
                         {
                             resourceOwnerPassword = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("displayName"))
+                        if (property0.NameEquals("displayName"u8))
                         {
                             displayName = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("clientRegistrationEndpoint"))
+                        if (property0.NameEquals("clientRegistrationEndpoint"u8))
                         {
                             clientRegistrationEndpoint = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("authorizationEndpoint"))
+                        if (property0.NameEquals("authorizationEndpoint"u8))
                         {
                             authorizationEndpoint = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("grantTypes"))
+                        if (property0.NameEquals("grantTypes"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             List<GrantType> array = new List<GrantType>();
@@ -311,12 +369,12 @@ namespace Azure.ResourceManager.ApiManagement.Models
                             grantTypes = array;
                             continue;
                         }
-                        if (property0.NameEquals("clientId"))
+                        if (property0.NameEquals("clientId"u8))
                         {
                             clientId = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("clientSecret"))
+                        if (property0.NameEquals("clientSecret"u8))
                         {
                             clientSecret = property0.Value.GetString();
                             continue;
@@ -324,8 +382,65 @@ namespace Azure.ResourceManager.ApiManagement.Models
                     }
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new ApiManagementAuthorizationServerPatch(id, name, type, systemData.Value, description.Value, Optional.ToList(authorizationMethods), Optional.ToList(clientAuthenticationMethod), Optional.ToList(tokenBodyParameters), tokenEndpoint.Value, Optional.ToNullable(supportState), defaultScope.Value, Optional.ToList(bearerTokenSendingMethods), resourceOwnerUsername.Value, resourceOwnerPassword.Value, displayName.Value, clientRegistrationEndpoint.Value, authorizationEndpoint.Value, Optional.ToList(grantTypes), clientId.Value, clientSecret.Value);
+            serializedAdditionalRawData = rawDataDictionary;
+            return new ApiManagementAuthorizationServerPatch(
+                id,
+                name,
+                type,
+                systemData,
+                description,
+                authorizationMethods ?? new ChangeTrackingList<AuthorizationMethod>(),
+                clientAuthenticationMethod ?? new ChangeTrackingList<ClientAuthenticationMethod>(),
+                tokenBodyParameters ?? new ChangeTrackingList<TokenBodyParameterContract>(),
+                tokenEndpoint,
+                supportState,
+                defaultScope,
+                bearerTokenSendingMethods ?? new ChangeTrackingList<BearerTokenSendingMethod>(),
+                resourceOwnerUsername,
+                resourceOwnerPassword,
+                displayName,
+                clientRegistrationEndpoint,
+                authorizationEndpoint,
+                grantTypes ?? new ChangeTrackingList<GrantType>(),
+                clientId,
+                clientSecret,
+                serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<ApiManagementAuthorizationServerPatch>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementAuthorizationServerPatch>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ApiManagementAuthorizationServerPatch)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        ApiManagementAuthorizationServerPatch IPersistableModel<ApiManagementAuthorizationServerPatch>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ApiManagementAuthorizationServerPatch>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeApiManagementAuthorizationServerPatch(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ApiManagementAuthorizationServerPatch)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<ApiManagementAuthorizationServerPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

@@ -12,16 +12,18 @@ using Azure.Core.Pipeline;
 namespace Azure.Identity
 {
     /// <summary>
-    /// Provides a default <see cref="TokenCredential"/> authentication flow for applications that will be deployed to Azure.  The following credential
-    /// types if enabled will be tried, in order:
+    /// Provides a default <see cref="TokenCredential"/> authentication flow for applications that will be deployed to Azure. The following credential
+    /// types, if enabled, will be tried, in order:
     /// <list type="bullet">
     /// <item><description><see cref="EnvironmentCredential"/></description></item>
+    /// <item><description><see cref="WorkloadIdentityCredential"/></description></item>
     /// <item><description><see cref="ManagedIdentityCredential"/></description></item>
     /// <item><description><see cref="SharedTokenCacheCredential"/></description></item>
     /// <item><description><see cref="VisualStudioCredential"/></description></item>
     /// <item><description><see cref="VisualStudioCodeCredential"/></description></item>
     /// <item><description><see cref="AzureCliCredential"/></description></item>
     /// <item><description><see cref="AzurePowerShellCredential"/></description></item>
+    /// <item><description><see cref="AzureDeveloperCliCredential"/></description></item>
     /// <item><description><see cref="InteractiveBrowserCredential"/></description></item>
     /// </list>
     /// Consult the documentation of these credential types for more information on how they attempt authentication.
@@ -34,15 +36,21 @@ namespace Azure.Identity
     /// <example>
     /// <para>
     /// This example demonstrates authenticating the BlobClient from the Azure.Storage.Blobs client library using the DefaultAzureCredential,
-    /// deployed to an Azure resource with a user assigned managed identity configured.
+    /// deployed to an Azure resource with a user-assigned managed identity configured.
     /// </para>
-    /// <code snippet="Snippet:UserAssignedManagedIdentity" language="csharp">
-    /// // When deployed to an azure host, the default azure credential will authenticate the specified user assigned managed identity.
+    /// <code snippet="Snippet:UserAssignedManagedIdentityWithClientId" language="csharp">
+    /// // When deployed to an Azure host, DefaultAzureCredential will authenticate the specified user-assigned managed identity.
     ///
-    /// string userAssignedClientId = &quot;&lt;your managed identity client Id&gt;&quot;;
-    /// var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = userAssignedClientId });
+    /// string userAssignedClientId = &quot;&lt;your managed identity client ID&gt;&quot;;
+    /// var credential = new DefaultAzureCredential(
+    ///     new DefaultAzureCredentialOptions
+    ///     {
+    ///         ManagedIdentityClientId = userAssignedClientId
+    ///     });
     ///
-    /// var blobClient = new BlobClient(new Uri(&quot;https://myaccount.blob.core.windows.net/mycontainer/myblob&quot;), credential);
+    /// var blobClient = new BlobClient(
+    ///     new Uri(&quot;https://myaccount.blob.core.windows.net/mycontainer/myblob&quot;),
+    ///     credential);
     /// </code>
     /// </example>
     public class DefaultAzureCredential : TokenCredential
@@ -50,14 +58,16 @@ namespace Azure.Identity
         private const string Troubleshooting = "See the troubleshooting guide for more information. https://aka.ms/azsdk/net/identity/defaultazurecredential/troubleshoot";
         private const string DefaultExceptionMessage = "DefaultAzureCredential failed to retrieve a token from the included credentials. " + Troubleshooting;
         private const string UnhandledExceptionMessage = "DefaultAzureCredential authentication failed due to an unhandled exception: ";
-        private static readonly TokenCredential[] s_defaultCredentialChain = GetDefaultAzureCredentialChain(new DefaultAzureCredentialFactory(null), new DefaultAzureCredentialOptions());
 
         private readonly CredentialPipeline _pipeline;
         private readonly AsyncLockWithValue<TokenCredential> _credentialLock;
 
-        private TokenCredential[] _sources;
+        internal TokenCredential[] _sources;
 
-        internal DefaultAzureCredential() : this(false) { }
+        /// <summary>
+        /// Protected constructor for <see href="https://aka.ms/azsdk/net/mocking">mocking</see>.
+        /// </summary>
+        protected DefaultAzureCredential() : this(false) { }
 
         /// <summary>
         /// Creates an instance of the DefaultAzureCredential class.
@@ -71,24 +81,27 @@ namespace Azure.Identity
         /// <summary>
         /// Creates an instance of the <see cref="DefaultAzureCredential"/> class.
         /// </summary>
-        /// <param name="options">Options that configure the management of the requests sent to Azure Active Directory services, and determine which credentials are included in the <see cref="DefaultAzureCredential"/> authentication flow.</param>
+        /// <param name="options">Options that configure the management of the requests sent to Microsoft Entra ID, and determine which credentials are included in the <see cref="DefaultAzureCredential"/> authentication flow.</param>
         public DefaultAzureCredential(DefaultAzureCredentialOptions options)
-            // we call ValidateAuthoriyHostOption to validate that we have a valid authority host before constructing the DAC chain
+            // we call ValidateAuthorityHostOption to validate that we have a valid authority host before constructing the DAC chain
             // if we don't validate this up front it will end up throwing an exception out of a static initializer which obscures the error.
-            : this(new DefaultAzureCredentialFactory(ValidateAuthorityHostOption(options)), options)
+            : this(new DefaultAzureCredentialFactory(ValidateAuthorityHostOption(options)))
         {
         }
 
-        internal DefaultAzureCredential(DefaultAzureCredentialFactory factory, DefaultAzureCredentialOptions options)
+        internal DefaultAzureCredential(DefaultAzureCredentialFactory factory)
         {
             _pipeline = factory.Pipeline;
-            _sources = GetDefaultAzureCredentialChain(factory, options);
+            _sources = factory.CreateCredentialChain();
             _credentialLock = new AsyncLockWithValue<TokenCredential>();
         }
 
         /// <summary>
-        /// Sequentially calls <see cref="TokenCredential.GetToken"/> on all the included credentials in the order <see cref="EnvironmentCredential"/>, <see cref="ManagedIdentityCredential"/>, <see cref="SharedTokenCacheCredential"/>,
-        /// and <see cref="InteractiveBrowserCredential"/> returning the first successfully obtained <see cref="AccessToken"/>. This method is called automatically by Azure SDK client libraries. You may call this method directly, but you must also handle token caching and token refreshing.
+        /// Sequentially calls <see cref="TokenCredential.GetToken"/> on all the included credentials in the order
+        /// <see cref="EnvironmentCredential"/>, <see cref="ManagedIdentityCredential"/>, <see cref="SharedTokenCacheCredential"/>, and
+        /// <see cref="InteractiveBrowserCredential"/> returning the first successfully obtained <see cref="AccessToken"/>. Acquired tokens
+        /// are cached by the credential instance. Token lifetime and refreshing is handled automatically. Where possible, reuse credential
+        /// instances to optimize cache effectiveness.
         /// </summary>
         /// <remarks>
         /// Note that credentials requiring user interaction, such as the <see cref="InteractiveBrowserCredential"/>, are not included by default.
@@ -102,8 +115,11 @@ namespace Azure.Identity
         }
 
         /// <summary>
-        /// Sequentially calls <see cref="TokenCredential.GetToken"/> on all the included credentials in the order <see cref="EnvironmentCredential"/>, <see cref="ManagedIdentityCredential"/>, <see cref="SharedTokenCacheCredential"/>,
-        /// and <see cref="InteractiveBrowserCredential"/> returning the first successfully obtained <see cref="AccessToken"/>. This method is called automatically by Azure SDK client libraries. You may call this method directly, but you must also handle token caching and token refreshing.
+        /// Sequentially calls <see cref="TokenCredential.GetToken"/> on all the included credentials in the order
+        /// <see cref="EnvironmentCredential"/>, <see cref="ManagedIdentityCredential"/>, <see cref="SharedTokenCacheCredential"/>, and
+        /// <see cref="InteractiveBrowserCredential"/> returning the first successfully obtained <see cref="AccessToken"/>. Acquired tokens
+        /// are cached by the credential instance. Token lifetime and refreshing is handled automatically. Where possible, reuse credential
+        /// instances to optimize cache effectiveness.
         /// </summary>
         /// <remarks>
         /// Note that credentials requiring user interaction, such as the <see cref="InteractiveBrowserCredential"/>, are not included by default.
@@ -181,64 +197,6 @@ namespace Azure.Identity
             }
 
             throw CredentialUnavailableException.CreateAggregateException(DefaultExceptionMessage, exceptions);
-        }
-
-        private static TokenCredential[] GetDefaultAzureCredentialChain(DefaultAzureCredentialFactory factory, DefaultAzureCredentialOptions options)
-        {
-            if (options is null)
-            {
-                return s_defaultCredentialChain;
-            }
-
-            int i = 0;
-            TokenCredential[] chain = new TokenCredential[8];
-
-            if (!options.ExcludeEnvironmentCredential)
-            {
-                chain[i++] = factory.CreateEnvironmentCredential();
-            }
-
-            if (!options.ExcludeManagedIdentityCredential)
-            {
-                chain[i++] = factory.CreateManagedIdentityCredential(options);
-            }
-
-            if (!options.ExcludeSharedTokenCacheCredential)
-            {
-                chain[i++] = factory.CreateSharedTokenCacheCredential(options.SharedTokenCacheTenantId, options.SharedTokenCacheUsername);
-            }
-
-            if (!options.ExcludeVisualStudioCredential)
-            {
-                chain[i++] = factory.CreateVisualStudioCredential(options.VisualStudioTenantId);
-            }
-
-            if (!options.ExcludeVisualStudioCodeCredential)
-            {
-                chain[i++] = factory.CreateVisualStudioCodeCredential(options.VisualStudioCodeTenantId);
-            }
-
-            if (!options.ExcludeAzureCliCredential)
-            {
-                chain[i++] = factory.CreateAzureCliCredential();
-            }
-
-            if (!options.ExcludeAzurePowerShellCredential)
-            {
-                chain[i++] = factory.CreateAzurePowerShellCredential();
-            }
-
-            if (!options.ExcludeInteractiveBrowserCredential)
-            {
-                chain[i++] = factory.CreateInteractiveBrowserCredential(options.InteractiveBrowserTenantId, options.InteractiveBrowserCredentialClientId);
-            }
-
-            if (i == 0)
-            {
-                throw new ArgumentException("At least one credential type must be included in the authentication flow.", nameof(options));
-            }
-
-            return chain;
         }
 
         private static DefaultAzureCredentialOptions ValidateAuthorityHostOption(DefaultAzureCredentialOptions options)

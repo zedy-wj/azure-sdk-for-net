@@ -24,33 +24,33 @@ var client = new DocumentModelAdministrationClient(new Uri(endpoint), credential
 In our case, we will be writing an application that collects the expenses a company is making. There are 4 main areas where we get purchase orders from (office supplies, office equipment, furniture, and cleaning supplies). Because each area has its own document with its own structure, we need to create a model per document type.
 
 ```C# Snippet:FormRecognizerSampleBuildVariousModels
-// For this sample, you can use the training forms found in the `trainingFiles` folder.
-// Upload the forms to your storage container and then generate a container SAS URL.
-// For instructions on setting up forms for training in an Azure Storage Blob Container, see
+// For this sample, you can use the training documents found in the `trainingFiles` folder.
+// Upload the documents to your storage container and then generate a container SAS URL.
+// For instructions on setting up documents for training in an Azure Storage Blob Container, see
 // https://aka.ms/azsdk/formrecognizer/buildtrainingset
 
 Uri officeSuppliesUri = new Uri("<purchaseOrderOfficeSuppliesUri>");
-var officeSupplieOptions = new BuildModelOptions() { Description = "Purchase order - Office supplies" };
+var officeSupplieOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Office supplies" };
 
-BuildModelOperation suppliesOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: officeSupplieOptions);
+BuildDocumentModelOperation suppliesOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: officeSupplieOptions);
 DocumentModelDetails officeSuppliesModel = suppliesOperation.Value;
 
 Uri officeEquipmentUri = new Uri("<purchaseOrderOfficeEquipmentUri>");
-var equipmentOptions = new BuildModelOptions() { Description = "Purchase order - Office Equipment" };
+var equipmentOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Office Equipment" };
 
-BuildModelOperation equipmentOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
+BuildDocumentModelOperation equipmentOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
 DocumentModelDetails officeEquipmentModel = equipmentOperation.Value;
 
 Uri furnitureUri = new Uri("<purchaseOrderFurnitureUri>");
-var furnitureOptions = new BuildModelOptions() { Description = "Purchase order - Furniture" };
+var furnitureOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Furniture" };
 
-BuildModelOperation furnitureOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
+BuildDocumentModelOperation furnitureOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
 DocumentModelDetails furnitureModel = furnitureOperation.Value;
 
 Uri cleaningSuppliesUri = new Uri("<purchaseOrderCleaningSuppliesUri>");
-var cleaningOptions = new BuildModelOptions() { Description = "Purchase order - Cleaning Supplies" };
+var cleaningOptions = new BuildDocumentModelOptions() { Description = "Purchase order - Cleaning Supplies" };
 
-BuildModelOperation cleaningOperation = await client.BuildModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
+BuildDocumentModelOperation cleaningOperation = await client.BuildDocumentModelAsync(WaitUntil.Completed, officeSuppliesUri, DocumentBuildMode.Template, options: equipmentOptions);
 DocumentModelDetails cleaningSuppliesModel = cleaningOperation.Value;
 ```
 
@@ -65,7 +65,7 @@ List<string> modelIds = new List<string>()
     cleaningSuppliesModel.ModelId
 };
 
-BuildModelOperation operation = await client.ComposeModelAsync(WaitUntil.Completed, modelIds, description: "Composed Purchase order");
+ComposeDocumentModelOperation operation = await client.ComposeDocumentModelAsync(WaitUntil.Completed, modelIds, description: "Composed Purchase order");
 DocumentModelDetails purchaseOrderModel = operation.Value;
 
 Console.WriteLine($"  Model Id: {purchaseOrderModel.ModelId}");
@@ -73,9 +73,6 @@ if (string.IsNullOrEmpty(purchaseOrderModel.Description))
     Console.WriteLine($"  Model description: {purchaseOrderModel.Description}");
 Console.WriteLine($"  Created on: {purchaseOrderModel.CreatedOn}");
 ```
-
-To see the full example source files, see:
-* [Compose a model](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/formrecognizer/Azure.AI.FormRecognizer/tests/samples/Sample_ComposeModelAsync.cs)
 
 [README]: https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/formrecognizer/Azure.AI.FormRecognizer#getting-started
 [labeling_tool]: https://aka.ms/azsdk/formrecognizer/labelingtool

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Core.TestFramework;
+using Azure.Identity;
 using Azure.Storage.Queues.Models;
 using Azure.Storage.Queues.Tests;
 using Azure.Storage.Sas;
@@ -20,8 +21,8 @@ namespace Azure.Storage.Queues.Test
     [NonParallelizable]
     public class ServiceClientTests : QueueTestBase
     {
-        public ServiceClientTests(bool async)
-            : base(async, null /* RecordedTestMode.Record /* to re-record */)
+        public ServiceClientTests(bool async, QueueClientOptions.ServiceVersion serviceVersion)
+            : base(async, serviceVersion, null /* RecordedTestMode.Record /* to re-record */)
         {
         }
         [RecordedTest]
@@ -104,6 +105,77 @@ namespace Azure.Storage.Queues.Test
             TestHelper.AssertExpectedException<ArgumentException>(
                 () => new QueueClient(uri, new AzureSasCredential(sas)),
                 e => e.Message.Contains($"You cannot use {nameof(AzureSasCredential)} when the resource URI also contains a Shared Access Signature"));
+        }
+
+        [RecordedTest]
+        public async Task Ctor_DefaultAudience()
+        {
+            // Act - Create new Queue client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(QueueAudience.PublicAudience);
+
+            QueueServiceClient aadService = InstrumentClient(new QueueServiceClient(
+                new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint),
+                Tenants.GetOAuthCredential(),
+                options));
+
+            // Assert
+            Response<QueueServiceProperties> properties = await aadService.GetPropertiesAsync();
+            Assert.IsNotNull(properties);
+        }
+
+        [RecordedTest]
+        public async Task Ctor_CustomAudience()
+        {
+            // Arrange
+            QueueUriBuilder uriBuilder = new QueueUriBuilder(new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint));
+
+            // Act - Create new Queue client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(new QueueAudience($"https://{uriBuilder.AccountName}.queue.core.windows.net/"));
+
+            QueueServiceClient aadService = InstrumentClient(new QueueServiceClient(
+                new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint),
+                Tenants.GetOAuthCredential(),
+                options));
+
+            // Assert
+            Response<QueueServiceProperties> properties = await aadService.GetPropertiesAsync();
+            Assert.IsNotNull(properties);
+        }
+
+        [RecordedTest]
+        public async Task Ctor_StorageAccountAudience()
+        {
+            // Arrange
+            QueueUriBuilder uriBuilder = new QueueUriBuilder(new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint));
+
+            // Act - Create new Queue client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(QueueAudience.CreateQueueServiceAccountAudience(uriBuilder.AccountName));
+
+            QueueServiceClient aadService = InstrumentClient(new QueueServiceClient(
+                new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint),
+                Tenants.GetOAuthCredential(),
+                options));
+
+            // Assert
+            Response<QueueServiceProperties> properties = await aadService.GetPropertiesAsync();
+            Assert.IsNotNull(properties);
+        }
+
+        [RecordedTest]
+        public async Task Ctor_AudienceError()
+        {
+            // Act - Create new Queue client with the OAuth Credential and Audience
+            QueueClientOptions options = GetOptionsWithAudience(new QueueAudience("https://badaudience.queue.core.windows.net"));
+
+            QueueServiceClient aadContainer = InstrumentClient(new QueueServiceClient(
+                new Uri(Tenants.TestConfigOAuth.QueueServiceEndpoint),
+                new MockCredential(),
+                options));
+
+            // Assert
+            await TestHelper.AssertExpectedExceptionAsync<RequestFailedException>(
+                aadContainer.GetPropertiesAsync(),
+                e => Assert.AreEqual("InvalidAuthenticationInfo", e.ErrorCode));
         }
 
         [RecordedTest]
@@ -535,75 +607,6 @@ namespace Azure.Storage.Queues.Test
             TestHelper.AssertExpectedException(
                 () => serviceClient.GenerateAccountSasUri(sasBuilder),
                 new InvalidOperationException("SAS Uri cannot be generated. builder.Services does specify Queues. builder.Services must either specify Queues or specify all Services are accessible in the value."));
-        }
-        #endregion
-
-        #region AccountSas
-        private async Task InvokeAccountSasTest(
-            string permissions = "rwdylacuptfi",
-            string services = "bqtf",
-            string resourceType = "sco")
-        {
-            // Arrange
-            await using DisposingQueue test = await GetTestQueueAsync();
-            QueueClient queue = test.Queue;
-            await queue.CreateAsync().ConfigureAwait(false);
-
-            // Generate a SAS that would set the srt / ResourceTypes in a different order than
-            // the .NET SDK would normally create the SAS
-            TestAccountSasBuilder accountSasBuilder = new TestAccountSasBuilder(
-                permissions: permissions,
-                expiresOn: Recording.UtcNow.AddDays(1),
-                services: services,
-                resourceTypes: resourceType);
-
-            UriBuilder blobUriBuilder = new UriBuilder(queue.Uri)
-            {
-                Query = accountSasBuilder.ToTestSasQueryParameters(Tenants.GetNewSharedKeyCredentials()).ToString()
-            };
-
-            // Assert
-            QueueClient sasBlobClient = InstrumentClient(new QueueClient(blobUriBuilder.Uri, GetOptions()));
-            await sasBlobClient.GetPropertiesAsync();
-        }
-
-        [RecordedTest]
-        [TestCase("sco")]
-        [TestCase("soc")]
-        [TestCase("cos")]
-        [TestCase("ocs")]
-        [TestCase("cs")]
-        [TestCase("oc")]
-        [ServiceVersion(Min = QueueClientOptions.ServiceVersion.V2020_06_12)]
-        public async Task AccountSas_ResourceTypeOrder(string resourceType)
-        {
-            await InvokeAccountSasTest(resourceType: resourceType);
-        }
-
-        [RecordedTest]
-        [TestCase("bfqt")]
-        [TestCase("qftb")]
-        [TestCase("tqfb")]
-        [TestCase("fqt")]
-        [TestCase("qb")]
-        [TestCase("fq")]
-        [ServiceVersion(Min = QueueClientOptions.ServiceVersion.V2020_06_12)]
-        public async Task AccountSas_ServiceOrder(string services)
-        {
-            await InvokeAccountSasTest(services: services);
-        }
-
-        [RecordedTest]
-        [TestCase("rwdylacuptfi")]
-        [TestCase("cuprwdylatfi")]
-        [TestCase("cudypafitrwl")]
-        [TestCase("cuprwdyla")]
-        [TestCase("rywdlcaup")]
-        [TestCase("larwdycup")]
-        [ServiceVersion(Min = QueueClientOptions.ServiceVersion.V2020_06_12)]
-        public async Task AccountSas_PermissionsOrder(string permissions)
-        {
-            await InvokeAccountSasTest(permissions: permissions);
         }
         #endregion
 

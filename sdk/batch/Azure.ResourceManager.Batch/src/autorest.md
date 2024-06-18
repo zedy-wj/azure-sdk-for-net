@@ -8,13 +8,17 @@ azure-arm: true
 csharp: true
 library-name: Batch
 namespace: Azure.ResourceManager.Batch
-require: https://github.com/Azure/azure-rest-api-specs/blob/bab2f4389eb5ca73cdf366ec0a4af3f3eb6e1f6d/specification/batch/resource-manager/readme.md
-tag: package-2022-06
+require: https://github.com/Azure/azure-rest-api-specs/blob/d6fcc46341f274b8af42a4cdcfa14e1f8d472619/specification/batch/resource-manager/readme.md
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
 skip-csproj: true
 modelerfour:
   flatten-payloads: false
+use-model-reader-writer: true
+deserialize-null-collection-as-null-value: true
+
+# mgmt-debug:
+#   show-serialized-names: true
 
 format-by-name-rules:
   'tenantId': 'uuid'
@@ -23,8 +27,9 @@ format-by-name-rules:
   '*Uri': 'Uri'
   '*Uris': 'Uri'
   'ifMatch': 'etag'
+  'locationName': 'azure-location'
 
-rename-rules:
+acronym-mapping:
   CPU: Cpu
   CPUs: Cpus
   Os: OS
@@ -153,6 +158,7 @@ rename-mapping:
   CheckNameAvailabilityResult.nameAvailable: IsNameAvailable
   NameAvailabilityReason: BatchNameUnavailableReason
   CifsMountConfiguration: BatchCifsMountConfiguration
+  CifsMountConfiguration.userName: username
   NFSMountConfiguration: BatchNFSMountConfiguration
   ContainerWorkingDirectory: BatchContainerWorkingDirectory
   DiffDiskPlacement: BatchDiffDiskPlacement
@@ -162,21 +168,43 @@ rename-mapping:
   IPAddressProvisioningType: BatchIPAddressProvisioningType
   IPRuleAction: BatchIPRuleAction
   NetworkConfiguration: BatchNetworkConfiguration
+  NetworkConfiguration.dynamicVnetAssignmentScope: dynamicVNetAssignmentScope
+  NetworkConfiguration.subnetId: -|arm-id
   NetworkSecurityGroupRule: BatchNetworkSecurityGroupRule
   NetworkSecurityGroupRuleAccess: BatchNetworkSecurityGroupRuleAccess
   NodePlacementPolicyType: BatchNodePlacementPolicyType
   PackageState: BatchApplicationPackageState
   PrivateLinkServiceConnectionStatus: BatchPrivateLinkServiceConnectionStatus
+  PrivateLinkServiceConnectionState.actionsRequired: actionRequired
   PublicIPAddressConfiguration: BatchPublicIPAddressConfiguration
   SkuCapability: BatchSkuCapability
   UserIdentity: BatchUserIdentity
   ImageReference: BatchImageReference
   ImageReference.id: -|arm-id
+  CertificateCreateOrUpdateParameters.properties.data: -|any
+  KeyVaultProperties.keyIdentifier: -|uri
+  AzureFileShareConfiguration.azureFileUrl: FileUrl
+  MountConfiguration.azureBlobFileSystemConfiguration: BlobFileSystemConfiguration
+  MountConfiguration.azureFileShareConfiguration: FileShareConfiguration
+  ResourceFile.storageContainerUrl: BlobContainerUri
+  ResourceFile.autoStorageContainerName: AutoBlobContainerName
+  AccountKeyType: BatchAccountKeyType
+  BatchAccountRegenerateKeyParameters.keyName: KeyType
+  Certificate.properties.thumbprint: ThumbprintString
+  CertificateCreateOrUpdateParameters.properties.thumbprint: ThumbprintString
+  OSDisk: BatchOSDisk
+  OSDisk.writeAcceleratorEnabled: IsWriteAcceleratorEnabled
+  SecurityProfile: BatchSecurityProfile
+  UefiSettings: BatchUefiSettings
+  UefiSettings.secureBootEnabled: IsSecureBootEnabled
+  UefiSettings.vTpmEnabled: IsVTpmEnabled
+  SecurityTypes: BatchSecurityType
+  StorageAccountType.StandardSSD_LRS: StandardSsdLrs
 
 directive:
 # TODO -- remove this and use rename-mapping when it is supported
   - from: swagger-document
-    where: $.definitions.PublicIPAddressConfiguration.properties.ipAddressIds.item
+    where: $.definitions.PublicIPAddressConfiguration.properties.ipAddressIds.items
     transform: $["x-ms-format"] = "arm-id"
 # resume the setter on tags of BatchAccountData
   - from: swagger-document
@@ -230,4 +258,7 @@ directive:
           "type": "string",
           "description": "The error target."
         };
+  - from: swagger-document
+    where: $.definitions.CheckNameAvailabilityParameters.properties.type
+    transform: $["x-ms-constant"] = true;
 ```

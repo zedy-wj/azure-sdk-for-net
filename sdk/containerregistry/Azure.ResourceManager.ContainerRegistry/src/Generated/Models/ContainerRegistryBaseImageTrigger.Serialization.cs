@@ -5,84 +5,170 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
 
 namespace Azure.ResourceManager.ContainerRegistry.Models
 {
-    public partial class ContainerRegistryBaseImageTrigger : IUtf8JsonSerializable
+    public partial class ContainerRegistryBaseImageTrigger : IUtf8JsonSerializable, IJsonModel<ContainerRegistryBaseImageTrigger>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<ContainerRegistryBaseImageTrigger>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<ContainerRegistryBaseImageTrigger>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerRegistryBaseImageTrigger>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ContainerRegistryBaseImageTrigger)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
-            writer.WritePropertyName("baseImageTriggerType");
+            writer.WritePropertyName("baseImageTriggerType"u8);
             writer.WriteStringValue(BaseImageTriggerType.ToString());
             if (Optional.IsDefined(UpdateTriggerEndpoint))
             {
-                writer.WritePropertyName("updateTriggerEndpoint");
+                writer.WritePropertyName("updateTriggerEndpoint"u8);
                 writer.WriteStringValue(UpdateTriggerEndpoint);
             }
             if (Optional.IsDefined(UpdateTriggerPayloadType))
             {
-                writer.WritePropertyName("updateTriggerPayloadType");
+                writer.WritePropertyName("updateTriggerPayloadType"u8);
                 writer.WriteStringValue(UpdateTriggerPayloadType.Value.ToString());
             }
             if (Optional.IsDefined(Status))
             {
-                writer.WritePropertyName("status");
+                writer.WritePropertyName("status"u8);
                 writer.WriteStringValue(Status.Value.ToString());
             }
-            writer.WritePropertyName("name");
+            writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
             writer.WriteEndObject();
         }
 
-        internal static ContainerRegistryBaseImageTrigger DeserializeContainerRegistryBaseImageTrigger(JsonElement element)
+        ContainerRegistryBaseImageTrigger IJsonModel<ContainerRegistryBaseImageTrigger>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerRegistryBaseImageTrigger>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ContainerRegistryBaseImageTrigger)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeContainerRegistryBaseImageTrigger(document.RootElement, options);
+        }
+
+        internal static ContainerRegistryBaseImageTrigger DeserializeContainerRegistryBaseImageTrigger(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             ContainerRegistryBaseImageTriggerType baseImageTriggerType = default;
-            Optional<string> updateTriggerEndpoint = default;
-            Optional<ContainerRegistryUpdateTriggerPayloadType> updateTriggerPayloadType = default;
-            Optional<ContainerRegistryTriggerStatus> status = default;
+            string updateTriggerEndpoint = default;
+            ContainerRegistryUpdateTriggerPayloadType? updateTriggerPayloadType = default;
+            ContainerRegistryTriggerStatus? status = default;
             string name = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("baseImageTriggerType"))
+                if (property.NameEquals("baseImageTriggerType"u8))
                 {
                     baseImageTriggerType = new ContainerRegistryBaseImageTriggerType(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("updateTriggerEndpoint"))
+                if (property.NameEquals("updateTriggerEndpoint"u8))
                 {
                     updateTriggerEndpoint = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("updateTriggerPayloadType"))
+                if (property.NameEquals("updateTriggerPayloadType"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     updateTriggerPayloadType = new ContainerRegistryUpdateTriggerPayloadType(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("status"))
+                if (property.NameEquals("status"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     status = new ContainerRegistryTriggerStatus(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("name"))
+                if (property.NameEquals("name"u8))
                 {
                     name = property.Value.GetString();
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new ContainerRegistryBaseImageTrigger(baseImageTriggerType, updateTriggerEndpoint.Value, Optional.ToNullable(updateTriggerPayloadType), Optional.ToNullable(status), name);
+            serializedAdditionalRawData = rawDataDictionary;
+            return new ContainerRegistryBaseImageTrigger(
+                baseImageTriggerType,
+                updateTriggerEndpoint,
+                updateTriggerPayloadType,
+                status,
+                name,
+                serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<ContainerRegistryBaseImageTrigger>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerRegistryBaseImageTrigger>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ContainerRegistryBaseImageTrigger)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        ContainerRegistryBaseImageTrigger IPersistableModel<ContainerRegistryBaseImageTrigger>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerRegistryBaseImageTrigger>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeContainerRegistryBaseImageTrigger(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ContainerRegistryBaseImageTrigger)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<ContainerRegistryBaseImageTrigger>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

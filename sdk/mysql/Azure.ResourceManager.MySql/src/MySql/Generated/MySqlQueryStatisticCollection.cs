@@ -7,21 +7,19 @@
 
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
+using Autorest.CSharp.Core;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 using Azure.ResourceManager.MySql.Models;
 
 namespace Azure.ResourceManager.MySql
 {
     /// <summary>
-    /// A class representing a collection of <see cref="MySqlQueryStatisticResource" /> and their operations.
-    /// Each <see cref="MySqlQueryStatisticResource" /> in the collection will belong to the same instance of <see cref="MySqlServerResource" />.
-    /// To get a <see cref="MySqlQueryStatisticCollection" /> instance call the GetMySqlQueryStatistics method from an instance of <see cref="MySqlServerResource" />.
+    /// A class representing a collection of <see cref="MySqlQueryStatisticResource"/> and their operations.
+    /// Each <see cref="MySqlQueryStatisticResource"/> in the collection will belong to the same instance of <see cref="MySqlServerResource"/>.
+    /// To get a <see cref="MySqlQueryStatisticCollection"/> instance call the GetMySqlQueryStatistics method from an instance of <see cref="MySqlServerResource"/>.
     /// </summary>
     public partial class MySqlQueryStatisticCollection : ArmCollection
     {
@@ -54,8 +52,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Retrieve the query statistic for specified identifier.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}
-        /// Operation Id: TopQueryStatistics_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="queryStatisticId"> The Query Statistic identifier. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -83,8 +97,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Retrieve the query statistic for specified identifier.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}
-        /// Operation Id: TopQueryStatistics_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="queryStatisticId"> The Query Statistic identifier. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -112,100 +142,92 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Retrieve the Query-Store top queries for specified metric and aggregation.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics
-        /// Operation Id: TopQueryStatistics_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="input"> The required parameters for retrieving top query statistics. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
-        /// <returns> An async collection of <see cref="MySqlQueryStatisticResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> An async collection of <see cref="MySqlQueryStatisticResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual AsyncPageable<MySqlQueryStatisticResource> GetAllAsync(MySqlTopQueryStatisticsInput input, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(input, nameof(input));
 
-            async Task<Page<MySqlQueryStatisticResource>> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics.CreateScope("MySqlQueryStatisticCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _mySqlQueryStatisticTopQueryStatisticsRestClient.ListByServerAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlQueryStatisticResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            async Task<Page<MySqlQueryStatisticResource>> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics.CreateScope("MySqlQueryStatisticCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _mySqlQueryStatisticTopQueryStatisticsRestClient.ListByServerNextPageAsync(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlQueryStatisticResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateAsyncEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _mySqlQueryStatisticTopQueryStatisticsRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _mySqlQueryStatisticTopQueryStatisticsRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input);
+            return GeneratorPageableHelpers.CreateAsyncPageable(FirstPageRequest, NextPageRequest, e => new MySqlQueryStatisticResource(Client, MySqlQueryStatisticData.DeserializeMySqlQueryStatisticData(e)), _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics, Pipeline, "MySqlQueryStatisticCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// Retrieve the Query-Store top queries for specified metric and aggregation.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics
-        /// Operation Id: TopQueryStatistics_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="input"> The required parameters for retrieving top query statistics. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
-        /// <returns> A collection of <see cref="MySqlQueryStatisticResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> A collection of <see cref="MySqlQueryStatisticResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual Pageable<MySqlQueryStatisticResource> GetAll(MySqlTopQueryStatisticsInput input, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(input, nameof(input));
 
-            Page<MySqlQueryStatisticResource> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics.CreateScope("MySqlQueryStatisticCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _mySqlQueryStatisticTopQueryStatisticsRestClient.ListByServer(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlQueryStatisticResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            Page<MySqlQueryStatisticResource> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics.CreateScope("MySqlQueryStatisticCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _mySqlQueryStatisticTopQueryStatisticsRestClient.ListByServerNextPage(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlQueryStatisticResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _mySqlQueryStatisticTopQueryStatisticsRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _mySqlQueryStatisticTopQueryStatisticsRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, input);
+            return GeneratorPageableHelpers.CreatePageable(FirstPageRequest, NextPageRequest, e => new MySqlQueryStatisticResource(Client, MySqlQueryStatisticData.DeserializeMySqlQueryStatisticData(e)), _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics, Pipeline, "MySqlQueryStatisticCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}
-        /// Operation Id: TopQueryStatistics_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="queryStatisticId"> The Query Statistic identifier. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -231,8 +253,24 @@ namespace Azure.ResourceManager.MySql
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}
-        /// Operation Id: TopQueryStatistics_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="queryStatisticId"> The Query Statistic identifier. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -248,6 +286,96 @@ namespace Azure.ResourceManager.MySql
             {
                 var response = _mySqlQueryStatisticTopQueryStatisticsRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, queryStatisticId, cancellationToken: cancellationToken);
                 return Response.FromValue(response.Value != null, response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="queryStatisticId"> The Query Statistic identifier. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="queryStatisticId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="queryStatisticId"/> is null. </exception>
+        public virtual async Task<NullableResponse<MySqlQueryStatisticResource>> GetIfExistsAsync(string queryStatisticId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(queryStatisticId, nameof(queryStatisticId));
+
+            using var scope = _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics.CreateScope("MySqlQueryStatisticCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = await _mySqlQueryStatisticTopQueryStatisticsRestClient.GetAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, queryStatisticId, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (response.Value == null)
+                    return new NoValueResponse<MySqlQueryStatisticResource>(response.GetRawResponse());
+                return Response.FromValue(new MySqlQueryStatisticResource(Client, response.Value), response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/topQueryStatistics/{queryStatisticId}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>TopQueryStatistics_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2018-06-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlQueryStatisticResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="queryStatisticId"> The Query Statistic identifier. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="queryStatisticId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="queryStatisticId"/> is null. </exception>
+        public virtual NullableResponse<MySqlQueryStatisticResource> GetIfExists(string queryStatisticId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(queryStatisticId, nameof(queryStatisticId));
+
+            using var scope = _mySqlQueryStatisticTopQueryStatisticsClientDiagnostics.CreateScope("MySqlQueryStatisticCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = _mySqlQueryStatisticTopQueryStatisticsRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, queryStatisticId, cancellationToken: cancellationToken);
+                if (response.Value == null)
+                    return new NoValueResponse<MySqlQueryStatisticResource>(response.GetRawResponse());
+                return Response.FromValue(new MySqlQueryStatisticResource(Client, response.Value), response.GetRawResponse());
             }
             catch (Exception e)
             {

@@ -9,20 +9,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
+using Autorest.CSharp.Core;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 
 namespace Azure.ResourceManager.PostgreSql.FlexibleServers
 {
     /// <summary>
-    /// A class representing a collection of <see cref="PostgreSqlFlexibleServerFirewallRuleResource" /> and their operations.
-    /// Each <see cref="PostgreSqlFlexibleServerFirewallRuleResource" /> in the collection will belong to the same instance of <see cref="PostgreSqlFlexibleServerResource" />.
-    /// To get a <see cref="PostgreSqlFlexibleServerFirewallRuleCollection" /> instance call the GetPostgreSqlFlexibleServerFirewallRules method from an instance of <see cref="PostgreSqlFlexibleServerResource" />.
+    /// A class representing a collection of <see cref="PostgreSqlFlexibleServerFirewallRuleResource"/> and their operations.
+    /// Each <see cref="PostgreSqlFlexibleServerFirewallRuleResource"/> in the collection will belong to the same instance of <see cref="PostgreSqlFlexibleServerResource"/>.
+    /// To get a <see cref="PostgreSqlFlexibleServerFirewallRuleCollection"/> instance call the GetPostgreSqlFlexibleServerFirewallRules method from an instance of <see cref="PostgreSqlFlexibleServerResource"/>.
     /// </summary>
     public partial class PostgreSqlFlexibleServerFirewallRuleCollection : ArmCollection, IEnumerable<PostgreSqlFlexibleServerFirewallRuleResource>, IAsyncEnumerable<PostgreSqlFlexibleServerFirewallRuleResource>
     {
@@ -55,8 +53,24 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
 
         /// <summary>
         /// Creates a new firewall rule or updates an existing firewall rule.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}
-        /// Operation Id: FirewallRules_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
@@ -74,7 +88,7 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
             try
             {
                 var response = await _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateOrUpdateAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, data, cancellationToken).ConfigureAwait(false);
-                var operation = new FlexibleServersArmOperation<PostgreSqlFlexibleServerFirewallRuleResource>(new PostgreSqlFlexibleServerFirewallRuleOperationSource(Client), _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics, Pipeline, _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateCreateOrUpdateRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, data).Request, response, OperationFinalStateVia.Location);
+                var operation = new FlexibleServersArmOperation<PostgreSqlFlexibleServerFirewallRuleResource>(new PostgreSqlFlexibleServerFirewallRuleOperationSource(Client), _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics, Pipeline, _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateCreateOrUpdateRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, data).Request, response, OperationFinalStateVia.AzureAsyncOperation);
                 if (waitUntil == WaitUntil.Completed)
                     await operation.WaitForCompletionAsync(cancellationToken).ConfigureAwait(false);
                 return operation;
@@ -88,8 +102,24 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
 
         /// <summary>
         /// Creates a new firewall rule or updates an existing firewall rule.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}
-        /// Operation Id: FirewallRules_CreateOrUpdate
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_CreateOrUpdate</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
@@ -107,7 +137,7 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
             try
             {
                 var response = _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateOrUpdate(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, data, cancellationToken);
-                var operation = new FlexibleServersArmOperation<PostgreSqlFlexibleServerFirewallRuleResource>(new PostgreSqlFlexibleServerFirewallRuleOperationSource(Client), _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics, Pipeline, _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateCreateOrUpdateRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, data).Request, response, OperationFinalStateVia.Location);
+                var operation = new FlexibleServersArmOperation<PostgreSqlFlexibleServerFirewallRuleResource>(new PostgreSqlFlexibleServerFirewallRuleOperationSource(Client), _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics, Pipeline, _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateCreateOrUpdateRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, data).Request, response, OperationFinalStateVia.AzureAsyncOperation);
                 if (waitUntil == WaitUntil.Completed)
                     operation.WaitForCompletion(cancellationToken);
                 return operation;
@@ -121,8 +151,24 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
 
         /// <summary>
         /// List all the firewall rules in a given server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}
-        /// Operation Id: FirewallRules_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -150,8 +196,24 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
 
         /// <summary>
         /// List all the firewall rules in a given server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}
-        /// Operation Id: FirewallRules_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -179,92 +241,84 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
 
         /// <summary>
         /// List all the firewall rules in a given PostgreSQL server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules
-        /// Operation Id: FirewallRules_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> An async collection of <see cref="PostgreSqlFlexibleServerFirewallRuleResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> An async collection of <see cref="PostgreSqlFlexibleServerFirewallRuleResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual AsyncPageable<PostgreSqlFlexibleServerFirewallRuleResource> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            async Task<Page<PostgreSqlFlexibleServerFirewallRuleResource>> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics.CreateScope("PostgreSqlFlexibleServerFirewallRuleCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.ListByServerAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlFlexibleServerFirewallRuleResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            async Task<Page<PostgreSqlFlexibleServerFirewallRuleResource>> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics.CreateScope("PostgreSqlFlexibleServerFirewallRuleCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.ListByServerNextPageAsync(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlFlexibleServerFirewallRuleResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateAsyncEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            return GeneratorPageableHelpers.CreateAsyncPageable(FirstPageRequest, NextPageRequest, e => new PostgreSqlFlexibleServerFirewallRuleResource(Client, PostgreSqlFlexibleServerFirewallRuleData.DeserializePostgreSqlFlexibleServerFirewallRuleData(e)), _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics, Pipeline, "PostgreSqlFlexibleServerFirewallRuleCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// List all the firewall rules in a given PostgreSQL server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules
-        /// Operation Id: FirewallRules_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> A collection of <see cref="PostgreSqlFlexibleServerFirewallRuleResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> A collection of <see cref="PostgreSqlFlexibleServerFirewallRuleResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual Pageable<PostgreSqlFlexibleServerFirewallRuleResource> GetAll(CancellationToken cancellationToken = default)
         {
-            Page<PostgreSqlFlexibleServerFirewallRuleResource> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics.CreateScope("PostgreSqlFlexibleServerFirewallRuleCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.ListByServer(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlFlexibleServerFirewallRuleResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            Page<PostgreSqlFlexibleServerFirewallRuleResource> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics.CreateScope("PostgreSqlFlexibleServerFirewallRuleCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.ListByServerNextPage(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new PostgreSqlFlexibleServerFirewallRuleResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, Id.Name);
+            return GeneratorPageableHelpers.CreatePageable(FirstPageRequest, NextPageRequest, e => new PostgreSqlFlexibleServerFirewallRuleResource(Client, PostgreSqlFlexibleServerFirewallRuleData.DeserializePostgreSqlFlexibleServerFirewallRuleData(e)), _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics, Pipeline, "PostgreSqlFlexibleServerFirewallRuleCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}
-        /// Operation Id: FirewallRules_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -290,8 +344,24 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}
-        /// Operation Id: FirewallRules_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -307,6 +377,96 @@ namespace Azure.ResourceManager.PostgreSql.FlexibleServers
             {
                 var response = _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, cancellationToken: cancellationToken);
                 return Response.FromValue(response.Value != null, response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="firewallRuleName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="firewallRuleName"/> is null. </exception>
+        public virtual async Task<NullableResponse<PostgreSqlFlexibleServerFirewallRuleResource>> GetIfExistsAsync(string firewallRuleName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(firewallRuleName, nameof(firewallRuleName));
+
+            using var scope = _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics.CreateScope("PostgreSqlFlexibleServerFirewallRuleCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = await _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.GetAsync(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (response.Value == null)
+                    return new NoValueResponse<PostgreSqlFlexibleServerFirewallRuleResource>(response.GetRawResponse());
+                return Response.FromValue(new PostgreSqlFlexibleServerFirewallRuleResource(Client, response.Value), response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{serverName}/firewallRules/{firewallRuleName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>FirewallRules_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-03-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PostgreSqlFlexibleServerFirewallRuleResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="firewallRuleName"> The name of the server firewall rule. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="firewallRuleName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="firewallRuleName"/> is null. </exception>
+        public virtual NullableResponse<PostgreSqlFlexibleServerFirewallRuleResource> GetIfExists(string firewallRuleName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(firewallRuleName, nameof(firewallRuleName));
+
+            using var scope = _postgreSqlFlexibleServerFirewallRuleFirewallRulesClientDiagnostics.CreateScope("PostgreSqlFlexibleServerFirewallRuleCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = _postgreSqlFlexibleServerFirewallRuleFirewallRulesRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, Id.Name, firewallRuleName, cancellationToken: cancellationToken);
+                if (response.Value == null)
+                    return new NoValueResponse<PostgreSqlFlexibleServerFirewallRuleResource>(response.GetRawResponse());
+                return Response.FromValue(new PostgreSqlFlexibleServerFirewallRuleResource(Client, response.Value), response.GetRawResponse());
             }
             catch (Exception e)
             {

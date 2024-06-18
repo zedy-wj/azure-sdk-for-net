@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.Media.Models;
@@ -33,8 +32,35 @@ namespace Azure.ResourceManager.Media
         {
             _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
-            _apiVersion = apiVersion ?? "2021-11-01";
+            _apiVersion = apiVersion ?? "2023-01-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListRequestUri(string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/streamingLocators", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            if (filter != null)
+            {
+                uri.AppendQuery("$filter", filter, true);
+            }
+            if (top != null)
+            {
+                uri.AppendQuery("$top", top.Value, true);
+            }
+            if (orderby != null)
+            {
+                uri.AppendQuery("$orderby", orderby, true);
+            }
+            return uri;
         }
 
         internal HttpMessage CreateListRequest(string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)
@@ -134,6 +160,22 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateGetRequestUri(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/streamingLocators/", false);
+            uri.AppendPath(streamingLocatorName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateGetRequest(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
         {
             var message = _pipeline.CreateMessage();
@@ -222,6 +264,22 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateCreateRequestUri(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName, StreamingLocatorData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/streamingLocators/", false);
+            uri.AppendPath(streamingLocatorName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateCreateRequest(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName, StreamingLocatorData data)
         {
             var message = _pipeline.CreateMessage();
@@ -242,7 +300,7 @@ namespace Azure.ResourceManager.Media
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(data);
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
@@ -312,6 +370,22 @@ namespace Azure.ResourceManager.Media
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateDeleteRequestUri(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/streamingLocators/", false);
+            uri.AppendPath(streamingLocatorName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
@@ -388,6 +462,23 @@ namespace Azure.ResourceManager.Media
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateListContentKeysRequestUri(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/streamingLocators/", false);
+            uri.AppendPath(streamingLocatorName, true);
+            uri.AppendPath("/listContentKeys", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListContentKeysRequest(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
@@ -475,6 +566,23 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateListPathsRequestUri(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/streamingLocators/", false);
+            uri.AppendPath(streamingLocatorName, true);
+            uri.AppendPath("/listPaths", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateListPathsRequest(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName)
         {
             var message = _pipeline.CreateMessage();
@@ -506,7 +614,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="streamingLocatorName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="streamingLocatorName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<GetPathsResult>> ListPathsAsync(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName, CancellationToken cancellationToken = default)
+        public async Task<Response<StreamingPathsResult>> ListPathsAsync(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -519,9 +627,9 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        GetPathsResult value = default;
+                        StreamingPathsResult value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = GetPathsResult.DeserializeGetPathsResult(document.RootElement);
+                        value = StreamingPathsResult.DeserializeStreamingPathsResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -537,7 +645,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="streamingLocatorName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="streamingLocatorName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<GetPathsResult> ListPaths(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName, CancellationToken cancellationToken = default)
+        public Response<StreamingPathsResult> ListPaths(string subscriptionId, string resourceGroupName, string accountName, string streamingLocatorName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -550,14 +658,22 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        GetPathsResult value = default;
+                        StreamingPathsResult value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = GetPathsResult.DeserializeGetPathsResult(document.RootElement);
+                        value = StreamingPathsResult.DeserializeStreamingPathsResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateListNextPageRequestUri(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendRawNextLink(nextLink, false);
+            return uri;
         }
 
         internal HttpMessage CreateListNextPageRequest(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)

@@ -26,7 +26,6 @@ namespace Azure.Messaging.ServiceBus.Tests.Client
             yield return new object[] { null, credential.Object };
             yield return new object[] { "", credential.Object };
             yield return new object[] { "FakeNamespace", null };
-            yield return new object[] { "sb://fakenamspace.com", credential.Object };
         }
 
         /// <summary>
@@ -40,7 +39,6 @@ namespace Azure.Messaging.ServiceBus.Tests.Client
             yield return new object[] { null, credential };
             yield return new object[] { "", credential };
             yield return new object[] { "FakeNamespace", null };
-            yield return new object[] { "sb://fakenamspace.com", credential };
         }
 
         /// <summary>
@@ -54,7 +52,6 @@ namespace Azure.Messaging.ServiceBus.Tests.Client
             yield return new object[] { null, credential };
             yield return new object[] { "", credential };
             yield return new object[] { "FakeNamespace", null };
-            yield return new object[] { "sb://fakenamspace.com", credential };
         }
 
         /// <summary>
@@ -409,6 +406,55 @@ namespace Azure.Messaging.ServiceBus.Tests.Client
 
         /// <summary>
         ///    Verifies functionality of the <see cref="ServiceBusClient" />
+        ///    constructor.
+        /// </summary>
+        ///
+        [Test]
+        public void ConstructorWithTokenCredentialParsesNamespaceFromUri()
+        {
+            var token = Mock.Of<TokenCredential>();
+            var host = "mynamespace.servicebus.windows.net";
+            var namespaceUri = $"sb://{ host }";
+            var client = new ServiceBusClient(namespaceUri, token);
+
+            Assert.That(client.FullyQualifiedNamespace, Is.EqualTo(host), "The constructor should parse the namespace from the URI");
+        }
+
+        /// <summary>
+        ///    Verifies functionality of the <see cref="ServiceBusClient" />
+        ///    constructor.
+        /// </summary>
+        ///
+        [Test]
+        public void ConstructorWithSharedKeyCredentialParsesNamespaceFromUri()
+        {
+            var token = new AzureNamedKeyCredential("key", "value");
+            var host = "mynamespace.servicebus.windows.net";
+            var namespaceUri = $"sb://{ host }";
+            var client = new ServiceBusClient(namespaceUri, token);
+
+            Assert.That(client.FullyQualifiedNamespace, Is.EqualTo(host), "The constructor should parse the namespace from the URI");
+        }
+
+        /// <summary>
+        ///    Verifies functionality of the <see cref="ServiceBusClient" />
+        ///    constructor.
+        /// </summary>
+        ///
+        [Test]
+        public void ConstructorWithSasCredentialParsesNamespaceFromUri()
+        {
+            var signature = new SharedAccessSignature("sb://fake.thing.com", "fakeKey", "fakeValue");
+            var token = new AzureSasCredential(signature.Value);
+            var host = "mynamespace.servicebus.windows.net";
+            var namespaceUri = $"sb://{ host }";
+            var client = new ServiceBusClient(namespaceUri, token);
+
+            Assert.That(client.FullyQualifiedNamespace, Is.EqualTo(host), "The constructor should parse the namespace from the URI");
+        }
+
+        /// <summary>
+        ///    Verifies functionality of the <see cref="ServiceBusClient" />
         /// </summary>
         ///
         [Test]
@@ -479,34 +525,6 @@ namespace Azure.Messaging.ServiceBus.Tests.Client
             Assert.That(
                 () => client.ValidateEntityName(entityName),
                 Throws.InstanceOf<ArgumentException>());
-        }
-
-        [Test]
-        public void CanMockMetricsProperty()
-        {
-            var mockClient = new Mock<ServiceBusClient>();
-            mockClient.Setup(
-                client => client.GetTransportMetrics()).Returns(new Mock<ServiceBusTransportMetrics>().Object);
-            var metrics = mockClient.Object.GetTransportMetrics();
-            Assert.IsNotNull(metrics);
-        }
-
-        [Test]
-        public void MetricsPropertyThrowsWhenNotEnabled()
-        {
-            var fakeConnection = $"Endpoint=sb://not-real.servicebus.windows.net/;SharedAccessKeyName=DummyKey;SharedAccessKey=[not_real]";
-            var client = new ServiceBusClient(fakeConnection);
-            Assert.That(
-                () => client.GetTransportMetrics(),
-                Throws.InstanceOf<InvalidOperationException>());
-        }
-
-        [Test]
-        public void MetricsPropertyDoesNotThrowWhenEnabled()
-        {
-            var fakeConnection = $"Endpoint=sb://not-real.servicebus.windows.net/;SharedAccessKeyName=DummyKey;SharedAccessKey=[not_real]";
-            var client = new ServiceBusClient(fakeConnection, new ServiceBusClientOptions {EnableTransportMetrics = true});
-            Assert.IsNotNull(client.GetTransportMetrics());
         }
 
         /// <summary>

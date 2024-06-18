@@ -8,13 +8,18 @@ azure-arm: true
 csharp: true
 library-name: Redis
 namespace: Azure.ResourceManager.Redis
-require: https://github.com/Azure/azure-rest-api-specs/blob/5419bfc41fe7a45955df3f342c4d5d81ea785a35/specification/redis/resource-manager/readme.md
-tag: package-2021-06
+require: https://github.com/Azure/azure-rest-api-specs/blob/dac9f85a47b0e4e759593f3a19968a732b911b47/specification/redis/resource-manager/readme.md
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
+sample-gen:
+  output-folder: $(this-folder)/../samples/Generated
+  clear-output-folder: true
 skip-csproj: true
 modelerfour:
   flatten-payloads: false
+  lenient-model-deduplication: true
+use-model-reader-writer: true
+enable-bicep-serialization: true
 
 rename-mapping:
   CheckNameAvailabilityParameters: RedisNameAvailabilityContent
@@ -38,7 +43,10 @@ rename-mapping:
   ReplicationRole: RedisLinkedServerRole
   RedisCommonPropertiesRedisConfiguration.rdb-backup-enabled: IsRdbBackupEnabled|boolean
   RedisCommonPropertiesRedisConfiguration.aof-backup-enabled: IsAofBackupEnabled|boolean
+  RedisCommonPropertiesRedisConfiguration.rdb-backup-max-snapshot-count: -|integer
   RedisForceRebootResponse: RedisForceRebootResult
+  RedisCacheAccessPolicyAssignment.properties.objectId: -|uuid
+  RedisCommonPropertiesRedisConfiguration.aad-enabled: IsAadEnabled
 
 prepend-rp-prefix:
   - OperationStatus
@@ -61,7 +69,7 @@ format-by-name-rules:
   '*Uri': 'Uri'
   '*Uris': 'Uri'
 
-rename-rules:
+acronym-mapping:
   CPU: Cpu
   CPUs: Cpus
   Os: OS
@@ -108,5 +116,8 @@ directive:
     where: $.definitions.OperationStatusResult
     transform: >
       $.properties.id['x-ms-format'] = 'arm-id';
-
+  - from: redis.json
+    where: $.definitions
+    transform: >
+      $.RedisProperties.properties.accessKeys["x-nullable"] = true;
 ```

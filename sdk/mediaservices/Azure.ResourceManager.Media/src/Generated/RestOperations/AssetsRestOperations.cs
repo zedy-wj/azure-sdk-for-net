@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.Media.Models;
@@ -33,8 +32,35 @@ namespace Azure.ResourceManager.Media
         {
             _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
-            _apiVersion = apiVersion ?? "2021-11-01";
+            _apiVersion = apiVersion ?? "2023-01-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListRequestUri(string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            if (filter != null)
+            {
+                uri.AppendQuery("$filter", filter, true);
+            }
+            if (top != null)
+            {
+                uri.AppendQuery("$top", top.Value, true);
+            }
+            if (orderby != null)
+            {
+                uri.AppendQuery("$orderby", orderby, true);
+            }
+            return uri;
         }
 
         internal HttpMessage CreateListRequest(string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)
@@ -80,7 +106,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<AssetListResult>> ListAsync(string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
+        public async Task<Response<MediaAssetListResult>> ListAsync(string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -92,9 +118,9 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        AssetListResult value = default;
+                        MediaAssetListResult value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = AssetListResult.DeserializeAssetListResult(document.RootElement);
+                        value = MediaAssetListResult.DeserializeMediaAssetListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -112,7 +138,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<AssetListResult> List(string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
+        public Response<MediaAssetListResult> List(string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -124,14 +150,30 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        AssetListResult value = default;
+                        MediaAssetListResult value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = AssetListResult.DeserializeAssetListResult(document.RootElement);
+                        value = MediaAssetListResult.DeserializeMediaAssetListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateGetRequestUri(string subscriptionId, string resourceGroupName, string accountName, string assetName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets/", false);
+            uri.AppendPath(assetName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateGetRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName)
@@ -222,6 +264,22 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateCreateOrUpdateRequestUri(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets/", false);
+            uri.AppendPath(assetName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetData data)
         {
             var message = _pipeline.CreateMessage();
@@ -242,7 +300,7 @@ namespace Azure.ResourceManager.Media
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(data);
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
@@ -314,6 +372,22 @@ namespace Azure.ResourceManager.Media
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateDeleteRequestUri(string subscriptionId, string resourceGroupName, string accountName, string assetName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets/", false);
+            uri.AppendPath(assetName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName)
@@ -392,6 +466,22 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateUpdateRequestUri(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets/", false);
+            uri.AppendPath(assetName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateUpdateRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetData data)
         {
             var message = _pipeline.CreateMessage();
@@ -412,7 +502,7 @@ namespace Azure.ResourceManager.Media
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(data);
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
@@ -484,7 +574,24 @@ namespace Azure.ResourceManager.Media
             }
         }
 
-        internal HttpMessage CreateListContainerSasRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName, GetContainerSasContent content)
+        internal RequestUriBuilder CreateListContainerSasRequestUri(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetStorageContainerSasContent content)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets/", false);
+            uri.AppendPath(assetName, true);
+            uri.AppendPath("/listContainerSas", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateListContainerSasRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetStorageContainerSasContent content)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -505,7 +612,7 @@ namespace Azure.ResourceManager.Media
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content0 = new Utf8JsonRequestContent();
-            content0.JsonWriter.WriteObjectValue(content);
+            content0.JsonWriter.WriteObjectValue(content, ModelSerializationExtensions.WireOptions);
             request.Content = content0;
             _userAgent.Apply(message);
             return message;
@@ -520,7 +627,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="assetName"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="assetName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<AssetContainerSas>> ListContainerSasAsync(string subscriptionId, string resourceGroupName, string accountName, string assetName, GetContainerSasContent content, CancellationToken cancellationToken = default)
+        public async Task<Response<AssetContainerSas>> ListContainerSasAsync(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetStorageContainerSasContent content, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -553,7 +660,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/>, <paramref name="assetName"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="accountName"/> or <paramref name="assetName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<AssetContainerSas> ListContainerSas(string subscriptionId, string resourceGroupName, string accountName, string assetName, GetContainerSasContent content, CancellationToken cancellationToken = default)
+        public Response<AssetContainerSas> ListContainerSas(string subscriptionId, string resourceGroupName, string accountName, string assetName, MediaAssetStorageContainerSasContent content, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -575,6 +682,23 @@ namespace Azure.ResourceManager.Media
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateGetEncryptionKeyRequestUri(string subscriptionId, string resourceGroupName, string accountName, string assetName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets/", false);
+            uri.AppendPath(assetName, true);
+            uri.AppendPath("/getEncryptionKey", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateGetEncryptionKeyRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName)
@@ -662,6 +786,23 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateListStreamingLocatorsRequestUri(string subscriptionId, string resourceGroupName, string accountName, string assetName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/Microsoft.Media/mediaServices/", false);
+            uri.AppendPath(accountName, true);
+            uri.AppendPath("/assets/", false);
+            uri.AppendPath(assetName, true);
+            uri.AppendPath("/listStreamingLocators", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateListStreamingLocatorsRequest(string subscriptionId, string resourceGroupName, string accountName, string assetName)
         {
             var message = _pipeline.CreateMessage();
@@ -747,6 +888,14 @@ namespace Azure.ResourceManager.Media
             }
         }
 
+        internal RequestUriBuilder CreateListNextPageRequestUri(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendRawNextLink(nextLink, false);
+            return uri;
+        }
+
         internal HttpMessage CreateListNextPageRequest(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter, int? top, string orderby)
         {
             var message = _pipeline.CreateMessage();
@@ -772,7 +921,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="nextLink"/>, <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<AssetListResult>> ListNextPageAsync(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
+        public async Task<Response<MediaAssetListResult>> ListNextPageAsync(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(nextLink, nameof(nextLink));
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
@@ -785,9 +934,9 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        AssetListResult value = default;
+                        MediaAssetListResult value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = AssetListResult.DeserializeAssetListResult(document.RootElement);
+                        value = MediaAssetListResult.DeserializeMediaAssetListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -806,7 +955,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="nextLink"/>, <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="accountName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<AssetListResult> ListNextPage(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
+        public Response<MediaAssetListResult> ListNextPage(string nextLink, string subscriptionId, string resourceGroupName, string accountName, string filter = null, int? top = null, string orderby = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(nextLink, nameof(nextLink));
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
@@ -819,9 +968,9 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        AssetListResult value = default;
+                        MediaAssetListResult value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = AssetListResult.DeserializeAssetListResult(document.RootElement);
+                        value = MediaAssetListResult.DeserializeMediaAssetListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:

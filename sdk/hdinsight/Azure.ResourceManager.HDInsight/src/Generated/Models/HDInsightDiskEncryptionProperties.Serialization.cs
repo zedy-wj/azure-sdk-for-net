@@ -6,111 +6,211 @@
 #nullable disable
 
 using System;
+using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
 
 namespace Azure.ResourceManager.HDInsight.Models
 {
-    public partial class HDInsightDiskEncryptionProperties : IUtf8JsonSerializable
+    public partial class HDInsightDiskEncryptionProperties : IUtf8JsonSerializable, IJsonModel<HDInsightDiskEncryptionProperties>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<HDInsightDiskEncryptionProperties>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<HDInsightDiskEncryptionProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightDiskEncryptionProperties>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(HDInsightDiskEncryptionProperties)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
             if (Optional.IsDefined(VaultUri))
             {
-                writer.WritePropertyName("vaultUri");
+                writer.WritePropertyName("vaultUri"u8);
                 writer.WriteStringValue(VaultUri.AbsoluteUri);
             }
             if (Optional.IsDefined(KeyName))
             {
-                writer.WritePropertyName("keyName");
+                writer.WritePropertyName("keyName"u8);
                 writer.WriteStringValue(KeyName);
             }
             if (Optional.IsDefined(KeyVersion))
             {
-                writer.WritePropertyName("keyVersion");
+                writer.WritePropertyName("keyVersion"u8);
                 writer.WriteStringValue(KeyVersion);
             }
             if (Optional.IsDefined(EncryptionAlgorithm))
             {
-                writer.WritePropertyName("encryptionAlgorithm");
-                writer.WriteStringValue(EncryptionAlgorithm.Value.ToString());
+                if (EncryptionAlgorithm != null)
+                {
+                    writer.WritePropertyName("encryptionAlgorithm"u8);
+                    writer.WriteStringValue(EncryptionAlgorithm.Value.ToString());
+                }
+                else
+                {
+                    writer.WriteNull("encryptionAlgorithm");
+                }
             }
             if (Optional.IsDefined(MsiResourceId))
             {
-                writer.WritePropertyName("msiResourceId");
-                writer.WriteStringValue(MsiResourceId);
+                if (MsiResourceId != null)
+                {
+                    writer.WritePropertyName("msiResourceId"u8);
+                    writer.WriteStringValue(MsiResourceId);
+                }
+                else
+                {
+                    writer.WriteNull("msiResourceId");
+                }
             }
-            if (Optional.IsDefined(EncryptionAtHost))
+            if (Optional.IsDefined(IsEncryptionAtHostEnabled))
             {
-                writer.WritePropertyName("encryptionAtHost");
-                writer.WriteBooleanValue(EncryptionAtHost.Value);
+                writer.WritePropertyName("encryptionAtHost"u8);
+                writer.WriteBooleanValue(IsEncryptionAtHostEnabled.Value);
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
             writer.WriteEndObject();
         }
 
-        internal static HDInsightDiskEncryptionProperties DeserializeHDInsightDiskEncryptionProperties(JsonElement element)
+        HDInsightDiskEncryptionProperties IJsonModel<HDInsightDiskEncryptionProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            Optional<Uri> vaultUri = default;
-            Optional<string> keyName = default;
-            Optional<string> keyVersion = default;
-            Optional<JsonWebKeyEncryptionAlgorithm> encryptionAlgorithm = default;
-            Optional<ResourceIdentifier> msiResourceId = default;
-            Optional<bool> encryptionAtHost = default;
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightDiskEncryptionProperties>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(HDInsightDiskEncryptionProperties)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeHDInsightDiskEncryptionProperties(document.RootElement, options);
+        }
+
+        internal static HDInsightDiskEncryptionProperties DeserializeHDInsightDiskEncryptionProperties(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            Uri vaultUri = default;
+            string keyName = default;
+            string keyVersion = default;
+            JsonWebKeyEncryptionAlgorithm? encryptionAlgorithm = default;
+            ResourceIdentifier msiResourceId = default;
+            bool? encryptionAtHost = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("vaultUri"))
+                if (property.NameEquals("vaultUri"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        vaultUri = null;
                         continue;
                     }
                     vaultUri = new Uri(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("keyName"))
+                if (property.NameEquals("keyName"u8))
                 {
                     keyName = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("keyVersion"))
+                if (property.NameEquals("keyVersion"u8))
                 {
                     keyVersion = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("encryptionAlgorithm"))
+                if (property.NameEquals("encryptionAlgorithm"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
+                        encryptionAlgorithm = null;
                         continue;
                     }
                     encryptionAlgorithm = new JsonWebKeyEncryptionAlgorithm(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("msiResourceId"))
+                if (property.NameEquals("msiResourceId"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
+                        msiResourceId = null;
                         continue;
                     }
                     msiResourceId = new ResourceIdentifier(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("encryptionAtHost"))
+                if (property.NameEquals("encryptionAtHost"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     encryptionAtHost = property.Value.GetBoolean();
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new HDInsightDiskEncryptionProperties(vaultUri.Value, keyName.Value, keyVersion.Value, Optional.ToNullable(encryptionAlgorithm), msiResourceId.Value, Optional.ToNullable(encryptionAtHost));
+            serializedAdditionalRawData = rawDataDictionary;
+            return new HDInsightDiskEncryptionProperties(
+                vaultUri,
+                keyName,
+                keyVersion,
+                encryptionAlgorithm,
+                msiResourceId,
+                encryptionAtHost,
+                serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<HDInsightDiskEncryptionProperties>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightDiskEncryptionProperties>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(HDInsightDiskEncryptionProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        HDInsightDiskEncryptionProperties IPersistableModel<HDInsightDiskEncryptionProperties>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<HDInsightDiskEncryptionProperties>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeHDInsightDiskEncryptionProperties(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(HDInsightDiskEncryptionProperties)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<HDInsightDiskEncryptionProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading;
 using Azure.Core;
 
 namespace Azure.Messaging.ServiceBus
@@ -35,7 +36,7 @@ namespace Azure.Messaging.ServiceBus
                 _prefetchCount = value;
             }
         }
-        private int _prefetchCount;
+        private volatile int _prefetchCount;
 
         /// <summary>
         /// Gets or sets the <see cref="ReceiveMode"/> used to specify how messages
@@ -62,6 +63,7 @@ namespace Azure.Messaging.ServiceBus
         /// <summary>
         /// Gets or sets the maximum duration within which the lock will be renewed automatically. This
         /// value should be greater than the longest message lock duration; for example, the LockDuration Property.
+        /// To specify an infinite duration, use <see cref="Timeout.InfiniteTimeSpan"/>.
         /// </summary>
         ///
         /// <value>The maximum duration during which message locks are automatically renewed. The default value is 5 minutes.</value>
@@ -77,7 +79,10 @@ namespace Azure.Messaging.ServiceBus
 
             set
             {
-                Argument.AssertNotNegative(value, nameof(MaxAutoLockRenewalDuration));
+                if (value != Timeout.InfiniteTimeSpan)
+                {
+                    Argument.AssertNotNegative(value, nameof(MaxAutoLockRenewalDuration));
+                }
                 _maxAutoRenewDuration = value;
             }
         }
@@ -124,7 +129,7 @@ namespace Azure.Messaging.ServiceBus
                 _maxConcurrentCalls = value;
             }
         }
-        private int _maxConcurrentCalls = 1;
+        private volatile int _maxConcurrentCalls = 1;
 
         /// <summary>
         /// Gets or sets the subqueue to connect the processor to.

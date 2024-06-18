@@ -106,7 +106,7 @@ namespace Azure.Storage.Files.Shares
                 LastModified = response.Headers.LastModified.GetValueOrDefault(),
                 SmbProperties = new FileSmbProperties
                 {
-                    FileAttributes = ToFileAttributes(response.Headers.FileAttributes),
+                    FileAttributes = ShareModelExtensions.ToFileAttributes(response.Headers.FileAttributes),
                     FilePermissionKey = response.Headers.FilePermissionKey,
                     FileCreatedOn = response.Headers.FileCreationTime,
                     FileLastWrittenOn = response.Headers.FileLastWriteTime,
@@ -131,7 +131,7 @@ namespace Azure.Storage.Files.Shares
                 IsServerEncrypted = response.Headers.IsServerEncrypted.GetValueOrDefault(),
                 SmbProperties = new FileSmbProperties()
                 {
-                    FileAttributes = ToFileAttributes(response.Headers.FileAttributes),
+                    FileAttributes = ShareModelExtensions.ToFileAttributes(response.Headers.FileAttributes),
                     FilePermissionKey = response.Headers.FilePermissionKey,
                     FileCreatedOn = response.Headers.FileCreationTime,
                     FileLastWrittenOn = response.Headers.FileLastWriteTime,
@@ -154,7 +154,7 @@ namespace Azure.Storage.Files.Shares
                 LastModified = response.Headers.LastModified.GetValueOrDefault(),
                 SmbProperties = new FileSmbProperties
                 {
-                    FileAttributes = ToFileAttributes(response.Headers.FileAttributes),
+                    FileAttributes = ShareModelExtensions.ToFileAttributes(response.Headers.FileAttributes),
                     FilePermissionKey = response.Headers.FilePermissionKey,
                     FileCreatedOn = response.Headers.FileCreationTime,
                     FileLastWrittenOn = response.Headers.FileLastWriteTime,
@@ -191,8 +191,70 @@ namespace Azure.Storage.Files.Shares
             return new StorageHandlesSegment()
             {
                 NextMarker = listHandlesResponse.NextMarker,
-                Handles = listHandlesResponse.HandleList.ToList()
+                Handles = listHandlesResponse.HandleList.ToShareFileHandles()
             };
+        }
+
+        internal static List<ShareFileHandle> ToShareFileHandles(this IReadOnlyList<HandleItem> handleItems)
+        {
+            if (handleItems == null)
+            {
+                return null;
+            }
+            List<ShareFileHandle> list = new List<ShareFileHandle>();
+            foreach (HandleItem handleItem in handleItems)
+            {
+                list.Add(handleItem.ToShareFileHandle());
+            }
+            return list;
+        }
+
+        internal static ShareFileHandle ToShareFileHandle(this HandleItem handleItem)
+        {
+            if (handleItem == null)
+            {
+                return null;
+            }
+
+            return new ShareFileHandle(
+                handleId: handleItem.HandleId,
+                path: handleItem.Path.Encoded == true ? Uri.UnescapeDataString(handleItem.Path.Content) : handleItem.Path.Content,
+                fileId: handleItem.FileId,
+                parentId: handleItem.ParentId,
+                sessionId: handleItem.SessionId,
+                clientIp: handleItem.ClientIp,
+                clientName: handleItem.ClientName,
+                openedOn: handleItem.OpenTime,
+                lastReconnectedOn: handleItem.LastReconnectTime,
+                accessRights: handleItem.AccessRightList.ToShareFileHandleAccessRight());
+        }
+
+        internal static ShareFileHandleAccessRights? ToShareFileHandleAccessRight(this IReadOnlyList<AccessRight> accessRightList)
+        {
+            if (accessRightList == null)
+            {
+                return null;
+            }
+
+            ShareFileHandleAccessRights accessRights = 0;
+
+            foreach (AccessRight accessRight in accessRightList)
+            {
+                if (accessRight == AccessRight.Read)
+                {
+                    accessRights |= ShareFileHandleAccessRights.Read;
+                }
+                else if (accessRight == AccessRight.Write)
+                {
+                    accessRights |= ShareFileHandleAccessRights.Write;
+                }
+                else if (accessRight == AccessRight.Delete)
+                {
+                    accessRights |= ShareFileHandleAccessRights.Delete;
+                }
+            }
+
+            return accessRights;
         }
 
         internal static StorageClosedHandlesSegment ToStorageClosedHandlesSegment(this ResponseWithHeaders<DirectoryForceCloseHandlesHeaders> response)
@@ -224,7 +286,7 @@ namespace Azure.Storage.Files.Shares
                 IsServerEncrypted = response.Headers.IsServerEncrypted.GetValueOrDefault(),
                 SmbProperties = new FileSmbProperties()
                 {
-                    FileAttributes = ToFileAttributes(response.Headers.FileAttributes),
+                    FileAttributes = ShareModelExtensions.ToFileAttributes(response.Headers.FileAttributes),
                     FilePermissionKey = response.Headers.FilePermissionKey,
                     FileCreatedOn = response.Headers.FileCreationTime,
                     FileLastWrittenOn = response.Headers.FileLastWriteTime,
@@ -275,7 +337,7 @@ namespace Azure.Storage.Files.Shares
                 IsServerEncrypted = response.Headers.IsServerEncrypted.GetValueOrDefault(),
                 SmbProperties = new FileSmbProperties
                 {
-                    FileAttributes = ToFileAttributes(response.Headers.FileAttributes),
+                    FileAttributes = ShareModelExtensions.ToFileAttributes(response.Headers.FileAttributes),
                     FilePermissionKey = response.Headers.FilePermissionKey,
                     FileCreatedOn = response.Headers.FileCreationTime,
                     FileLastWrittenOn = response.Headers.FileLastWriteTime,
@@ -314,7 +376,7 @@ namespace Azure.Storage.Files.Shares
                 IsServerEncrypted = response.Headers.IsServerEncrypted.GetValueOrDefault(),
                 SmbProperties = new FileSmbProperties
                 {
-                    FileAttributes = ToFileAttributes(response.Headers.FileAttributes),
+                    FileAttributes = ShareModelExtensions.ToFileAttributes(response.Headers.FileAttributes),
                     FilePermissionKey = response.Headers.FilePermissionKey,
                     FileCreatedOn = response.Headers.FileCreationTime,
                     FileLastWrittenOn = response.Headers.FileLastWriteTime,
@@ -646,8 +708,9 @@ namespace Azure.Storage.Files.Shares
                 LeaseDuration = response.Headers.LeaseDuration,
                 Protocols =  ToShareEnabledProtocols(response.Headers.EnabledProtocols),
                 RootSquash = response.Headers.RootSquash,
+                Metadata = response.Headers.Metadata,
+                EnableSnapshotVirtualDirectoryAccess = response.Headers.EnableSnapshotVirtualDirectoryAccess,
                 QuotaInGB = response.Headers.Quota,
-                Metadata = response.Headers.Metadata
             };
         }
 
@@ -759,8 +822,9 @@ namespace Azure.Storage.Files.Shares
                 LeaseDuration = sharePropertiesInternal.LeaseDuration,
                 Protocols = ToShareEnabledProtocols(sharePropertiesInternal.EnabledProtocols),
                 RootSquash = sharePropertiesInternal.RootSquash,
+                Metadata = metadata,
+                EnableSnapshotVirtualDirectoryAccess = sharePropertiesInternal.EnableSnapshotVirtualDirectoryAccess,
                 QuotaInGB = sharePropertiesInternal.Quota,
-                Metadata = metadata
             };
         }
 
@@ -798,7 +862,7 @@ namespace Azure.Storage.Files.Shares
                     LeaseStatus = response.Headers.LeaseStatus.GetValueOrDefault(),
                     SmbProperties = new FileSmbProperties
                     {
-                        FileAttributes = ToFileAttributes(response.Headers.FileAttributes),
+                        FileAttributes = ShareModelExtensions.ToFileAttributes(response.Headers.FileAttributes),
                         FilePermissionKey = response.Headers.FilePermissionKey,
                         FileCreatedOn = response.Headers.FileCreationTime,
                         FileLastWrittenOn = response.Headers.FileLastWriteTime,
@@ -858,10 +922,10 @@ namespace Azure.Storage.Files.Shares
 
             return new ShareFileItem(
                 isDirectory: true,
-                name: directoryItem.Name,
+                name: directoryItem.Name.Encoded == true ? Uri.UnescapeDataString(directoryItem.Name.Content) : directoryItem.Name.Content,
                 id: directoryItem.FileId,
                 properties: directoryItem.Properties.ToShareFileItemProperties(),
-                fileAttributes: ToFileAttributes(directoryItem.Attributes),
+                fileAttributes: ShareModelExtensions.ToFileAttributes(directoryItem.Attributes),
                 permissionKey: directoryItem.PermissionKey,
                 fileSize: null);
         }
@@ -875,10 +939,10 @@ namespace Azure.Storage.Files.Shares
 
             return new ShareFileItem(
                 isDirectory: false,
-                name: fileItem.Name,
+                name: fileItem.Name.Encoded == true ? Uri.UnescapeDataString(fileItem.Name.Content) : fileItem.Name.Content,
                 id: fileItem.FileId,
                 properties: fileItem.Properties.ToShareFileItemProperties(),
-                fileAttributes: ToFileAttributes(fileItem.Attributes),
+                fileAttributes: ShareModelExtensions.ToFileAttributes(fileItem.Attributes),
                 permissionKey: fileItem.PermissionKey,
                 fileSize: fileItem.Properties.ContentLength);
         }

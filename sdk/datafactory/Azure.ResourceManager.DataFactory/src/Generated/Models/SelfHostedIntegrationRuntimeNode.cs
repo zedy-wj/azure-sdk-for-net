@@ -7,21 +7,20 @@
 
 using System;
 using System.Collections.Generic;
-using Azure.Core;
 
 namespace Azure.ResourceManager.DataFactory.Models
 {
     /// <summary> Properties of Self-hosted integration runtime node. </summary>
     public partial class SelfHostedIntegrationRuntimeNode
     {
-        /// <summary> Initializes a new instance of SelfHostedIntegrationRuntimeNode. </summary>
+        /// <summary> Initializes a new instance of <see cref="SelfHostedIntegrationRuntimeNode"/>. </summary>
         internal SelfHostedIntegrationRuntimeNode()
         {
             Capabilities = new ChangeTrackingDictionary<string, string>();
             AdditionalProperties = new ChangeTrackingDictionary<string, BinaryData>();
         }
 
-        /// <summary> Initializes a new instance of SelfHostedIntegrationRuntimeNode. </summary>
+        /// <summary> Initializes a new instance of <see cref="SelfHostedIntegrationRuntimeNode"/>. </summary>
         /// <param name="nodeName"> Name of the integration runtime node. </param>
         /// <param name="machineName"> Machine name of the integration runtime node. </param>
         /// <param name="hostServiceUri"> URI for the host machine of the integration runtime. </param>
@@ -100,7 +99,36 @@ namespace Azure.ResourceManager.DataFactory.Models
         public int? ConcurrentJobsLimit { get; }
         /// <summary> The maximum concurrent jobs in this integration runtime. </summary>
         public int? MaxConcurrentJobs { get; }
-        /// <summary> Additional Properties. </summary>
+        /// <summary>
+        /// Additional Properties
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
         public IReadOnlyDictionary<string, BinaryData> AdditionalProperties { get; }
     }
 }

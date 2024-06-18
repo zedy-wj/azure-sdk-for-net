@@ -28,6 +28,9 @@ namespace Azure.ResourceManager.Network.Models
         private const string ExternalAddressValue = "ExternalAddress";
         private const string MMAWorkspaceMachineValue = "MMAWorkspaceMachine";
         private const string MMAWorkspaceNetworkValue = "MMAWorkspaceNetwork";
+        private const string AzureArcVmValue = "AzureArcVM";
+        private const string AzureVmssValue = "AzureVMSS";
+        private const string AzureArcNetworkValue = "AzureArcNetwork";
 
         /// <summary> AzureVM. </summary>
         public static ConnectionMonitorEndpointType AzureVm { get; } = new ConnectionMonitorEndpointType(AzureVmValue);
@@ -41,6 +44,12 @@ namespace Azure.ResourceManager.Network.Models
         public static ConnectionMonitorEndpointType MMAWorkspaceMachine { get; } = new ConnectionMonitorEndpointType(MMAWorkspaceMachineValue);
         /// <summary> MMAWorkspaceNetwork. </summary>
         public static ConnectionMonitorEndpointType MMAWorkspaceNetwork { get; } = new ConnectionMonitorEndpointType(MMAWorkspaceNetworkValue);
+        /// <summary> AzureArcVM. </summary>
+        public static ConnectionMonitorEndpointType AzureArcVm { get; } = new ConnectionMonitorEndpointType(AzureArcVmValue);
+        /// <summary> AzureVMSS. </summary>
+        public static ConnectionMonitorEndpointType AzureVmss { get; } = new ConnectionMonitorEndpointType(AzureVmssValue);
+        /// <summary> AzureArcNetwork. </summary>
+        public static ConnectionMonitorEndpointType AzureArcNetwork { get; } = new ConnectionMonitorEndpointType(AzureArcNetworkValue);
         /// <summary> Determines if two <see cref="ConnectionMonitorEndpointType"/> values are the same. </summary>
         public static bool operator ==(ConnectionMonitorEndpointType left, ConnectionMonitorEndpointType right) => left.Equals(right);
         /// <summary> Determines if two <see cref="ConnectionMonitorEndpointType"/> values are not the same. </summary>

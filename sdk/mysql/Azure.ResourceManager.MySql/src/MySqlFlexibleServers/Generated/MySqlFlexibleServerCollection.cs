@@ -9,21 +9,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
+using Autorest.CSharp.Core;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 
 namespace Azure.ResourceManager.MySql.FlexibleServers
 {
     /// <summary>
-    /// A class representing a collection of <see cref="MySqlFlexibleServerResource" /> and their operations.
-    /// Each <see cref="MySqlFlexibleServerResource" /> in the collection will belong to the same instance of <see cref="ResourceGroupResource" />.
-    /// To get a <see cref="MySqlFlexibleServerCollection" /> instance call the GetMySqlFlexibleServers method from an instance of <see cref="ResourceGroupResource" />.
+    /// A class representing a collection of <see cref="MySqlFlexibleServerResource"/> and their operations.
+    /// Each <see cref="MySqlFlexibleServerResource"/> in the collection will belong to the same instance of <see cref="ResourceGroupResource"/>.
+    /// To get a <see cref="MySqlFlexibleServerCollection"/> instance call the GetMySqlFlexibleServers method from an instance of <see cref="ResourceGroupResource"/>.
     /// </summary>
     public partial class MySqlFlexibleServerCollection : ArmCollection, IEnumerable<MySqlFlexibleServerResource>, IAsyncEnumerable<MySqlFlexibleServerResource>
     {
@@ -60,8 +58,24 @@ namespace Azure.ResourceManager.MySql.FlexibleServers
 
         /// <summary>
         /// Creates a new server or updates an existing server. The update action will overwrite the existing server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}
-        /// Operation Id: Servers_Create
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Create</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="serverName"> The name of the server. </param>
@@ -93,8 +107,24 @@ namespace Azure.ResourceManager.MySql.FlexibleServers
 
         /// <summary>
         /// Creates a new server or updates an existing server. The update action will overwrite the existing server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}
-        /// Operation Id: Servers_Create
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Create</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="waitUntil"> <see cref="WaitUntil.Completed"/> if the method should wait to return until the long-running operation has completed on the service; <see cref="WaitUntil.Started"/> if it should return after starting the operation. For more information on long-running operations, please see <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/LongRunningOperations.md"> Azure.Core Long-Running Operation samples</see>. </param>
         /// <param name="serverName"> The name of the server. </param>
@@ -126,8 +156,24 @@ namespace Azure.ResourceManager.MySql.FlexibleServers
 
         /// <summary>
         /// Gets information about a server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}
-        /// Operation Id: Servers_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="serverName"> The name of the server. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -155,8 +201,24 @@ namespace Azure.ResourceManager.MySql.FlexibleServers
 
         /// <summary>
         /// Gets information about a server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}
-        /// Operation Id: Servers_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="serverName"> The name of the server. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -184,186 +246,146 @@ namespace Azure.ResourceManager.MySql.FlexibleServers
 
         /// <summary>
         /// List all the servers in a given resource group.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers
-        /// Operation Id: Servers_ListByResourceGroup
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_ListByResourceGroup</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> An async collection of <see cref="MySqlFlexibleServerResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> An async collection of <see cref="MySqlFlexibleServerResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual AsyncPageable<MySqlFlexibleServerResource> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            async Task<Page<MySqlFlexibleServerResource>> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _mySqlFlexibleServerServersClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _mySqlFlexibleServerServersRestClient.ListByResourceGroupAsync(Id.SubscriptionId, Id.ResourceGroupName, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            async Task<Page<MySqlFlexibleServerResource>> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _mySqlFlexibleServerServersClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = await _mySqlFlexibleServerServersRestClient.ListByResourceGroupNextPageAsync(nextLink, Id.SubscriptionId, Id.ResourceGroupName, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateAsyncEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _mySqlFlexibleServerServersRestClient.CreateListByResourceGroupRequest(Id.SubscriptionId, Id.ResourceGroupName);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _mySqlFlexibleServerServersRestClient.CreateListByResourceGroupNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName);
+            return GeneratorPageableHelpers.CreateAsyncPageable(FirstPageRequest, NextPageRequest, e => new MySqlFlexibleServerResource(Client, MySqlFlexibleServerData.DeserializeMySqlFlexibleServerData(e)), _mySqlFlexibleServerServersClientDiagnostics, Pipeline, "MySqlFlexibleServerCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// List all the servers in a given resource group.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers
-        /// Operation Id: Servers_ListByResourceGroup
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_ListByResourceGroup</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <returns> A collection of <see cref="MySqlFlexibleServerResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> A collection of <see cref="MySqlFlexibleServerResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual Pageable<MySqlFlexibleServerResource> GetAll(CancellationToken cancellationToken = default)
         {
-            Page<MySqlFlexibleServerResource> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _mySqlFlexibleServerServersClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _mySqlFlexibleServerServersRestClient.ListByResourceGroup(Id.SubscriptionId, Id.ResourceGroupName, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            Page<MySqlFlexibleServerResource> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _mySqlFlexibleServerServersClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetAll");
-                scope.Start();
-                try
-                {
-                    var response = _mySqlFlexibleServerServersRestClient.ListByResourceGroupNextPage(nextLink, Id.SubscriptionId, Id.ResourceGroupName, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _mySqlFlexibleServerServersRestClient.CreateListByResourceGroupRequest(Id.SubscriptionId, Id.ResourceGroupName);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _mySqlFlexibleServerServersRestClient.CreateListByResourceGroupNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName);
+            return GeneratorPageableHelpers.CreatePageable(FirstPageRequest, NextPageRequest, e => new MySqlFlexibleServerResource(Client, MySqlFlexibleServerData.DeserializeMySqlFlexibleServerData(e)), _mySqlFlexibleServerServersClientDiagnostics, Pipeline, "MySqlFlexibleServerCollection.GetAll", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// List all the replicas for a given server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}/replicas
-        /// Operation Id: Replicas_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}/replicas</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Replicas_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="serverName"> The name of the server. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentException"> <paramref name="serverName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="serverName"/> is null. </exception>
-        /// <returns> An async collection of <see cref="MySqlFlexibleServerResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> An async collection of <see cref="MySqlFlexibleServerResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual AsyncPageable<MySqlFlexibleServerResource> GetReplicasAsync(string serverName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(serverName, nameof(serverName));
 
-            async Task<Page<MySqlFlexibleServerResource>> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _replicasClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetReplicas");
-                scope.Start();
-                try
-                {
-                    var response = await _replicasRestClient.ListByServerAsync(Id.SubscriptionId, Id.ResourceGroupName, serverName, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            async Task<Page<MySqlFlexibleServerResource>> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _replicasClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetReplicas");
-                scope.Start();
-                try
-                {
-                    var response = await _replicasRestClient.ListByServerNextPageAsync(nextLink, Id.SubscriptionId, Id.ResourceGroupName, serverName, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateAsyncEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _replicasRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, serverName);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _replicasRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, serverName);
+            return GeneratorPageableHelpers.CreateAsyncPageable(FirstPageRequest, NextPageRequest, e => new MySqlFlexibleServerResource(Client, MySqlFlexibleServerData.DeserializeMySqlFlexibleServerData(e)), _replicasClientDiagnostics, Pipeline, "MySqlFlexibleServerCollection.GetReplicas", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// List all the replicas for a given server.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}/replicas
-        /// Operation Id: Replicas_ListByServer
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}/replicas</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Replicas_ListByServer</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="serverName"> The name of the server. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentException"> <paramref name="serverName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="serverName"/> is null. </exception>
-        /// <returns> A collection of <see cref="MySqlFlexibleServerResource" /> that may take multiple service requests to iterate over. </returns>
+        /// <returns> A collection of <see cref="MySqlFlexibleServerResource"/> that may take multiple service requests to iterate over. </returns>
         public virtual Pageable<MySqlFlexibleServerResource> GetReplicas(string serverName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(serverName, nameof(serverName));
 
-            Page<MySqlFlexibleServerResource> FirstPageFunc(int? pageSizeHint)
-            {
-                using var scope = _replicasClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetReplicas");
-                scope.Start();
-                try
-                {
-                    var response = _replicasRestClient.ListByServer(Id.SubscriptionId, Id.ResourceGroupName, serverName, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            Page<MySqlFlexibleServerResource> NextPageFunc(string nextLink, int? pageSizeHint)
-            {
-                using var scope = _replicasClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetReplicas");
-                scope.Start();
-                try
-                {
-                    var response = _replicasRestClient.ListByServerNextPage(nextLink, Id.SubscriptionId, Id.ResourceGroupName, serverName, cancellationToken: cancellationToken);
-                    return Page.FromValues(response.Value.Value.Select(value => new MySqlFlexibleServerResource(Client, value)), response.Value.NextLink, response.GetRawResponse());
-                }
-                catch (Exception e)
-                {
-                    scope.Failed(e);
-                    throw;
-                }
-            }
-            return PageableHelpers.CreateEnumerable(FirstPageFunc, NextPageFunc);
+            HttpMessage FirstPageRequest(int? pageSizeHint) => _replicasRestClient.CreateListByServerRequest(Id.SubscriptionId, Id.ResourceGroupName, serverName);
+            HttpMessage NextPageRequest(int? pageSizeHint, string nextLink) => _replicasRestClient.CreateListByServerNextPageRequest(nextLink, Id.SubscriptionId, Id.ResourceGroupName, serverName);
+            return GeneratorPageableHelpers.CreatePageable(FirstPageRequest, NextPageRequest, e => new MySqlFlexibleServerResource(Client, MySqlFlexibleServerData.DeserializeMySqlFlexibleServerData(e)), _replicasClientDiagnostics, Pipeline, "MySqlFlexibleServerCollection.GetReplicas", "value", "nextLink", cancellationToken);
         }
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}
-        /// Operation Id: Servers_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="serverName"> The name of the server. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -389,8 +411,24 @@ namespace Azure.ResourceManager.MySql.FlexibleServers
 
         /// <summary>
         /// Checks to see if the resource exists in azure.
-        /// Request Path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}
-        /// Operation Id: Servers_Get
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
         /// </summary>
         /// <param name="serverName"> The name of the server. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
@@ -406,6 +444,96 @@ namespace Azure.ResourceManager.MySql.FlexibleServers
             {
                 var response = _mySqlFlexibleServerServersRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, serverName, cancellationToken: cancellationToken);
                 return Response.FromValue(response.Value != null, response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="serverName"> The name of the server. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="serverName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="serverName"/> is null. </exception>
+        public virtual async Task<NullableResponse<MySqlFlexibleServerResource>> GetIfExistsAsync(string serverName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(serverName, nameof(serverName));
+
+            using var scope = _mySqlFlexibleServerServersClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = await _mySqlFlexibleServerServersRestClient.GetAsync(Id.SubscriptionId, Id.ResourceGroupName, serverName, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (response.Value == null)
+                    return new NoValueResponse<MySqlFlexibleServerResource>(response.GetRawResponse());
+                return Response.FromValue(new MySqlFlexibleServerResource(Client, response.Value), response.GetRawResponse());
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get details for this resource from the service.
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/flexibleServers/{serverName}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>Servers_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2023-12-01-preview</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="MySqlFlexibleServerResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="serverName"> The name of the server. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentException"> <paramref name="serverName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="serverName"/> is null. </exception>
+        public virtual NullableResponse<MySqlFlexibleServerResource> GetIfExists(string serverName, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(serverName, nameof(serverName));
+
+            using var scope = _mySqlFlexibleServerServersClientDiagnostics.CreateScope("MySqlFlexibleServerCollection.GetIfExists");
+            scope.Start();
+            try
+            {
+                var response = _mySqlFlexibleServerServersRestClient.Get(Id.SubscriptionId, Id.ResourceGroupName, serverName, cancellationToken: cancellationToken);
+                if (response.Value == null)
+                    return new NoValueResponse<MySqlFlexibleServerResource>(response.GetRawResponse());
+                return Response.FromValue(new MySqlFlexibleServerResource(Client, response.Value), response.GetRawResponse());
             }
             catch (Exception e)
             {

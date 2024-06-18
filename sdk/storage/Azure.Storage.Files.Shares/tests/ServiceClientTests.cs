@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure.Core.TestFramework;
+using Azure.Identity;
 using Azure.Storage.Files.Shares.Models;
 using Azure.Storage.Sas;
 using Azure.Storage.Test;
-using Azure.Storage.Test.Shared;
 using Moq;
 using NUnit.Framework;
 
@@ -93,10 +93,10 @@ namespace Azure.Storage.Files.Shares.Tests
             // Arrange
             ShareServiceClient service = InstrumentClient(
                 new ShareServiceClient(
-                    s_invalidUri,
+                    new Uri(TestConfigDefault.FileServiceEndpoint),
                     new StorageSharedKeyCredential(
                         TestConfigDefault.AccountName,
-                        TestConfigDefault.AccountKey),
+                        TestConstants.InvalidAccountKey),
                     GetOptions()));
 
             // Act
@@ -105,9 +105,9 @@ namespace Azure.Storage.Files.Shares.Tests
                 e => Assert.AreEqual(ShareErrorCode.AuthenticationFailed.ToString(), e.ErrorCode));
         }
 
+        [Ignore("https://github.com/Azure/azure-sdk-for-net/issues/25266")]
         [RecordedTest]
         [NonParallelizable]
-        [Ignore("https://github.com/Azure/azure-sdk-for-net/issues/15505")]
         public async Task SetPropertiesAsync()
         {
             // Arrange
@@ -137,6 +137,7 @@ namespace Azure.Storage.Files.Shares.Tests
         [RecordedTest]
         [ServiceVersion(Min = ShareClientOptions.ServiceVersion.V2019_12_12)]
         [NonParallelizable]
+        [Category("NonVirtualized")]
         public async Task GetSetServicePropertiesAsync_SmbMultiChannel()
         {
             // Arrange
@@ -171,10 +172,10 @@ namespace Azure.Storage.Files.Shares.Tests
             Response<ShareServiceProperties> properties = await service.GetPropertiesAsync();
             ShareServiceClient fakeService = InstrumentClient(
                 new ShareServiceClient(
-                    new Uri("https://error.file.core.windows.net"),
+                    new Uri(TestConfigDefault.FileServiceEndpoint),
                     new StorageSharedKeyCredential(
                         TestConfigDefault.AccountName,
-                        TestConfigDefault.AccountKey),
+                        TestConstants.InvalidAccountKey),
                     GetOptions()));
 
             // Act
@@ -207,6 +208,7 @@ namespace Azure.Storage.Files.Shares.Tests
         }
 
         [RecordedTest]
+        [Category("NonVirtualized")]
         [ServiceVersion(Min = ShareClientOptions.ServiceVersion.V2021_02_12)]
         public async Task ListSharesSegmentAsync_Premium()
         {
@@ -317,10 +319,10 @@ namespace Azure.Storage.Files.Shares.Tests
             // Arrange
             ShareServiceClient service = InstrumentClient(
                 new ShareServiceClient(
-                    new Uri("https://error.file.core.windows.net"),
+                    new Uri(TestConfigDefault.FileServiceEndpoint),
                     new StorageSharedKeyCredential(
                         TestConfigDefault.AccountName,
-                        TestConfigDefault.AccountKey),
+                        TestConstants.InvalidAccountKey),
                     GetOptions()));
 
             // Act
@@ -353,6 +355,38 @@ namespace Azure.Storage.Files.Shares.Tests
             ShareItem shareItem = shares.Where(s => s.Name == share.Name).FirstOrDefault();
             Assert.AreEqual(ShareProtocols.Nfs, shareItem.Properties.Protocols);
             Assert.AreEqual(ShareRootSquash.AllSquash, shareItem.Properties.RootSquash);
+        }
+
+        [RecordedTest]
+        [ServiceVersion(Min = ShareClientOptions.ServiceVersion.V2024_02_04)]
+        public async Task ListShares_EnableSnapshotVirtualDirectoryAccess()
+        {
+            // Arrange
+            var shareName = GetNewShareName();
+            ShareServiceClient service = SharesClientBuilder.GetServiceClient_PremiumFile();
+            ShareClient share = InstrumentClient(service.GetShareClient(shareName));
+            ShareCreateOptions options = new ShareCreateOptions
+            {
+                Protocols = ShareProtocols.Nfs,
+                EnableSnapshotVirtualDirectoryAccess = true,
+            };
+
+            try
+            {
+                await share.CreateAsync(options);
+
+                // Act
+                IList<ShareItem> shares = await service.GetSharesAsync().ToListAsync();
+
+                // Assert
+                ShareItem shareItem = shares.Where(s => s.Name == share.Name).FirstOrDefault();
+                Assert.AreEqual(ShareProtocols.Nfs, shareItem.Properties.Protocols);
+                Assert.IsTrue(shareItem.Properties.EnableSnapshotVirtualDirectoryAccess);
+            }
+            finally
+            {
+                await share.DeleteAsync(false);
+            }
         }
 
         [RecordedTest]
@@ -603,77 +637,6 @@ namespace Azure.Storage.Files.Shares.Tests
             TestHelper.AssertExpectedException(
                 () => serviceClient.GenerateAccountSasUri(sasBuilder),
                 new InvalidOperationException("SAS Uri cannot be generated. builder.Services does specify Files. builder.Services must either specify Files or specify all Services are accessible in the value."));
-        }
-
-        private async Task InvokeAccountSasTest(
-            string permissions = "rwdylacuptfi",
-            string services = "bqtf",
-            string resourceType = "sco")
-        {
-            // Arrange
-            await using DisposingShare test = await GetTestShareAsync();
-            string directoryName = GetNewDirectoryName();
-            string fileName = GetNewFileName();
-            ShareDirectoryClient directory = InstrumentClient(test.Share.GetDirectoryClient(directoryName));
-            await directory.CreateAsync().ConfigureAwait(false);
-            ShareFileClient file = directory.GetFileClient(fileName);
-            await file.CreateAsync(Constants.MB).ConfigureAwait(false);
-
-            // Generate a SAS that would set the srt / ResourceTypes in a different order than
-            // the .NET SDK would normally create the SAS
-            TestAccountSasBuilder accountSasBuilder = new TestAccountSasBuilder(
-                permissions: permissions,
-                expiresOn: Recording.UtcNow.AddDays(1),
-                services: services,
-                resourceTypes: resourceType);
-
-            UriBuilder blobUriBuilder = new UriBuilder(file.Uri)
-            {
-                Query = accountSasBuilder.ToTestSasQueryParameters(Tenants.GetNewSharedKeyCredentials()).ToString()
-            };
-
-            // Assert
-            ShareFileClient sasBlobClient = InstrumentClient(new ShareFileClient(blobUriBuilder.Uri, GetOptions()));
-            await sasBlobClient.GetPropertiesAsync();
-        }
-
-        [RecordedTest]
-        [TestCase("sco")]
-        [TestCase("soc")]
-        [TestCase("cos")]
-        [TestCase("ocs")]
-        [TestCase("os")]
-        [TestCase("oc")]
-        [ServiceVersion(Min = ShareClientOptions.ServiceVersion.V2020_06_12)]
-        public async Task AccountSas_ResourceTypeOrder(string resourceType)
-        {
-            await InvokeAccountSasTest(resourceType: resourceType);
-        }
-
-        [RecordedTest]
-        [TestCase("bfqt")]
-        [TestCase("qftb")]
-        [TestCase("tqfb")]
-        [TestCase("fqt")]
-        [TestCase("qf")]
-        [TestCase("fb")]
-        [ServiceVersion(Min = ShareClientOptions.ServiceVersion.V2020_06_12)]
-        public async Task AccountSas_ServiceOrder(string services)
-        {
-            await InvokeAccountSasTest(services: services);
-        }
-
-        [RecordedTest]
-        [TestCase("rwdylacuptfi")]
-        [TestCase("cuprwdylatfi")]
-        [TestCase("cudypafitrwl")]
-        [TestCase("cuprwdyla")]
-        [TestCase("rywdlcaup")]
-        [TestCase("larwdycup")]
-        [ServiceVersion(Min = ShareClientOptions.ServiceVersion.V2020_06_12)]
-        public async Task AccountSas_PermissionsOrder(string permissions)
-        {
-            await InvokeAccountSasTest(permissions: permissions);
         }
         #endregion
 

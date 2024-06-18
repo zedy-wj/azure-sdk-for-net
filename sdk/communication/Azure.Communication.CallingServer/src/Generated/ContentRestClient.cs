@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 
@@ -58,8 +57,8 @@ namespace Azure.Communication.CallingServer
         }
 
         /// <summary> Plays audio to participants in the call. </summary>
-        /// <param name="callConnectionId"> The String to use. </param>
-        /// <param name="playRequest"> The PlayRequest to use. </param>
+        /// <param name="callConnectionId"> The <see cref="string"/> to use. </param>
+        /// <param name="playRequest"> The <see cref="PlayRequestInternal"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> or <paramref name="playRequest"/> is null. </exception>
         public async Task<Response> PlayAsync(string callConnectionId, PlayRequestInternal playRequest, CancellationToken cancellationToken = default)
@@ -80,13 +79,13 @@ namespace Azure.Communication.CallingServer
                 case 202:
                     return message.Response;
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
         /// <summary> Plays audio to participants in the call. </summary>
-        /// <param name="callConnectionId"> The String to use. </param>
-        /// <param name="playRequest"> The PlayRequest to use. </param>
+        /// <param name="callConnectionId"> The <see cref="string"/> to use. </param>
+        /// <param name="playRequest"> The <see cref="PlayRequestInternal"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> or <paramref name="playRequest"/> is null. </exception>
         public Response Play(string callConnectionId, PlayRequestInternal playRequest, CancellationToken cancellationToken = default)
@@ -107,7 +106,7 @@ namespace Azure.Communication.CallingServer
                 case 202:
                     return message.Response;
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -144,7 +143,7 @@ namespace Azure.Communication.CallingServer
                 case 202:
                     return message.Response;
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -166,7 +165,80 @@ namespace Azure.Communication.CallingServer
                 case 202:
                     return message.Response;
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
+            }
+        }
+
+        internal HttpMessage CreateRecognizeRequest(string callConnectionId, RecognizeRequestInternal recognizeRequest)
+        {
+            var message = _pipeline.CreateMessage();
+            var request = message.Request;
+            request.Method = RequestMethod.Post;
+            var uri = new RawRequestUriBuilder();
+            uri.AppendRaw(_endpoint, false);
+            uri.AppendPath("/calling/callConnections/", false);
+            uri.AppendPath(callConnectionId, true);
+            uri.AppendPath(":recognize", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            request.Uri = uri;
+            request.Headers.Add("Content-Type", "application/json");
+            var content = new Utf8JsonRequestContent();
+            content.JsonWriter.WriteObjectValue(recognizeRequest);
+            request.Content = content;
+            return message;
+        }
+
+        /// <summary> Recognize media from call. </summary>
+        /// <param name="callConnectionId"> The call connection id. </param>
+        /// <param name="recognizeRequest"> The media recognize request. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> or <paramref name="recognizeRequest"/> is null. </exception>
+        public async Task<Response> RecognizeAsync(string callConnectionId, RecognizeRequestInternal recognizeRequest, CancellationToken cancellationToken = default)
+        {
+            if (callConnectionId == null)
+            {
+                throw new ArgumentNullException(nameof(callConnectionId));
+            }
+            if (recognizeRequest == null)
+            {
+                throw new ArgumentNullException(nameof(recognizeRequest));
+            }
+
+            using var message = CreateRecognizeRequest(callConnectionId, recognizeRequest);
+            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            switch (message.Response.Status)
+            {
+                case 202:
+                    return message.Response;
+                default:
+                    throw new RequestFailedException(message.Response);
+            }
+        }
+
+        /// <summary> Recognize media from call. </summary>
+        /// <param name="callConnectionId"> The call connection id. </param>
+        /// <param name="recognizeRequest"> The media recognize request. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> or <paramref name="recognizeRequest"/> is null. </exception>
+        public Response Recognize(string callConnectionId, RecognizeRequestInternal recognizeRequest, CancellationToken cancellationToken = default)
+        {
+            if (callConnectionId == null)
+            {
+                throw new ArgumentNullException(nameof(callConnectionId));
+            }
+            if (recognizeRequest == null)
+            {
+                throw new ArgumentNullException(nameof(recognizeRequest));
+            }
+
+            using var message = CreateRecognizeRequest(callConnectionId, recognizeRequest);
+            _pipeline.Send(message, cancellationToken);
+            switch (message.Response.Status)
+            {
+                case 202:
+                    return message.Response;
+                default:
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -180,6 +252,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath("/calling/recordings", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
@@ -192,7 +266,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="startCallRecording"> The request body of start call recording request. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="startCallRecording"/> is null. </exception>
-        public async Task<Response<RecordingStatusResult>> RecordingAsync(StartCallRecordingRequestInternal startCallRecording, CancellationToken cancellationToken = default)
+        public async Task<Response<RecordingStateResult>> RecordingAsync(StartCallRecordingRequestInternal startCallRecording, CancellationToken cancellationToken = default)
         {
             if (startCallRecording == null)
             {
@@ -205,13 +279,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        RecordingStatusResult value = default;
+                        RecordingStateResult value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = RecordingStatusResult.DeserializeRecordingStatusResult(document.RootElement);
+                        value = RecordingStateResult.DeserializeRecordingStateResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -219,7 +293,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="startCallRecording"> The request body of start call recording request. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="startCallRecording"/> is null. </exception>
-        public Response<RecordingStatusResult> Recording(StartCallRecordingRequestInternal startCallRecording, CancellationToken cancellationToken = default)
+        public Response<RecordingStateResult> Recording(StartCallRecordingRequestInternal startCallRecording, CancellationToken cancellationToken = default)
         {
             if (startCallRecording == null)
             {
@@ -232,13 +306,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        RecordingStatusResult value = default;
+                        RecordingStateResult value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = RecordingStatusResult.DeserializeRecordingStatusResult(document.RootElement);
+                        value = RecordingStateResult.DeserializeRecordingStateResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
     }

@@ -6,30 +6,26 @@
 #nullable disable
 
 using System;
-using Azure.AI.TextAnalytics;
 
 namespace Azure.AI.TextAnalytics.Models
 {
     /// <summary> The CustomSingleLabelClassificationLROResult. </summary>
     internal partial class CustomSingleLabelClassificationLROResult : AnalyzeTextLROResult
     {
-        /// <summary> Initializes a new instance of CustomSingleLabelClassificationLROResult. </summary>
+        /// <summary> Initializes a new instance of <see cref="CustomSingleLabelClassificationLROResult"/>. </summary>
         /// <param name="lastUpdateDateTime"></param>
         /// <param name="status"></param>
         /// <param name="results"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="results"/> is null. </exception>
         public CustomSingleLabelClassificationLROResult(DateTimeOffset lastUpdateDateTime, TextAnalyticsOperationStatus status, CustomLabelClassificationResult results) : base(lastUpdateDateTime, status)
         {
-            if (results == null)
-            {
-                throw new ArgumentNullException(nameof(results));
-            }
+            Argument.AssertNotNull(results, nameof(results));
 
             Results = results;
             Kind = AnalyzeTextLROResultsKind.CustomSingleLabelClassificationLROResults;
         }
 
-        /// <summary> Initializes a new instance of CustomSingleLabelClassificationLROResult. </summary>
+        /// <summary> Initializes a new instance of <see cref="CustomSingleLabelClassificationLROResult"/>. </summary>
         /// <param name="lastUpdateDateTime"></param>
         /// <param name="status"></param>
         /// <param name="kind"> Enumeration of supported Text Analysis long-running operation task results. </param>

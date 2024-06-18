@@ -8,13 +8,17 @@ azure-arm: true
 csharp: true
 library-name: ElasticSan
 namespace: Azure.ResourceManager.ElasticSan
-require: https://github.com/Azure/azure-rest-api-specs/blob/7f80a452b284a2cbc57c65ecc6e8224360d72657/specification/elasticsan/resource-manager/readme.md
-tag: package-2021-11-20-preview
+# default tag is a preview version
+require: https://github.com/Azure/azure-rest-api-specs/blob/afa158ef56a05f6603924f4a493817cec332b113/specification/elasticsan/resource-manager/readme.md
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
+sample-gen:
+  output-folder: $(this-folder)/../samples/Generated
+  clear-output-folder: true
 skip-csproj: true
 modelerfour:
   flatten-payloads: false
+use-model-reader-writer: true
 
 format-by-name-rules:
   'tenantId': 'uuid'
@@ -23,7 +27,7 @@ format-by-name-rules:
   '*Uri': 'Uri'
   '*Uris': 'Uri'
 
-rename-rules:
+acronym-mapping:
   CPU: Cpu
   CPUs: Cpus
   Os: OS
@@ -48,15 +52,46 @@ rename-rules:
   MBps: Mbps
   LRS: Lrs
   ZRS: Zrs
-  Volume: ElasticSanVolume
+  XMs: Xms
 
 prepend-rp-prefix:
-- EncryptionType
-- ProvisioningState
+  - EncryptionType
+  - Name
+  - Tier
+  - Volume
+  - VolumeCreateOption
+  - VolumeGroup
+  - VolumeGroupList
+  - VolumeList
+  - SkuInformationList
+  - SkuLocationInfo
+  - Snapshot
+  - KeyVaultProperties
+  - EncryptionProperties
+  - PublicNetworkAccess
+  - StorageTargetType
 
 rename-mapping:
-  Name: ElasticSanSkuName
-  Tier: ElasticSanTier
-  Action: VirtualNetworkRuleAction
-  State: VirtualNetworkRuleState
+  Volume.properties.volumeId: -|uuid
+  VirtualNetworkRule.id: -|arm-id
+  EncryptionIdentity.userAssignedIdentity: -|arm-id
+  Action: ElasticSanVirtualNetworkRuleAction
+  OperationalStatus: ResourceOperationalStatus
+  ProvisioningStates: ElasticSanProvisioningState
+  State: ElasticSanVirtualNetworkRuleState
+  SKUCapability: ElasticSanSkuCapability
+  SourceCreationData: ElasticSanVolumeDataSourceInfo
+  VirtualNetworkRule: ElasticSanVirtualNetworkRule
+  SnapshotCreationData: SnapshotCreationInfo
+
+directive:
+- from: elasticsan.json
+  where: $.definitions.SourceCreationData.properties.sourceId
+  transform: $["x-ms-format"] = "arm-id";
+- from: elasticsan.json
+  where: $.definitions.SnapshotCreationData.properties.sourceId
+  transform: $["x-ms-format"] = "arm-id";
+- from: elasticsan.json
+  where: $.definitions.ManagedByInfo.properties.resourceId
+  transform: $["x-ms-format"] = "arm-id";
 ```

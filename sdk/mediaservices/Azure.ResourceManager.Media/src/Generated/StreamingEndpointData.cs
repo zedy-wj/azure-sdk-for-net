@@ -13,17 +13,52 @@ using Azure.ResourceManager.Models;
 
 namespace Azure.ResourceManager.Media
 {
-    /// <summary> A class representing the StreamingEndpoint data model. </summary>
+    /// <summary>
+    /// A class representing the StreamingEndpoint data model.
+    /// The streaming endpoint.
+    /// </summary>
     public partial class StreamingEndpointData : TrackedResourceData
     {
-        /// <summary> Initializes a new instance of StreamingEndpointData. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="StreamingEndpointData"/>. </summary>
         /// <param name="location"> The location. </param>
         public StreamingEndpointData(AzureLocation location) : base(location)
         {
             CustomHostNames = new ChangeTrackingList<string>();
         }
 
-        /// <summary> Initializes a new instance of StreamingEndpointData. </summary>
+        /// <summary> Initializes a new instance of <see cref="StreamingEndpointData"/>. </summary>
         /// <param name="id"> The id. </param>
         /// <param name="name"> The name. </param>
         /// <param name="resourceType"> The resourceType. </param>
@@ -32,7 +67,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="location"> The location. </param>
         /// <param name="sku"> The streaming endpoint sku. </param>
         /// <param name="description"> The streaming endpoint description. </param>
-        /// <param name="scaleUnitsNumber"> The number of scale units. Use the Scale operation to adjust this value. </param>
+        /// <param name="scaleUnits"> The number of scale units. Use the Scale operation to adjust this value. </param>
         /// <param name="availabilitySetName"> This feature is deprecated, do not set a value for this property. </param>
         /// <param name="accessControl"> The access control definition of the streaming endpoint. </param>
         /// <param name="maxCacheAge"> Max cache age. </param>
@@ -47,11 +82,12 @@ namespace Azure.ResourceManager.Media
         /// <param name="freeTrialEndOn"> The free trial expiration time. </param>
         /// <param name="createdOn"> The exact time the streaming endpoint was created. </param>
         /// <param name="lastModifiedOn"> The exact time the streaming endpoint was last modified. </param>
-        internal StreamingEndpointData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, StreamingEndpointCurrentSku sku, string description, int? scaleUnitsNumber, string availabilitySetName, StreamingEndpointAccessControl accessControl, long? maxCacheAge, IList<string> customHostNames, string hostName, bool? isCdnEnabled, string cdnProvider, string cdnProfile, string provisioningState, StreamingEndpointResourceState? resourceState, CrossSiteAccessPolicies crossSiteAccessPolicies, DateTimeOffset? freeTrialEndOn, DateTimeOffset? createdOn, DateTimeOffset? lastModifiedOn) : base(id, name, resourceType, systemData, tags, location)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal StreamingEndpointData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, string> tags, AzureLocation location, StreamingEndpointCurrentSku sku, string description, int? scaleUnits, string availabilitySetName, StreamingEndpointAccessControl accessControl, long? maxCacheAge, IList<string> customHostNames, string hostName, bool? isCdnEnabled, string cdnProvider, string cdnProfile, string provisioningState, StreamingEndpointResourceState? resourceState, CrossSiteAccessPolicies crossSiteAccessPolicies, DateTimeOffset? freeTrialEndOn, DateTimeOffset? createdOn, DateTimeOffset? lastModifiedOn, IDictionary<string, BinaryData> serializedAdditionalRawData) : base(id, name, resourceType, systemData, tags, location)
         {
             Sku = sku;
             Description = description;
-            ScaleUnitsNumber = scaleUnitsNumber;
+            ScaleUnits = scaleUnits;
             AvailabilitySetName = availabilitySetName;
             AccessControl = accessControl;
             MaxCacheAge = maxCacheAge;
@@ -66,6 +102,12 @@ namespace Azure.ResourceManager.Media
             FreeTrialEndOn = freeTrialEndOn;
             CreatedOn = createdOn;
             LastModifiedOn = lastModifiedOn;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="StreamingEndpointData"/> for deserialization. </summary>
+        internal StreamingEndpointData()
+        {
         }
 
         /// <summary> The streaming endpoint sku. </summary>
@@ -73,7 +115,7 @@ namespace Azure.ResourceManager.Media
         /// <summary> The streaming endpoint description. </summary>
         public string Description { get; set; }
         /// <summary> The number of scale units. Use the Scale operation to adjust this value. </summary>
-        public int? ScaleUnitsNumber { get; set; }
+        public int? ScaleUnits { get; set; }
         /// <summary> This feature is deprecated, do not set a value for this property. </summary>
         public string AvailabilitySetName { get; set; }
         /// <summary> The access control definition of the streaming endpoint. </summary>

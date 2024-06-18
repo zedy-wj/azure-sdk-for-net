@@ -5,25 +5,35 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
 
 namespace Azure.ResourceManager.ContainerService.Models
 {
-    public partial class ContainerServiceTimeInWeek : IUtf8JsonSerializable
+    public partial class ContainerServiceTimeInWeek : IUtf8JsonSerializable, IJsonModel<ContainerServiceTimeInWeek>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<ContainerServiceTimeInWeek>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<ContainerServiceTimeInWeek>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerServiceTimeInWeek>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ContainerServiceTimeInWeek)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
             if (Optional.IsDefined(Day))
             {
-                writer.WritePropertyName("day");
+                writer.WritePropertyName("day"u8);
                 writer.WriteStringValue(Day.Value.ToString());
             }
             if (Optional.IsCollectionDefined(HourSlots))
             {
-                writer.WritePropertyName("hourSlots");
+                writer.WritePropertyName("hourSlots"u8);
                 writer.WriteStartArray();
                 foreach (var item in HourSlots)
                 {
@@ -31,30 +41,63 @@ namespace Azure.ResourceManager.ContainerService.Models
                 }
                 writer.WriteEndArray();
             }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
             writer.WriteEndObject();
         }
 
-        internal static ContainerServiceTimeInWeek DeserializeContainerServiceTimeInWeek(JsonElement element)
+        ContainerServiceTimeInWeek IJsonModel<ContainerServiceTimeInWeek>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            Optional<ContainerServiceWeekDay> day = default;
-            Optional<IList<int>> hourSlots = default;
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerServiceTimeInWeek>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ContainerServiceTimeInWeek)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeContainerServiceTimeInWeek(document.RootElement, options);
+        }
+
+        internal static ContainerServiceTimeInWeek DeserializeContainerServiceTimeInWeek(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            ContainerServiceWeekDay? day = default;
+            IList<int> hourSlots = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("day"))
+                if (property.NameEquals("day"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     day = new ContainerServiceWeekDay(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("hourSlots"))
+                if (property.NameEquals("hourSlots"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
                     List<int> array = new List<int>();
@@ -65,8 +108,44 @@ namespace Azure.ResourceManager.ContainerService.Models
                     hourSlots = array;
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new ContainerServiceTimeInWeek(Optional.ToNullable(day), Optional.ToList(hourSlots));
+            serializedAdditionalRawData = rawDataDictionary;
+            return new ContainerServiceTimeInWeek(day, hourSlots ?? new ChangeTrackingList<int>(), serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<ContainerServiceTimeInWeek>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerServiceTimeInWeek>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ContainerServiceTimeInWeek)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        ContainerServiceTimeInWeek IPersistableModel<ContainerServiceTimeInWeek>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<ContainerServiceTimeInWeek>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializeContainerServiceTimeInWeek(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ContainerServiceTimeInWeek)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<ContainerServiceTimeInWeek>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

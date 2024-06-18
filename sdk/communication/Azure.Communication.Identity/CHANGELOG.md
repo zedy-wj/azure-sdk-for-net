@@ -1,6 +1,6 @@
 # Release History
 
-## 1.2.0-beta.1 (Unreleased)
+## 1.4.0-beta.1 (Unreleased)
 
 ### Features Added
 
@@ -9,6 +9,29 @@
 ### Bugs Fixed
 
 ### Other Changes
+
+## 1.3.1 (2024-03-22)
+- Dependency versions updated.
+
+## 1.3.0 (2023-11-28)
+
+### Features Added
+- Introduction of new scopes for token generation.
+    - `ChatJoin` (Access to Chat APIs but without the authorization to create, delete or update chat threads)
+    - `ChatJoinLimited` (A more limited version of `ChatJoin` that doesn't allow to add or remove participants)
+    - `VoIPJoin` (Access to Calling APIs but without the authorization to start new calls)
+- Added a new API version `ServiceVersion.V2023_10_01` that is now the default API version.
+
+## 1.2.0 (2022-10-11)
+
+### Features Added
+- Added support to customize the Communication Identity access token’s validity period:
+    - Added method overloads that provide the ability to create a Communication Identity access token with custom expiration:
+        - `CreateUserAndToken(IEnumerable<CommunicationTokenScope> scopes, TimeSpan tokenExpiresIn, CancellationToken cancellationToken = default)`
+        - `CreateUserAndTokenAsync(IEnumerable<CommunicationTokenScope> scopes, TimeSpan tokenExpiresIn, CancellationToken cancellationToken = default)`
+        - `GetToken(CommunicationUserIdentifier communicationUser, IEnumerable<CommunicationTokenScope> scopes, TimeSpan tokenExpiresIn, CancellationToken cancellationToken = default)`
+        - `GetTokenAsync(CommunicationUserIdentifier communicationUser, IEnumerable<CommunicationTokenScope> scopes, TimeSpan tokenExpiresIn, CancellationToken cancellationToken = default)`
+- Added a new API version `ServiceVersion.V2022_10_01` that is now the default API version.
 
 ## 1.1.0 (2022-07-19)
 

@@ -6,93 +6,157 @@
 #nullable disable
 
 using System;
+using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 using Azure.Core;
 using Azure.ResourceManager.Models;
 
 namespace Azure.ResourceManager.ApiManagement.Models
 {
-    public partial class PortalSettingsContractData : IUtf8JsonSerializable
+    public partial class PortalSettingsContractData : IUtf8JsonSerializable, IJsonModel<PortalSettingsContractData>
     {
-        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer)
+        void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<PortalSettingsContractData>)this).Write(writer, ModelSerializationExtensions.WireOptions);
+
+        void IJsonModel<PortalSettingsContractData>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<PortalSettingsContractData>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(PortalSettingsContractData)} does not support writing '{format}' format.");
+            }
+
             writer.WriteStartObject();
-            writer.WritePropertyName("properties");
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("id"u8);
+                writer.WriteStringValue(Id);
+            }
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("name"u8);
+                writer.WriteStringValue(Name);
+            }
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("type"u8);
+                writer.WriteStringValue(ResourceType);
+            }
+            if (options.Format != "W" && Optional.IsDefined(SystemData))
+            {
+                writer.WritePropertyName("systemData"u8);
+                JsonSerializer.Serialize(writer, SystemData);
+            }
+            writer.WritePropertyName("properties"u8);
             writer.WriteStartObject();
             if (Optional.IsDefined(Uri))
             {
-                writer.WritePropertyName("url");
+                writer.WritePropertyName("url"u8);
                 writer.WriteStringValue(Uri.AbsoluteUri);
             }
             if (Optional.IsDefined(ValidationKey))
             {
-                writer.WritePropertyName("validationKey");
+                writer.WritePropertyName("validationKey"u8);
                 writer.WriteStringValue(ValidationKey);
             }
             if (Optional.IsDefined(IsSubscriptions))
             {
-                writer.WritePropertyName("subscriptions");
-                writer.WriteObjectValue(IsSubscriptions);
+                writer.WritePropertyName("subscriptions"u8);
+                writer.WriteObjectValue(IsSubscriptions, options);
             }
             if (Optional.IsDefined(IsUserRegistration))
             {
-                writer.WritePropertyName("userRegistration");
-                writer.WriteObjectValue(IsUserRegistration);
+                writer.WritePropertyName("userRegistration"u8);
+                writer.WriteObjectValue(IsUserRegistration, options);
             }
-            if (Optional.IsDefined(IsEnabled))
+            if (Optional.IsDefined(IsRedirectEnabled))
             {
-                writer.WritePropertyName("enabled");
-                writer.WriteBooleanValue(IsEnabled.Value);
+                writer.WritePropertyName("enabled"u8);
+                writer.WriteBooleanValue(IsRedirectEnabled.Value);
             }
             if (Optional.IsDefined(TermsOfService))
             {
-                writer.WritePropertyName("termsOfService");
-                writer.WriteObjectValue(TermsOfService);
+                writer.WritePropertyName("termsOfService"u8);
+                writer.WriteObjectValue(TermsOfService, options);
             }
             writer.WriteEndObject();
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+				writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
             writer.WriteEndObject();
         }
 
-        internal static PortalSettingsContractData DeserializePortalSettingsContractData(JsonElement element)
+        PortalSettingsContractData IJsonModel<PortalSettingsContractData>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((IPersistableModel<PortalSettingsContractData>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(PortalSettingsContractData)} does not support reading '{format}' format.");
+            }
+
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializePortalSettingsContractData(document.RootElement, options);
+        }
+
+        internal static PortalSettingsContractData DeserializePortalSettingsContractData(JsonElement element, ModelReaderWriterOptions options = null)
+        {
+            options ??= ModelSerializationExtensions.WireOptions;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
             ResourceIdentifier id = default;
             string name = default;
             ResourceType type = default;
-            Optional<SystemData> systemData = default;
-            Optional<Uri> uri = default;
-            Optional<string> validationKey = default;
-            Optional<SubscriptionsDelegationSettingsProperties> subscriptions = default;
-            Optional<RegistrationDelegationSettingsProperties> userRegistration = default;
-            Optional<bool> enabled = default;
-            Optional<TermsOfServiceProperties> termsOfService = default;
+            SystemData systemData = default;
+            Uri uri = default;
+            string validationKey = default;
+            SubscriptionDelegationSettingProperties subscriptions = default;
+            RegistrationDelegationSettingProperties userRegistration = default;
+            bool? enabled = default;
+            TermsOfServiceProperties termsOfService = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("id"))
+                if (property.NameEquals("id"u8))
                 {
                     id = new ResourceIdentifier(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("name"))
+                if (property.NameEquals("name"u8))
                 {
                     name = property.Value.GetString();
                     continue;
                 }
-                if (property.NameEquals("type"))
+                if (property.NameEquals("type"u8))
                 {
                     type = new ResourceType(property.Value.GetString());
                     continue;
                 }
-                if (property.NameEquals("systemData"))
+                if (property.NameEquals("systemData"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        property.ThrowNonNullablePropertyIsNull();
                         continue;
                     }
-                    systemData = JsonSerializer.Deserialize<SystemData>(property.Value.ToString());
+                    systemData = JsonSerializer.Deserialize<SystemData>(property.Value.GetRawText());
                     continue;
                 }
-                if (property.NameEquals("properties"))
+                if (property.NameEquals("properties"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
@@ -101,66 +165,108 @@ namespace Azure.ResourceManager.ApiManagement.Models
                     }
                     foreach (var property0 in property.Value.EnumerateObject())
                     {
-                        if (property0.NameEquals("url"))
+                        if (property0.NameEquals("url"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                uri = null;
                                 continue;
                             }
                             uri = new Uri(property0.Value.GetString());
                             continue;
                         }
-                        if (property0.NameEquals("validationKey"))
+                        if (property0.NameEquals("validationKey"u8))
                         {
                             validationKey = property0.Value.GetString();
                             continue;
                         }
-                        if (property0.NameEquals("subscriptions"))
+                        if (property0.NameEquals("subscriptions"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
-                            subscriptions = SubscriptionsDelegationSettingsProperties.DeserializeSubscriptionsDelegationSettingsProperties(property0.Value);
+                            subscriptions = SubscriptionDelegationSettingProperties.DeserializeSubscriptionDelegationSettingProperties(property0.Value, options);
                             continue;
                         }
-                        if (property0.NameEquals("userRegistration"))
+                        if (property0.NameEquals("userRegistration"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
-                            userRegistration = RegistrationDelegationSettingsProperties.DeserializeRegistrationDelegationSettingsProperties(property0.Value);
+                            userRegistration = RegistrationDelegationSettingProperties.DeserializeRegistrationDelegationSettingProperties(property0.Value, options);
                             continue;
                         }
-                        if (property0.NameEquals("enabled"))
+                        if (property0.NameEquals("enabled"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
                             enabled = property0.Value.GetBoolean();
                             continue;
                         }
-                        if (property0.NameEquals("termsOfService"))
+                        if (property0.NameEquals("termsOfService"u8))
                         {
                             if (property0.Value.ValueKind == JsonValueKind.Null)
                             {
-                                property0.ThrowNonNullablePropertyIsNull();
                                 continue;
                             }
-                            termsOfService = TermsOfServiceProperties.DeserializeTermsOfServiceProperties(property0.Value);
+                            termsOfService = TermsOfServiceProperties.DeserializeTermsOfServiceProperties(property0.Value, options);
                             continue;
                         }
                     }
                     continue;
                 }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                }
             }
-            return new PortalSettingsContractData(id, name, type, systemData.Value, uri.Value, validationKey.Value, subscriptions.Value, userRegistration.Value, Optional.ToNullable(enabled), termsOfService.Value);
+            serializedAdditionalRawData = rawDataDictionary;
+            return new PortalSettingsContractData(
+                id,
+                name,
+                type,
+                systemData,
+                uri,
+                validationKey,
+                subscriptions,
+                userRegistration,
+                enabled,
+                termsOfService,
+                serializedAdditionalRawData);
         }
+
+        BinaryData IPersistableModel<PortalSettingsContractData>.Write(ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<PortalSettingsContractData>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(PortalSettingsContractData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        PortalSettingsContractData IPersistableModel<PortalSettingsContractData>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<PortalSettingsContractData>)this).GetFormatFromOptions(options) : options.Format;
+
+            switch (format)
+            {
+                case "J":
+                    {
+                        using JsonDocument document = JsonDocument.Parse(data);
+                        return DeserializePortalSettingsContractData(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(PortalSettingsContractData)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<PortalSettingsContractData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

@@ -122,34 +122,32 @@ ledgerClient.PostLedgerEntry(
 When no collection id is specified on method calls, the Azure confidential ledger service will assume a constant, service-determined collection id.
 
 ```C# Snippet:NoCollectionId
-Response postResponse = ledgerClient.PostLedgerEntry(
-waitUntil: WaitUntil.Completed,
+postOperation = ledgerClient.PostLedgerEntry(
+    waitUntil: WaitUntil.Completed,
     RequestContent.Create(
         new { contents = "Hello world!" }));
-string transactionId = postOperation.Id;
-string collectionId = "collection:0";
 
-// Provide both the transactionId and collectionId.
-Response getByCollectionResponse = ledgerClient.GetLedgerEntry(transactionId, collectionId);
+string content = postOperation.GetRawResponse().Content.ToString();
+transactionId = postOperation.Id;
+string collectionId = "subledger:0";
 
-// Try until the entry is available.
+// Try fetching the ledger entry until it is "loaded".
+Response getByCollectionResponse = default;
+JsonElement rootElement = default;
 bool loaded = false;
-JsonElement element = default;
-string contents = null;
+
 while (!loaded)
 {
-    loaded = JsonDocument.Parse(getByCollectionResponse.Content)
-        .RootElement
-        .TryGetProperty("entry", out element);
-    if (loaded)
-    {
-        contents = element.GetProperty("contents").GetString();
-    }
-    else
-    {
-        getByCollectionResponse = ledgerClient.GetLedgerEntry(transactionId, collectionId);
-    }
+    // Provide both the transactionId and collectionId.
+    getByCollectionResponse = ledgerClient.GetLedgerEntry(transactionId, collectionId);
+    rootElement = JsonDocument.Parse(getByCollectionResponse.Content).RootElement;
+    loaded = rootElement.GetProperty("state").GetString() != "Loading";
 }
+
+string contents = rootElement
+    .GetProperty("entry")
+    .GetProperty("contents")
+    .GetString();
 
 Console.WriteLine(contents); // "Hello world!"
 
@@ -182,7 +180,8 @@ ledgerClient.PostLedgerEntry(
     waitUntil: WaitUntil.Completed,
     RequestContent.Create(new { contents = "Hello world collection 1" }),
     "my collection");
-string transactionId = firstPostOperation.Id;
+
+transactionId = firstPostOperation.Id;
 
 // Wait for the entry to be committed
 status = "Pending";
@@ -200,7 +199,7 @@ Response getResponse = ledgerClient.GetLedgerEntry(transactionId);
 
 // Try until the entry is available.
 loaded = false;
-element = default;
+JsonElement element = default;
 contents = null;
 while (!loaded)
 {
@@ -346,7 +345,7 @@ We guarantee that all client instance methods are thread-safe and independent of
 [Long-running operations](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/README.md#consuming-long-running-operations-using-operationt) |
 [Handling failures](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/README.md#reporting-errors-requestfailedexception) |
 [Diagnostics](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/Diagnostics.md) |
-[Mocking](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/README.md#mocking) |
+[Mocking](https://learn.microsoft.com/dotnet/azure/sdk/unit-testing-mocking) |
 [Client lifetime](https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/)
 <!-- CLIENT COMMON BAR -->
 

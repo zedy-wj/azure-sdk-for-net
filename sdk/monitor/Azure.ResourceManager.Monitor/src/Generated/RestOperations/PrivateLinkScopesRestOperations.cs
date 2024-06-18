@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.Monitor.Models;
@@ -35,6 +34,17 @@ namespace Azure.ResourceManager.Monitor
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
             _apiVersion = apiVersion ?? "2021-07-01-preview";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateListRequestUri(string subscriptionId)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/providers/microsoft.insights/privateLinkScopes", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListRequest(string subscriptionId)
@@ -102,6 +112,19 @@ namespace Azure.ResourceManager.Monitor
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateListByResourceGroupRequestUri(string subscriptionId, string resourceGroupName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/microsoft.insights/privateLinkScopes", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
         }
 
         internal HttpMessage CreateListByResourceGroupRequest(string subscriptionId, string resourceGroupName)
@@ -177,6 +200,20 @@ namespace Azure.ResourceManager.Monitor
             }
         }
 
+        internal RequestUriBuilder CreateDeleteRequestUri(string subscriptionId, string resourceGroupName, string scopeName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/microsoft.insights/privateLinkScopes/", false);
+            uri.AppendPath(scopeName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateDeleteRequest(string subscriptionId, string resourceGroupName, string scopeName)
         {
             var message = _pipeline.CreateMessage();
@@ -249,6 +286,20 @@ namespace Azure.ResourceManager.Monitor
             }
         }
 
+        internal RequestUriBuilder CreateGetRequestUri(string subscriptionId, string resourceGroupName, string scopeName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/microsoft.insights/privateLinkScopes/", false);
+            uri.AppendPath(scopeName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
         internal HttpMessage CreateGetRequest(string subscriptionId, string resourceGroupName, string scopeName)
         {
             var message = _pipeline.CreateMessage();
@@ -276,7 +327,7 @@ namespace Azure.ResourceManager.Monitor
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<PrivateLinkScopeData>> GetAsync(string subscriptionId, string resourceGroupName, string scopeName, CancellationToken cancellationToken = default)
+        public async Task<Response<MonitorPrivateLinkScopeData>> GetAsync(string subscriptionId, string resourceGroupName, string scopeName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -288,13 +339,13 @@ namespace Azure.ResourceManager.Monitor
             {
                 case 200:
                     {
-                        PrivateLinkScopeData value = default;
+                        MonitorPrivateLinkScopeData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = PrivateLinkScopeData.DeserializePrivateLinkScopeData(document.RootElement);
+                        value = MonitorPrivateLinkScopeData.DeserializeMonitorPrivateLinkScopeData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((PrivateLinkScopeData)null, message.Response);
+                    return Response.FromValue((MonitorPrivateLinkScopeData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
@@ -307,7 +358,7 @@ namespace Azure.ResourceManager.Monitor
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<PrivateLinkScopeData> Get(string subscriptionId, string resourceGroupName, string scopeName, CancellationToken cancellationToken = default)
+        public Response<MonitorPrivateLinkScopeData> Get(string subscriptionId, string resourceGroupName, string scopeName, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -319,19 +370,33 @@ namespace Azure.ResourceManager.Monitor
             {
                 case 200:
                     {
-                        PrivateLinkScopeData value = default;
+                        MonitorPrivateLinkScopeData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = PrivateLinkScopeData.DeserializePrivateLinkScopeData(document.RootElement);
+                        value = MonitorPrivateLinkScopeData.DeserializeMonitorPrivateLinkScopeData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((PrivateLinkScopeData)null, message.Response);
+                    return Response.FromValue((MonitorPrivateLinkScopeData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
         }
 
-        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string scopeName, PrivateLinkScopeData data)
+        internal RequestUriBuilder CreateCreateOrUpdateRequestUri(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopeData data)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/microsoft.insights/privateLinkScopes/", false);
+            uri.AppendPath(scopeName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateCreateOrUpdateRequest(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopeData data)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -349,7 +414,7 @@ namespace Azure.ResourceManager.Monitor
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(data);
+            content.JsonWriter.WriteObjectValue(data, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
@@ -363,7 +428,7 @@ namespace Azure.ResourceManager.Monitor
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="scopeName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<PrivateLinkScopeData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string scopeName, PrivateLinkScopeData data, CancellationToken cancellationToken = default)
+        public async Task<Response<MonitorPrivateLinkScopeData>> CreateOrUpdateAsync(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopeData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -377,9 +442,9 @@ namespace Azure.ResourceManager.Monitor
                 case 200:
                 case 201:
                     {
-                        PrivateLinkScopeData value = default;
+                        MonitorPrivateLinkScopeData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = PrivateLinkScopeData.DeserializePrivateLinkScopeData(document.RootElement);
+                        value = MonitorPrivateLinkScopeData.DeserializeMonitorPrivateLinkScopeData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -395,7 +460,7 @@ namespace Azure.ResourceManager.Monitor
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="scopeName"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<PrivateLinkScopeData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string scopeName, PrivateLinkScopeData data, CancellationToken cancellationToken = default)
+        public Response<MonitorPrivateLinkScopeData> CreateOrUpdate(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopeData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -409,9 +474,9 @@ namespace Azure.ResourceManager.Monitor
                 case 200:
                 case 201:
                     {
-                        PrivateLinkScopeData value = default;
+                        MonitorPrivateLinkScopeData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = PrivateLinkScopeData.DeserializePrivateLinkScopeData(document.RootElement);
+                        value = MonitorPrivateLinkScopeData.DeserializeMonitorPrivateLinkScopeData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -419,7 +484,21 @@ namespace Azure.ResourceManager.Monitor
             }
         }
 
-        internal HttpMessage CreateUpdateTagsRequest(string subscriptionId, string resourceGroupName, string scopeName, PrivateLinkScopePatch patch)
+        internal RequestUriBuilder CreateUpdateTagsRequestUri(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopePatch patch)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/resourceGroups/", false);
+            uri.AppendPath(resourceGroupName, true);
+            uri.AppendPath("/providers/microsoft.insights/privateLinkScopes/", false);
+            uri.AppendPath(scopeName, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateUpdateTagsRequest(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopePatch patch)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -437,13 +516,13 @@ namespace Azure.ResourceManager.Monitor
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(patch);
+            content.JsonWriter.WriteObjectValue(patch, ModelSerializationExtensions.WireOptions);
             request.Content = content;
             _userAgent.Apply(message);
             return message;
         }
 
-        /// <summary> Updates an existing PrivateLinkScope&apos;s tags. To update other fields use the CreateOrUpdate method. </summary>
+        /// <summary> Updates an existing PrivateLinkScope's tags. To update other fields use the CreateOrUpdate method. </summary>
         /// <param name="subscriptionId"> The ID of the target subscription. </param>
         /// <param name="resourceGroupName"> The name of the resource group. The name is case insensitive. </param>
         /// <param name="scopeName"> The name of the Azure Monitor PrivateLinkScope resource. </param>
@@ -451,7 +530,7 @@ namespace Azure.ResourceManager.Monitor
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="scopeName"/> or <paramref name="patch"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<PrivateLinkScopeData>> UpdateTagsAsync(string subscriptionId, string resourceGroupName, string scopeName, PrivateLinkScopePatch patch, CancellationToken cancellationToken = default)
+        public async Task<Response<MonitorPrivateLinkScopeData>> UpdateTagsAsync(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopePatch patch, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -464,9 +543,9 @@ namespace Azure.ResourceManager.Monitor
             {
                 case 200:
                     {
-                        PrivateLinkScopeData value = default;
+                        MonitorPrivateLinkScopeData value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = PrivateLinkScopeData.DeserializePrivateLinkScopeData(document.RootElement);
+                        value = MonitorPrivateLinkScopeData.DeserializeMonitorPrivateLinkScopeData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -474,7 +553,7 @@ namespace Azure.ResourceManager.Monitor
             }
         }
 
-        /// <summary> Updates an existing PrivateLinkScope&apos;s tags. To update other fields use the CreateOrUpdate method. </summary>
+        /// <summary> Updates an existing PrivateLinkScope's tags. To update other fields use the CreateOrUpdate method. </summary>
         /// <param name="subscriptionId"> The ID of the target subscription. </param>
         /// <param name="resourceGroupName"> The name of the resource group. The name is case insensitive. </param>
         /// <param name="scopeName"> The name of the Azure Monitor PrivateLinkScope resource. </param>
@@ -482,7 +561,7 @@ namespace Azure.ResourceManager.Monitor
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>, <paramref name="scopeName"/> or <paramref name="patch"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/> or <paramref name="scopeName"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<PrivateLinkScopeData> UpdateTags(string subscriptionId, string resourceGroupName, string scopeName, PrivateLinkScopePatch patch, CancellationToken cancellationToken = default)
+        public Response<MonitorPrivateLinkScopeData> UpdateTags(string subscriptionId, string resourceGroupName, string scopeName, MonitorPrivateLinkScopePatch patch, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNullOrEmpty(resourceGroupName, nameof(resourceGroupName));
@@ -495,14 +574,22 @@ namespace Azure.ResourceManager.Monitor
             {
                 case 200:
                     {
-                        PrivateLinkScopeData value = default;
+                        MonitorPrivateLinkScopeData value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = PrivateLinkScopeData.DeserializePrivateLinkScopeData(document.RootElement);
+                        value = MonitorPrivateLinkScopeData.DeserializeMonitorPrivateLinkScopeData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateListNextPageRequestUri(string nextLink, string subscriptionId)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendRawNextLink(nextLink, false);
+            return uri;
         }
 
         internal HttpMessage CreateListNextPageRequest(string nextLink, string subscriptionId)
@@ -571,6 +658,14 @@ namespace Azure.ResourceManager.Monitor
                 default:
                     throw new RequestFailedException(message.Response);
             }
+        }
+
+        internal RequestUriBuilder CreateListByResourceGroupNextPageRequestUri(string nextLink, string subscriptionId, string resourceGroupName)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendRawNextLink(nextLink, false);
+            return uri;
         }
 
         internal HttpMessage CreateListByResourceGroupNextPageRequest(string nextLink, string subscriptionId, string resourceGroupName)

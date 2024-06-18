@@ -5,49 +5,84 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
-using Azure.Core;
+using System.Net;
 
 namespace Azure.ResourceManager.HDInsight.Models
 {
     /// <summary> Gets the application HTTP endpoints. </summary>
     public partial class HDInsightApplicationHttpsEndpoint
     {
-        /// <summary> Initializes a new instance of HDInsightApplicationHttpsEndpoint. </summary>
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, System.Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="HDInsightApplicationHttpsEndpoint"/>. </summary>
         public HDInsightApplicationHttpsEndpoint()
         {
             AccessModes = new ChangeTrackingList<string>();
         }
 
-        /// <summary> Initializes a new instance of HDInsightApplicationHttpsEndpoint. </summary>
+        /// <summary> Initializes a new instance of <see cref="HDInsightApplicationHttpsEndpoint"/>. </summary>
         /// <param name="accessModes"> The list of access modes for the application. </param>
-        /// <param name="location"> The location of the endpoint. </param>
+        /// <param name="endpointLocation"> The location of the endpoint. </param>
         /// <param name="destinationPort"> The destination port to connect to. </param>
         /// <param name="publicPort"> The public port to connect to. </param>
         /// <param name="privateIPAddress"> The private ip address of the endpoint. </param>
         /// <param name="subDomainSuffix"> The subdomain suffix of the application. </param>
         /// <param name="disableGatewayAuth"> The value indicates whether to disable GatewayAuth. </param>
-        internal HDInsightApplicationHttpsEndpoint(IList<string> accessModes, AzureLocation? location, int? destinationPort, int? publicPort, string privateIPAddress, string subDomainSuffix, bool? disableGatewayAuth)
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal HDInsightApplicationHttpsEndpoint(IList<string> accessModes, string endpointLocation, int? destinationPort, int? publicPort, IPAddress privateIPAddress, string subDomainSuffix, bool? disableGatewayAuth, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             AccessModes = accessModes;
-            Location = location;
+            EndpointLocation = endpointLocation;
             DestinationPort = destinationPort;
             PublicPort = publicPort;
             PrivateIPAddress = privateIPAddress;
             SubDomainSuffix = subDomainSuffix;
             DisableGatewayAuth = disableGatewayAuth;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> The list of access modes for the application. </summary>
         public IList<string> AccessModes { get; }
         /// <summary> The location of the endpoint. </summary>
-        public AzureLocation? Location { get; }
+        public string EndpointLocation { get; }
         /// <summary> The destination port to connect to. </summary>
         public int? DestinationPort { get; set; }
         /// <summary> The public port to connect to. </summary>
         public int? PublicPort { get; }
         /// <summary> The private ip address of the endpoint. </summary>
-        public string PrivateIPAddress { get; set; }
+        public IPAddress PrivateIPAddress { get; set; }
         /// <summary> The subdomain suffix of the application. </summary>
         public string SubDomainSuffix { get; set; }
         /// <summary> The value indicates whether to disable GatewayAuth. </summary>

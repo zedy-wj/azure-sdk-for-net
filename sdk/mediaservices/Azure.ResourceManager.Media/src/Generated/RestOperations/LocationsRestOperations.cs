@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.ResourceManager.Media.Models;
@@ -33,11 +32,24 @@ namespace Azure.ResourceManager.Media
         {
             _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
-            _apiVersion = apiVersion ?? "2021-11-01";
+            _apiVersion = apiVersion ?? "2023-01-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
         }
 
-        internal HttpMessage CreateCheckNameAvailabilityRequest(string subscriptionId, AzureLocation locationName, MediaNameAvailabilityContent content)
+        internal RequestUriBuilder CreateCheckNameAvailabilityRequestUri(string subscriptionId, AzureLocation locationName, MediaServicesNameAvailabilityContent content)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/subscriptions/", false);
+            uri.AppendPath(subscriptionId, true);
+            uri.AppendPath("/providers/Microsoft.Media/locations/", false);
+            uri.AppendPath(locationName, true);
+            uri.AppendPath("/checkNameAvailability", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateCheckNameAvailabilityRequest(string subscriptionId, AzureLocation locationName, MediaServicesNameAvailabilityContent content)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -54,7 +66,7 @@ namespace Azure.ResourceManager.Media
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content0 = new Utf8JsonRequestContent();
-            content0.JsonWriter.WriteObjectValue(content);
+            content0.JsonWriter.WriteObjectValue(content, ModelSerializationExtensions.WireOptions);
             request.Content = content0;
             _userAgent.Apply(message);
             return message;
@@ -67,7 +79,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<MediaNameAvailabilityResult>> CheckNameAvailabilityAsync(string subscriptionId, AzureLocation locationName, MediaNameAvailabilityContent content, CancellationToken cancellationToken = default)
+        public async Task<Response<MediaServicesNameAvailabilityResult>> CheckNameAvailabilityAsync(string subscriptionId, AzureLocation locationName, MediaServicesNameAvailabilityContent content, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNull(content, nameof(content));
@@ -78,9 +90,9 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        MediaNameAvailabilityResult value = default;
+                        MediaServicesNameAvailabilityResult value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = MediaNameAvailabilityResult.DeserializeMediaNameAvailabilityResult(document.RootElement);
+                        value = MediaServicesNameAvailabilityResult.DeserializeMediaServicesNameAvailabilityResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -95,7 +107,7 @@ namespace Azure.ResourceManager.Media
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="subscriptionId"/> or <paramref name="content"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="subscriptionId"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<MediaNameAvailabilityResult> CheckNameAvailability(string subscriptionId, AzureLocation locationName, MediaNameAvailabilityContent content, CancellationToken cancellationToken = default)
+        public Response<MediaServicesNameAvailabilityResult> CheckNameAvailability(string subscriptionId, AzureLocation locationName, MediaServicesNameAvailabilityContent content, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
             Argument.AssertNotNull(content, nameof(content));
@@ -106,9 +118,9 @@ namespace Azure.ResourceManager.Media
             {
                 case 200:
                     {
-                        MediaNameAvailabilityResult value = default;
+                        MediaServicesNameAvailabilityResult value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = MediaNameAvailabilityResult.DeserializeMediaNameAvailabilityResult(document.RootElement);
+                        value = MediaServicesNameAvailabilityResult.DeserializeMediaServicesNameAvailabilityResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:

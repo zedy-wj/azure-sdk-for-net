@@ -9,7 +9,6 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 
@@ -57,7 +56,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="callConnectionId"> The call connection id. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> is null. </exception>
-        public async Task<Response<CallConnectionPropertiesDtoInternal>> GetCallAsync(string callConnectionId, CancellationToken cancellationToken = default)
+        public async Task<Response<CallConnectionPropertiesInternal>> GetCallAsync(string callConnectionId, CancellationToken cancellationToken = default)
         {
             if (callConnectionId == null)
             {
@@ -70,13 +69,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        CallConnectionPropertiesDtoInternal value = default;
+                        CallConnectionPropertiesInternal value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = CallConnectionPropertiesDtoInternal.DeserializeCallConnectionPropertiesDtoInternal(document.RootElement);
+                        value = CallConnectionPropertiesInternal.DeserializeCallConnectionPropertiesInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -84,7 +83,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="callConnectionId"> The call connection id. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> is null. </exception>
-        public Response<CallConnectionPropertiesDtoInternal> GetCall(string callConnectionId, CancellationToken cancellationToken = default)
+        public Response<CallConnectionPropertiesInternal> GetCall(string callConnectionId, CancellationToken cancellationToken = default)
         {
             if (callConnectionId == null)
             {
@@ -97,13 +96,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        CallConnectionPropertiesDtoInternal value = default;
+                        CallConnectionPropertiesInternal value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = CallConnectionPropertiesDtoInternal.DeserializeCallConnectionPropertiesDtoInternal(document.RootElement);
+                        value = CallConnectionPropertiesInternal.DeserializeCallConnectionPropertiesInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -139,7 +138,7 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -161,7 +160,7 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -177,6 +176,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath(":terminate", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             return message;
         }
 
@@ -198,7 +199,7 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -220,7 +221,7 @@ namespace Azure.Communication.CallingServer
                 case 204:
                     return message.Response;
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -236,6 +237,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath(":transferToParticipant", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
@@ -272,7 +275,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -304,7 +307,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -347,7 +350,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -374,7 +377,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -390,6 +393,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath("/participants:add", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
@@ -426,7 +431,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -458,7 +463,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -474,6 +479,8 @@ namespace Azure.Communication.CallingServer
             uri.AppendPath("/participants:remove", false);
             uri.AppendQuery("api-version", _apiVersion, true);
             request.Uri = uri;
+            request.Headers.Add("Repeatability-Request-ID", Guid.NewGuid());
+            request.Headers.Add("Repeatability-First-Sent", DateTimeOffset.Now, "R");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("Content-Type", "application/json");
             var content = new Utf8JsonRequestContent();
@@ -510,7 +517,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -542,7 +549,7 @@ namespace Azure.Communication.CallingServer
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -568,7 +575,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="participantMri"> MRI of the participants to retrieve. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> or <paramref name="participantMri"/> is null. </exception>
-        public async Task<Response<AcsCallParticipantDtoInternal>> GetParticipantAsync(string callConnectionId, string participantMri, CancellationToken cancellationToken = default)
+        public async Task<Response<AcsCallParticipantInternal>> GetParticipantAsync(string callConnectionId, string participantMri, CancellationToken cancellationToken = default)
         {
             if (callConnectionId == null)
             {
@@ -585,13 +592,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        AcsCallParticipantDtoInternal value = default;
+                        AcsCallParticipantInternal value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = AcsCallParticipantDtoInternal.DeserializeAcsCallParticipantDtoInternal(document.RootElement);
+                        value = AcsCallParticipantInternal.DeserializeAcsCallParticipantInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw await ClientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw new RequestFailedException(message.Response);
             }
         }
 
@@ -600,7 +607,7 @@ namespace Azure.Communication.CallingServer
         /// <param name="participantMri"> MRI of the participants to retrieve. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="callConnectionId"/> or <paramref name="participantMri"/> is null. </exception>
-        public Response<AcsCallParticipantDtoInternal> GetParticipant(string callConnectionId, string participantMri, CancellationToken cancellationToken = default)
+        public Response<AcsCallParticipantInternal> GetParticipant(string callConnectionId, string participantMri, CancellationToken cancellationToken = default)
         {
             if (callConnectionId == null)
             {
@@ -617,13 +624,13 @@ namespace Azure.Communication.CallingServer
             {
                 case 200:
                     {
-                        AcsCallParticipantDtoInternal value = default;
+                        AcsCallParticipantInternal value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = AcsCallParticipantDtoInternal.DeserializeAcsCallParticipantDtoInternal(document.RootElement);
+                        value = AcsCallParticipantInternal.DeserializeAcsCallParticipantInternal(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw ClientDiagnostics.CreateRequestFailedException(message.Response);
+                    throw new RequestFailedException(message.Response);
             }
         }
     }
